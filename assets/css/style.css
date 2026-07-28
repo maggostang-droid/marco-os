@@ -274,11 +274,29 @@ button.node:focus-visible {
   color: #c9c5e8;
   margin: 6px 0 12px;
 }
+.tech-toggle {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--teal);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 0;
+  margin: 0 0 8px;
+  cursor: pointer;
+}
+.tech-toggle:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 14px;
+}
+.tags[hidden] {
+  display: none;
 }
 .tag {
   font-size: 9.5px;

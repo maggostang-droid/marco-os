@@ -2,7 +2,7 @@ import { computeLayout } from "./graph-layout.js";
 import { subscribe, state, focusProject, zoomIn, zoomOut } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 
-const FOCUS_ZOOM_BONUS = 1.15;
+const FOCUS_ZOOM_BONUS = 1.6;
 
 export function initScene(container, projects) {
   const viewport = document.createElement("div");

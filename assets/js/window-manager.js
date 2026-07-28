@@ -65,13 +65,24 @@ export function initWindowManager(container, projects) {
         <p class="status-badge">${statusLabel}</p>
         <h3>${escapeHtml(project.title)}</h3>
         <p class="description">${escapeHtml(project.description)}</p>
-        <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+        <button type="button" class="tech-toggle" aria-expanded="false">▸ Tech-Stack anzeigen</button>
+        <div class="tags" hidden>${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
         <div class="btn-row">${actionHtml}${repoHtml}</div>
       </div>
     `;
 
     const closeBtn = win.querySelector(".win-close");
     closeBtn.addEventListener("click", closeWindow);
+
+    const techToggle = win.querySelector(".tech-toggle");
+    const tagsEl = win.querySelector(".tags");
+    techToggle.addEventListener("click", () => {
+      const expanding = tagsEl.hidden;
+      tagsEl.hidden = !expanding;
+      techToggle.setAttribute("aria-expanded", String(expanding));
+      techToggle.textContent = expanding ? "▾ Tech-Stack verbergen" : "▸ Tech-Stack anzeigen";
+    });
+
     container.appendChild(win);
 
     if (focusTarget === "open-window") {
