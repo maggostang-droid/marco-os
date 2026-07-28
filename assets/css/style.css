@@ -159,6 +159,8 @@ button.node:focus-visible {
 .node-label {
   font-size: 11px;
   white-space: nowrap;
+  margin: 0;
+  font-weight: inherit;
 }
 
 .node--center .node-dot {

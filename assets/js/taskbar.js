@@ -15,7 +15,12 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
     tipIndex = (tipIndex + 1) % TIPS.length;
     renderTaskbar();
   }, tipIntervalMs);
-  setInterval(renderTaskbar, 1000);
+  // Only the clock changes minute-to-minute, so align the tick to the next
+  // minute boundary instead of re-rendering every second.
+  setTimeout(() => {
+    renderTaskbar();
+    setInterval(renderTaskbar, 60000);
+  }, 60000 - (Date.now() % 60000));
 
   function renderTaskbar() {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
@@ -23,7 +28,7 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
 
     container.innerHTML = `
       <span class="tb-start">◆ MARCO.OS</span>
-      ${project ? `<span class="tb-app active">${project.id}.exe</span>` : ""}
+      ${project ? `<span class="tb-app">${project.id}.exe</span>` : ""}
       <span class="tb-spacer"></span>
       <span class="tb-guide">${TIPS[tipIndex]}</span>
       <span class="tb-clock">${time}</span>
