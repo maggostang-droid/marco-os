@@ -17,6 +17,7 @@ export function initWindowManager(container, projects) {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
     const hadFocusInWindow = container.contains(document.activeElement);
     const closingProjectId = !project && lastRenderedProjectId ? lastRenderedProjectId : null;
+    const isNewlyOpenedOrSwitched = project && project.id !== lastRenderedProjectId;
 
     container.innerHTML = "";
     lastRenderedProjectId = project ? project.id : null;
@@ -59,5 +60,9 @@ export function initWindowManager(container, projects) {
 
     win.querySelector(".win-close").addEventListener("click", closeWindow);
     container.appendChild(win);
+
+    if (isNewlyOpenedOrSwitched) {
+      win.querySelector(".win-close").focus();
+    }
   }
 }
