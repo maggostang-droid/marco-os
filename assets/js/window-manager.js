@@ -1,4 +1,5 @@
 import { subscribe, state, closeWindow } from "./state.js";
+import { escapeHtml } from "./html-utils.js";
 
 export function initWindowManager(container, projects) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -45,15 +46,15 @@ export function initWindowManager(container, projects) {
     win.innerHTML = `
       <div class="win-title">
         <span class="dot dot--1"></span><span class="dot dot--2"></span><span class="dot dot--3"></span>
-        <span class="win-name">app://${project.id} — Terminal</span>
+        <span class="win-name">app://${escapeHtml(project.id)} — Terminal</span>
         <button type="button" class="win-close" aria-label="Fenster schließen">×</button>
       </div>
       <div class="win-body">
-        <p class="prompt">marco@portfolio:~$ open ${project.id} --info</p>
+        <p class="prompt">marco@portfolio:~$ open ${escapeHtml(project.id)} --info</p>
         <p class="status-badge">${statusLabel}</p>
-        <h3>${project.title}</h3>
-        <p class="description">${project.description}</p>
-        <div class="tags">${project.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+        <h3>${escapeHtml(project.title)}</h3>
+        <p class="description">${escapeHtml(project.description)}</p>
+        <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
         <div class="btn-row">${actionHtml}${repoHtml}</div>
       </div>
     `;

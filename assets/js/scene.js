@@ -1,5 +1,6 @@
 import { computeLayout } from "./graph-layout.js";
 import { subscribe, state, focusProject } from "./state.js";
+import { escapeHtml } from "./html-utils.js";
 
 export function initScene(container, projects) {
   render();
@@ -65,10 +66,10 @@ function buildNodeLayer(nodes, projects) {
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
-      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${project.title}</span>`;
+      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${escapeHtml(project.title)}</span>`;
       el.addEventListener("click", () => focusProject(node.id));
     } else {
-      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${node.label}</span>`;
+      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${escapeHtml(node.label)}</span>`;
     }
 
     layer.appendChild(el);
