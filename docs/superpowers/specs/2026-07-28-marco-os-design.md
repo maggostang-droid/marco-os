@@ -42,9 +42,6 @@ Ein einziges System statt zweier nebeneinander existierender Modi:
   dessen Terminal-Fenster (Titel, Status-Badge, Beschreibung, Tags,
   Demo-/Repo-Aktion). Ein zweiter Klick auf einen anderen Knoten ersetzt
   das offene Fenster; es wird keine Mehrfenster-Verwaltung gebraucht.
-- **Visuelle Verbindung Knoten↔Fenster:** Eine kurze animierte
-  Verbindungslinie ("Datenstrahl") zeigt sichtbar, aus welchem Knoten das
-  aktuell offene Fenster stammt.
 
 ## Datenmodell
 
@@ -101,14 +98,21 @@ brauchen nur einen neuen Dateneintrag, keine manuelle Koordinaten-Pflege.
 ## Interaktion & Navigation
 
 - **Maus/Touch:** Klick/Tap auf einen Knoten öffnet/wechselt das Fenster.
-- **Tastatur (Pflicht, da kein Fallback existiert):** Jeder Knoten ist ein
-  fokussierbares Element mit sichtbarem Fokus-Ring, erreichbar per Tab in
-  logischer Reihenfolge (Zentrum → Projekte im Uhrzeigersinn). `Enter`/
+- **Tastatur (Pflicht, da kein Fallback existiert):** Jeder Projekt-Knoten
+  ist ein fokussierbares Element (echter `<button>`) mit sichtbarem
+  Fokus-Ring, erreichbar per Tab in logischer Reihenfolge (Projekte im
+  Uhrzeigersinn). Der Zentrum-Knoten ist rein dekorativ und bewusst nicht
+  fokussierbar (kein `<button>`), da er keine Aktion auslöst. `Enter`/
   `Space` öffnet das Fenster des fokussierten Knotens, `Escape` schließt das
   aktuell offene Fenster.
-- **Mobile:** Radiale Anordnung bleibt, skaliert per SVG-`viewBox`
-  responsiv mit; das Fenster nimmt auf kleinen Screens die volle Breite
-  ein statt frei zu floaten (siehe `@media`-Anpassung im Mockup).
+- **Mobile:** Radiale Anordnung bleibt, Knoten-Positionen sind feste
+  Pixel-Radien (kein SVG, siehe Tech-Architektur) und skalieren nicht mit
+  der Viewport-Breite — bei sehr schmalen Screens (~375px) können äußere
+  Tech-Stack-Knoten eines fokussierten Projekts über den sichtbaren
+  Bereich hinausragen (abgeschnitten durch `overflow: hidden`, kein
+  Crash). Bekannte Grenze, keine Kollisions-/Scaling-Lösung Teil dieser
+  Spec. Das Fenster selbst nimmt auf kleinen Screens die volle Breite ein
+  statt frei zu floaten (siehe `@media`-Anpassung im Mockup).
 
 ## Error Handling / Edge Cases
 
@@ -145,7 +149,13 @@ brauchen nur einen neuen Dateneintrag, keine manuelle Koordinaten-Pflege.
 
 ## Testing / Verifikation
 
-- Rein statisch, kein Server nötig für lokale Entwicklung.
+- Rein statisch (kein Build-Schritt), aber zur lokalen Verifikation im
+  Browser ist ein simpler lokaler Server nötig (z.B. `python -m http.server`),
+  **nicht** `index.html` direkt per Doppelklick/`file://` öffnen — Browser
+  blockieren `<script type="module">` unter `file://` (CORS), was zu einer
+  leeren Seite ohne hilfreiche Fehlermeldung führt. Über GitHub Pages
+  (`https://`) funktioniert es wie unter einem lokalen Server ohne
+  Einschränkung.
 - Manuelle Verifikation im Browser bei mobiler Breite (375px) und Desktop
   (1280px+), analog zur bisherigen Praxis in stangfolio.
 - Tastatur-Navigation manuell durchklicken (Tab-Reihenfolge, Enter/Escape).
