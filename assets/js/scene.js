@@ -5,8 +5,9 @@ import { escapeHtml } from "./html-utils.js";
 const FOCUS_ZOOM_BONUS = 1.15;
 
 export function initScene(container, projects) {
-  render();
-  subscribe(render);
+  const viewport = document.createElement("div");
+  viewport.className = "graph-viewport";
+  container.appendChild(viewport);
 
   container.addEventListener(
     "wheel",
@@ -18,21 +19,21 @@ export function initScene(container, projects) {
     { passive: false }
   );
 
+  render();
+  subscribe(render);
+
   function render() {
     const viewportSize = Math.min(container.clientWidth, window.innerHeight);
     const { nodes, edges } = computeLayout(projects, state.activeProjectId, viewportSize);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
-    const viewport = document.createElement("div");
-    viewport.className = "graph-viewport";
     const effectiveZoom = state.zoomLevel * (state.activeProjectId ? FOCUS_ZOOM_BONUS : 1);
     viewport.style.transform = `scale(${effectiveZoom})`;
+
+    viewport.innerHTML = "";
     viewport.appendChild(buildEdgeLayer(edges, nodesById));
     viewport.appendChild(buildNodeLayer(nodes, projects));
-
-    container.innerHTML = "";
-    container.appendChild(viewport);
 
     if (previouslyFocusedId) {
       container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus();
