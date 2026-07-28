@@ -354,3 +354,18 @@ button.node:focus-visible {
   opacity: .8;
   line-height: 1.8;
 }
+
+@media (max-width: 720px) {
+  .window-layer {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  .window {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+  }
+  .node-label {
+    font-size: 9px;
+  }
+}
