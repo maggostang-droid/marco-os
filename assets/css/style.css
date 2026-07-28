@@ -384,6 +384,17 @@ button.node:focus-visible {
   }
 }
 
+.graph-viewport {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .graph-viewport {
+    transition: transform 0.15s ease-out;
+  }
+}
+
 @media (max-width: 720px) {
   .window-layer {
     align-items: flex-end;

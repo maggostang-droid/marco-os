@@ -1,10 +1,22 @@
 import { computeLayout } from "./graph-layout.js";
-import { subscribe, state, focusProject } from "./state.js";
+import { subscribe, state, focusProject, zoomIn, zoomOut } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
+
+const FOCUS_ZOOM_BONUS = 1.15;
 
 export function initScene(container, projects) {
   render();
   subscribe(render);
+
+  container.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+      if (event.deltaY < 0) zoomIn();
+      else if (event.deltaY > 0) zoomOut();
+    },
+    { passive: false }
+  );
 
   function render() {
     const viewportSize = Math.min(container.clientWidth, window.innerHeight);
@@ -12,9 +24,15 @@ export function initScene(container, projects) {
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
+    const viewport = document.createElement("div");
+    viewport.className = "graph-viewport";
+    const effectiveZoom = state.zoomLevel * (state.activeProjectId ? FOCUS_ZOOM_BONUS : 1);
+    viewport.style.transform = `scale(${effectiveZoom})`;
+    viewport.appendChild(buildEdgeLayer(edges, nodesById));
+    viewport.appendChild(buildNodeLayer(nodes, projects));
+
     container.innerHTML = "";
-    container.appendChild(buildEdgeLayer(edges, nodesById));
-    container.appendChild(buildNodeLayer(nodes, projects));
+    container.appendChild(viewport);
 
     if (previouslyFocusedId) {
       container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus();
