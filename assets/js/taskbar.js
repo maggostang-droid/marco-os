@@ -1,4 +1,4 @@
-import { subscribe, state } from "./state.js";
+import { subscribe, state, zoomIn, zoomOut } from "./state.js";
 
 export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -25,13 +25,27 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
   function renderTaskbar() {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
     const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    const focusedZoomDirection = container.contains(document.activeElement)
+      ? document.activeElement.dataset.zoom
+      : null;
 
     container.innerHTML = `
       <span class="tb-start">◆ MARCO.OS</span>
       ${project ? `<span class="tb-app">${project.id}.exe</span>` : ""}
       <span class="tb-spacer"></span>
       <span class="tb-guide">${TIPS[tipIndex]}</span>
+      <div class="tb-zoom">
+        <button type="button" class="tb-zoom-btn" data-zoom="out" aria-label="Rauszoomen">−</button>
+        <button type="button" class="tb-zoom-btn" data-zoom="in" aria-label="Reinzoomen">+</button>
+      </div>
       <span class="tb-clock">${time}</span>
     `;
+
+    container.querySelector('[data-zoom="out"]').addEventListener("click", zoomOut);
+    container.querySelector('[data-zoom="in"]').addEventListener("click", zoomIn);
+
+    if (focusedZoomDirection) {
+      container.querySelector(`[data-zoom="${focusedZoomDirection}"]`)?.focus();
+    }
   }
 }
