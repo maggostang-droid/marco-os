@@ -63,10 +63,7 @@ body {
   position: relative;
   flex: 1 1 auto;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(167, 139, 250, .14), transparent 60%),
-    radial-gradient(ellipse at 85% 85%, rgba(94, 234, 212, .09), transparent 55%),
-    linear-gradient(180deg, var(--bg-mid), var(--bg-deep) 75%);
+  background: linear-gradient(180deg, var(--bg-mid), var(--bg-deep) 75%);
 }
 
 .taskbar {
@@ -123,6 +120,31 @@ body {
   opacity: .2;
 }
 
+.edge-runner {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px 2px rgba(94, 234, 212, .9);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .edge-runner {
+    animation: edgeRunnerFlow 4.5s linear infinite;
+  }
+}
+@keyframes edgeRunnerFlow {
+  0% { left: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
 .graph-nodes {
   position: absolute;
   inset: 0;
@@ -133,9 +155,8 @@ body {
   left: 50%;
   top: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
   background: none;
   border: none;
   padding: 4px;
@@ -193,9 +214,13 @@ button.node:focus-visible {
   pointer-events: none;
 }
 .node-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 5px 0 0;
   font-size: 11px;
   white-space: nowrap;
-  margin: 0;
   font-weight: inherit;
 }
 
@@ -422,14 +447,14 @@ button.node:focus-visible {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 2px;
-  height: 2px;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
   pointer-events: none;
 }
 .star-layer--near {
-  width: 3px;
-  height: 3px;
+  width: 5px;
+  height: 5px;
 }
 @media (prefers-reduced-motion: no-preference) {
   .star-layer {
@@ -441,11 +466,19 @@ button.node:focus-visible {
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(167, 139, 250, .26), transparent 65%),
+    radial-gradient(ellipse at 85% 85%, rgba(94, 234, 212, .18), transparent 60%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .graph-viewport {
     transition: transform 0.15s ease-out;
   }
+}
+
+.graph-content {
+  position: absolute;
+  inset: 0;
 }
 
 @media (max-width: 720px) {

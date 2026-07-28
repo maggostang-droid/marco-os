@@ -1,11 +1,20 @@
-const STAR_COLOR_RGB = "231, 228, 245";
 const FIELD_WIDTH = 2200;
 const FIELD_HEIGHT = 1400;
 
+// Mostly the original pale white, with occasional tinted stars picked from
+// the UI accent palette (violet/teal/amber) so the field reads as colorful
+// without looking like confetti.
+const STAR_COLORS = [
+  { rgb: "231, 228, 245", weight: 0.4 },
+  { rgb: "167, 139, 250", weight: 0.22 },
+  { rgb: "94, 234, 212", weight: 0.2 },
+  { rgb: "251, 191, 36", weight: 0.18 }
+];
+
 const LAYERS = [
-  { className: "star-layer--far", count: 90, opacity: 0.45, maxShift: 4 },
-  { className: "star-layer--mid", count: 55, opacity: 0.65, maxShift: 9 },
-  { className: "star-layer--near", count: 28, opacity: 0.85, maxShift: 16 }
+  { className: "star-layer--far", count: 210, opacity: 0.6, maxShift: 6 },
+  { className: "star-layer--mid", count: 130, opacity: 0.8, maxShift: 13 },
+  { className: "star-layer--near", count: 65, opacity: 1, maxShift: 22 }
 ];
 
 export function initStarfield(container) {
@@ -39,7 +48,17 @@ function randomStarShadow(count, opacity) {
   for (let i = 0; i < count; i += 1) {
     const x = Math.floor(Math.random() * FIELD_WIDTH) - FIELD_WIDTH / 2;
     const y = Math.floor(Math.random() * FIELD_HEIGHT) - FIELD_HEIGHT / 2;
-    shadows.push(`${x}px ${y}px 0 rgba(${STAR_COLOR_RGB}, ${opacity})`);
+    shadows.push(`${x}px ${y}px 0 rgba(${randomStarColor()}, ${opacity})`);
   }
   return shadows.join(", ");
+}
+
+function randomStarColor() {
+  const roll = Math.random();
+  let cumulative = 0;
+  for (const { rgb, weight } of STAR_COLORS) {
+    cumulative += weight;
+    if (roll < cumulative) return rgb;
+  }
+  return STAR_COLORS[0].rgb;
 }
