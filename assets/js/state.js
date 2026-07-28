@@ -1,4 +1,4 @@
-let listeners = new Set();
+const listeners = new Set();
 
 export const state = {
   bootComplete: false,
@@ -35,5 +35,5 @@ export function closeWindow() {
 export function resetState() {
   state.bootComplete = false;
   state.activeProjectId = null;
-  listeners = new Set();
+  listeners.clear();
 }

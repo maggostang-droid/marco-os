@@ -23,3 +23,22 @@ test("every project id is unique", () => {
   const ids = projects.map((p) => p.id);
   assert.equal(new Set(ids).size, ids.length);
 });
+
+test("demoUrl and repoUrl are either a string or null", () => {
+  for (const project of projects) {
+    for (const field of ["demoUrl", "repoUrl"]) {
+      const value = project[field];
+      assert.ok(
+        value === null || typeof value === "string",
+        `${project.id}.${field} must be string or null, got ${typeof value}`
+      );
+    }
+  }
+});
+
+test("status is a non-empty string", () => {
+  for (const project of projects) {
+    assert.equal(typeof project.status, "string", `${project.id}.status must be a string`);
+    assert.ok(project.status.length > 0, `${project.id}.status must not be empty`);
+  }
+});

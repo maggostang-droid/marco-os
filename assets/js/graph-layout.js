@@ -32,10 +32,11 @@ export function computeLayout(projects, focusedProjectId = null, viewportSize = 
     edges.push({ from: "center", to: project.id, kind: tier });
 
     if (project.id === focusedProjectId) {
-      const tagCount = project.tags.length;
+      const tags = project.tags ?? [];
+      const tagCount = tags.length;
       const tagAngleSpread =
         tagCount > 1 ? Math.min(TAG_ANGLE_SPREAD, MAX_TOTAL_TAG_SPREAD / (tagCount - 1)) : TAG_ANGLE_SPREAD;
-      project.tags.forEach((tag, tagIndex) => {
+      tags.forEach((tag, tagIndex) => {
         const tagAngle = angle + (tagIndex - (tagCount - 1) / 2) * tagAngleSpread;
         const tagX = x + Math.cos(tagAngle) * tagRadius;
         const tagY = y + Math.sin(tagAngle) * tagRadius;

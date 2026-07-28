@@ -27,7 +27,7 @@ export function initWindowManager(container, projects) {
     if (!project) {
       if (focusTarget.startsWith("graph-node:")) {
         const graphNodeId = focusTarget.slice("graph-node:".length);
-        document.querySelector(`[data-node-id="${graphNodeId}"]`)?.focus();
+        document.querySelector(`[data-node-id="${CSS.escape(graphNodeId)}"]`)?.focus();
       }
       return;
     }
@@ -36,7 +36,7 @@ export function initWindowManager(container, projects) {
     const statusLabel = isLive ? "● LIVE" : "● DEMO FOLGT";
     const actionHtml = isLive
       ? `<a class="btn primary" href="${project.demoUrl}" target="_blank" rel="noopener">Demo starten</a>`
-      : `<span class="btn primary disabled" aria-disabled="true">Demo folgt</span>`;
+      : `<button type="button" class="btn primary" disabled>Demo folgt</button>`;
     const repoHtml = project.repoUrl
       ? `<a class="btn ghost" href="${project.repoUrl}" target="_blank" rel="noopener">Repo öffnen</a>`
       : "";

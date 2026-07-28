@@ -109,3 +109,8 @@ test("tag angle spread matches the fixed value for small tag counts", () => {
 test("tag angle spread narrows as tag count grows so tags don't overlap the main edges", () => {
   assert.ok(angleBetweenAdjacentTags(10) < angleBetweenAdjacentTags(3));
 });
+
+test("treats a missing tags array as empty instead of throwing", () => {
+  const projects = [{ id: "a", status: "coming-soon" }];
+  assert.doesNotThrow(() => computeLayout(projects, "a"));
+});

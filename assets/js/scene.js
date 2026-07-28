@@ -17,7 +17,7 @@ export function initScene(container, projects) {
     container.appendChild(buildNodeLayer(nodes, projects));
 
     if (previouslyFocusedId) {
-      container.querySelector(`[data-node-id="${previouslyFocusedId}"]`)?.focus();
+      container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus();
     }
   }
 }
