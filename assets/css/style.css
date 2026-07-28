@@ -190,3 +190,126 @@ button.node:focus-visible {
   font-size: 9px;
   color: var(--dim);
 }
+
+.window-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 24px;
+}
+
+.window {
+  pointer-events: auto;
+  width: 380px;
+  max-width: 100%;
+  background: var(--panel);
+  border: 1px solid rgba(167, 139, 250, .4);
+  border-radius: 9px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, .6), 0 0 30px rgba(167, 139, 250, .12);
+  overflow: hidden;
+}
+
+.win-title {
+  background: var(--panel-2);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-bottom: 1px solid var(--border);
+}
+.win-name {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--dim);
+  flex: 1;
+}
+.win-close {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+.win-close:focus-visible {
+  outline: 2px solid var(--teal);
+}
+
+.win-body {
+  padding: 16px 18px;
+  font-family: "Segoe UI", sans-serif;
+}
+.prompt {
+  color: var(--teal);
+  font-size: 11px;
+  font-family: "Cascadia Code", monospace;
+  margin: 0 0 6px;
+}
+.status-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  color: #0b2e2a;
+  background: var(--teal);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.win-body h3 {
+  margin: 4px 0;
+  font-size: 17px;
+}
+.description {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c9c5e8;
+  margin: 6px 0 12px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.tag {
+  font-size: 9.5px;
+  color: var(--teal);
+  border: 1px solid rgba(94, 234, 212, .35);
+  background: rgba(94, 234, 212, .08);
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+.btn {
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+}
+.btn.primary {
+  background: linear-gradient(90deg, var(--violet), var(--teal));
+  color: #0b0817;
+  font-weight: 700;
+  border: none;
+}
+.btn.primary.disabled {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-weight: 400;
+}
+.btn.ghost {
+  color: var(--dim);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
