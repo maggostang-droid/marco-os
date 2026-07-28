@@ -82,3 +82,111 @@ body {
   font-size: 11px;
   color: var(--dim);
 }
+
+.scene {
+  position: absolute;
+  inset: 0;
+}
+
+.graph-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.edge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  background: rgba(167, 139, 250, .55);
+  transform-origin: 0 50%;
+}
+.edge--idea {
+  background: repeating-linear-gradient(90deg, rgba(138, 134, 168, .5) 0 6px, transparent 6px 11px);
+}
+.edge--tag {
+  height: 1px;
+  background: rgba(94, 234, 212, .4);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .edge--active {
+    background: var(--teal);
+    box-shadow: 0 0 6px rgba(94, 234, 212, .6);
+    animation: edgePulse 2.4s ease-in-out infinite;
+  }
+}
+@keyframes edgePulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+.graph-nodes {
+  position: absolute;
+  inset: 0;
+}
+
+.node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 4px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: default;
+}
+button.node {
+  cursor: pointer;
+}
+button.node:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.node-dot {
+  border-radius: 50%;
+  display: block;
+}
+.node-label {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.node--center .node-dot {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 60%, #4c3a8f);
+  box-shadow: 0 0 32px rgba(167, 139, 250, .55);
+}
+
+.node--project .node-dot {
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
+  box-shadow: 0 0 22px rgba(251, 191, 36, .5);
+}
+.node--project.node--idea .node-dot {
+  width: 22px;
+  height: 22px;
+  background: radial-gradient(circle at 35% 30%, #c9c6df, #514c6e 60%, #332e4d);
+  box-shadow: none;
+  opacity: .75;
+}
+
+.node--tag .node-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--teal);
+  box-shadow: 0 0 6px rgba(94, 234, 212, .7);
+}
+.node--tag .node-label {
+  font-size: 9px;
+  color: var(--dim);
+}

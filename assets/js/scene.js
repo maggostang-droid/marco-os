@@ -1,0 +1,70 @@
+import { computeLayout } from "./graph-layout.js";
+import { subscribe, state, focusProject } from "./state.js";
+
+export function initScene(container, projects) {
+  render();
+  subscribe(render);
+
+  function render() {
+    const { nodes, edges } = computeLayout(projects, state.activeProjectId);
+    const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
+
+    container.innerHTML = "";
+    container.appendChild(buildEdgeLayer(edges, nodesById));
+    container.appendChild(buildNodeLayer(nodes, projects));
+  }
+}
+
+function buildEdgeLayer(edges, nodesById) {
+  const layer = document.createElement("div");
+  layer.className = "graph-edges";
+
+  edges.forEach((edge) => {
+    const from = nodesById[edge.from];
+    const to = nodesById[edge.to];
+    if (!from || !to) return;
+
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.hypot(dx, dy);
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+    const line = document.createElement("div");
+    line.className = `edge edge--${edge.kind}`;
+    line.style.width = `${length}px`;
+    line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
+    layer.appendChild(line);
+  });
+
+  return layer;
+}
+
+function buildNodeLayer(nodes, projects) {
+  const layer = document.createElement("div");
+  layer.className = "graph-nodes";
+  const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+
+  nodes.forEach((node) => {
+    const isProject = node.type === "project";
+    const el = document.createElement(isProject ? "button" : "div");
+    el.classList.add("node", `node--${node.type}`);
+    el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
+
+    if (node.type === "center") {
+      el.innerHTML = `<span class="node-dot"></span><span class="node-label">Marco Stang</span>`;
+    } else if (isProject) {
+      const project = projectById[node.id];
+      if (node.tier === "idea") el.classList.add("node--idea");
+      el.type = "button";
+      el.setAttribute("aria-pressed", String(node.id === state.activeProjectId));
+      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${project.title}</span>`;
+      el.addEventListener("click", () => focusProject(node.id));
+    } else {
+      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${node.label}</span>`;
+    }
+
+    layer.appendChild(el);
+  });
+
+  return layer;
+}
