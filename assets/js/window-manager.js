@@ -2,6 +2,8 @@ import { subscribe, state, closeWindow } from "./state.js";
 
 export function initWindowManager(container, projects) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+  let lastRenderedProjectId = null;
+
   render();
   subscribe(render);
 
@@ -13,8 +15,18 @@ export function initWindowManager(container, projects) {
 
   function render() {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
+    const hadFocusInWindow = container.contains(document.activeElement);
+    const closingProjectId = !project && lastRenderedProjectId ? lastRenderedProjectId : null;
+
     container.innerHTML = "";
-    if (!project) return;
+    lastRenderedProjectId = project ? project.id : null;
+
+    if (!project) {
+      if (hadFocusInWindow && closingProjectId) {
+        document.querySelector(`[data-node-id="${closingProjectId}"]`)?.focus();
+      }
+      return;
+    }
 
     const isLive = Boolean(project.demoUrl);
     const statusLabel = isLive ? "● LIVE" : "● DEMO FOLGT";
