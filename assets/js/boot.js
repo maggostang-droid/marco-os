@@ -25,7 +25,7 @@ export function initBoot(overlay, projects) {
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   overlay.innerHTML = "";
-  overlay.setAttribute("role", "status");
+  overlay.setAttribute("aria-hidden", "true");
 
   const controller = new AbortController();
   let finished = false;
