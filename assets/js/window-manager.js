@@ -58,11 +58,12 @@ export function initWindowManager(container, projects) {
       </div>
     `;
 
-    win.querySelector(".win-close").addEventListener("click", closeWindow);
+    const closeBtn = win.querySelector(".win-close");
+    closeBtn.addEventListener("click", closeWindow);
     container.appendChild(win);
 
-    if (isNewlyOpenedOrSwitched) {
-      win.querySelector(".win-close").focus();
+    if (isNewlyOpenedOrSwitched || hadFocusInWindow) {
+      closeBtn.focus();
     }
   }
 }

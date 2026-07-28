@@ -1,13 +1,12 @@
 import { subscribe, state } from "./state.js";
 
-const TIPS = [
-  "KI-Guide: „Klick auf sql-agent, um Details zu sehen“",
-  "KI-Guide: „Neue Projekte erscheinen automatisch als neue Knoten“",
-  "KI-Guide: „Tab + Enter funktioniert genauso wie ein Klick“"
-];
-
 export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+  const TIPS = [
+    `KI-Guide: „Klick auf ${projects[0]?.id ?? "einen Knoten"}, um Details zu sehen“`,
+    "KI-Guide: „Neue Projekte erscheinen automatisch als neue Knoten“",
+    "KI-Guide: „Tab + Enter funktioniert genauso wie ein Klick“"
+  ];
   let tipIndex = 0;
 
   renderTaskbar();

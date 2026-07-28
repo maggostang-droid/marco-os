@@ -57,12 +57,13 @@ function buildNodeLayer(nodes, projects) {
     el.dataset.nodeId = node.id;
 
     if (node.type === "center") {
-      el.innerHTML = `<span class="node-dot"></span><span class="node-label">Marco Stang</span>`;
+      el.innerHTML = `<span class="node-dot"></span><h1 class="node-label">Marco Stang</h1>`;
     } else if (isProject) {
       const project = projectById[node.id];
       if (node.tier === "idea") el.classList.add("node--idea");
       el.type = "button";
-      el.setAttribute("aria-pressed", String(node.id === state.activeProjectId));
+      el.setAttribute("aria-haspopup", "dialog");
+      el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
       el.innerHTML = `<span class="node-dot"></span><span class="node-label">${project.title}</span>`;
       el.addEventListener("click", () => focusProject(node.id));
     } else {

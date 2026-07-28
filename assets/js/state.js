@@ -17,6 +17,7 @@ function notify() {
 }
 
 export function completeBoot() {
+  if (state.bootComplete) return;
   state.bootComplete = true;
   notify();
 }

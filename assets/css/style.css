@@ -109,10 +109,12 @@ body {
   height: 1px;
   background: rgba(94, 234, 212, .4);
 }
+.edge--active {
+  background: var(--teal);
+  box-shadow: 0 0 6px rgba(94, 234, 212, .6);
+}
 @media (prefers-reduced-motion: no-preference) {
   .edge--active {
-    background: var(--teal);
-    box-shadow: 0 0 6px rgba(94, 234, 212, .6);
     animation: edgePulse 2.4s ease-in-out infinite;
   }
 }
@@ -205,6 +207,7 @@ button.node:focus-visible {
   pointer-events: auto;
   width: 380px;
   max-width: 100%;
+  max-height: calc(100vh - 48px);
   background: var(--panel);
   border: 1px solid rgba(167, 139, 250, .4);
   border-radius: 9px;
@@ -241,6 +244,7 @@ button.node:focus-visible {
 .win-body {
   padding: 16px 18px;
   font-family: "Segoe UI", sans-serif;
+  overflow-y: auto;
 }
 .prompt {
   color: var(--teal);
@@ -367,5 +371,8 @@ button.node:focus-visible {
   }
   .node-label {
     font-size: 9px;
+  }
+  .tb-guide {
+    display: none;
   }
 }
