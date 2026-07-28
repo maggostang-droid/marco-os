@@ -162,6 +162,16 @@ brauchen nur einen neuen Dateneintrag, keine manuelle Koordinaten-Pflege.
 - `node --check` für Syntax-Prüfung der JS-Module (wie bisher in
   stangfolio praktiziert).
 
+## Zukünftig geplant (nicht Teil dieser Spec-Phase)
+
+- **Second-Brain-Chat-Fenster:** Neuer Fenstertyp, der die separat
+  geplante `second-brain`-Streamlit-App (siehe
+  `../second-brain/docs/superpowers/specs/2026-07-29-second-brain-design.md`)
+  per `<iframe src=".../?embed=true">` einbettet, sobald deren Live-URL
+  existiert. marco-os bleibt dabei backend-frei — der Chat läuft
+  vollständig in second-brains eigenem Hosting, marco-os embedded nur.
+  Eigene Spec-Ergänzung/Task folgt, wenn die second-brain-URL feststeht.
+
 ## Out of Scope
 
 - Klassische Listen-Fallback-Ansicht (bewusst nicht Teil dieses Konzepts).
