@@ -27,6 +27,12 @@ export function initBoot(overlay, projects) {
   overlay.innerHTML = "";
   overlay.setAttribute("aria-hidden", "true");
 
+  // Let the initial opaque background paint first, then trigger the
+  // background-color transition to transparent (see .boot-overlay.is-fading
+  // in style.css) so the desktop behind the overlay gradually becomes
+  // visible while the boot lines are still typing.
+  requestAnimationFrame(() => overlay.classList.add("is-fading"));
+
   const controller = new AbortController();
   let finished = false;
 

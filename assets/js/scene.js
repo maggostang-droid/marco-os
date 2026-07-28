@@ -3,8 +3,21 @@ import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut } from "./
 import { escapeHtml } from "./html-utils.js";
 
 const FOCUS_ZOOM_BONUS = 2.6;
-const REVEAL_STAGGER_MS = 90;
-const REVEAL_LABEL_EXTRA_MS = 60;
+
+// Reveal timing: four distinct phases (planets -> lines -> runner lights,
+// center planet leads phase 1) with an explicit pause between each phase.
+// Each *_FADE_MS constant must match the transition-duration declared for
+// the matching selector in style.css — they're kept here, not read from
+// CSS, so phase boundaries can be computed precisely (start delay + fade
+// duration = when that element is actually done appearing, not just when
+// it started).
+const NODE_STAGGER_MS = 380;
+const NODE_FADE_MS = 700; // matches .node-dot's transition-duration
+const LABEL_EXTRA_MS = 150;
+const EDGE_STAGGER_MS = 380;
+const EDGE_FADE_MS = 500; // matches the shared .node--project/.edge opacity transition-duration
+const RUNNER_STAGGER_MS = 700;
+const PHASE_GAP_MS = 700; // pause inserted between each phase
 
 export function initScene(container, projects) {
   const viewport = document.createElement("div");
@@ -87,11 +100,29 @@ export function initScene(container, projects) {
   }
 }
 
-const EDGE_RUNNER_STAGGER_S = 0.7;
-
 function buildEdgeLayer(edges, nodesById, focusedProjectId) {
   const layer = document.createElement("div");
   layer.className = "graph-edges";
+
+  // Phase boundaries computed from actual finish times (start delay + fade
+  // duration), not just stagger order — so e.g. the edge phase only starts
+  // once the *last* planet has actually finished fading in, not merely
+  // once it started. edgeCount == project count == (node count - 1), since
+  // computeLayout emits exactly one edge and one node per project plus the
+  // center node.
+  const edgeCount = edges.length;
+  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
+  const edgePhaseStartMs = nodePhaseEndMs + PHASE_GAP_MS;
+  const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
+  const runnerPhaseStartMs = edgePhaseEndMs + PHASE_GAP_MS;
+
+  // Only the very first build (before boot has completed) needs the long
+  // phased delay — it's timed against .is-revealed being added at boot
+  // completion (see the CSS rule this pairs with). Later rebuilds (e.g.
+  // after focusing a project) happen once .is-revealed is already present,
+  // so the animation would apply immediately regardless of delay; keep
+  // runners starting right away for those, matching pre-existing behavior.
+  const isInitialReveal = !state.bootComplete;
 
   edges.forEach((edge, index) => {
     const from = nodesById[edge.from];
@@ -108,15 +139,16 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId) {
     if (focusedProjectId && edge.to !== focusedProjectId) line.classList.add("is-dimmed");
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
+    line.style.transitionDelay = `${edgePhaseStartMs + index * EDGE_STAGGER_MS}ms`;
 
-    const edgeRevealOrder = index * 2 + 1;
-    line.style.transitionDelay = `${edgeRevealOrder * REVEAL_STAGGER_MS}ms`;
-
-    // Staggered negative delay so runners on different edges don't all
-    // travel in lockstep.
+    // Positive delay so the runner sits invisible (its 0% keyframe is
+    // opacity: 0) until after the whole edge-reveal phase has settled,
+    // then starts flowing — the fourth and final reveal phase. Still
+    // staggered per-edge so runners don't all launch in perfect lockstep.
     const runner = document.createElement("div");
     runner.className = "edge-runner";
-    runner.style.animationDelay = `-${(index * EDGE_RUNNER_STAGGER_S).toFixed(1)}s`;
+    const runnerDelayMs = isInitialReveal ? runnerPhaseStartMs + index * RUNNER_STAGGER_MS : 0;
+    runner.style.animationDelay = `${runnerDelayMs}ms`;
     line.appendChild(runner);
 
     layer.appendChild(line);
@@ -146,9 +178,8 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
 
-    const revealOrder = nodeIndex === 0 ? 0 : nodeIndex * 2;
-    const dotDelay = `${revealOrder * REVEAL_STAGGER_MS}ms`;
-    const labelDelay = `${revealOrder * REVEAL_STAGGER_MS + REVEAL_LABEL_EXTRA_MS}ms`;
+    const dotDelay = `${nodeIndex * NODE_STAGGER_MS}ms`;
+    const labelDelay = `${nodeIndex * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
 
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());

@@ -134,7 +134,13 @@ body {
   pointer-events: none;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .edge-runner {
+  /* Scoped to .is-revealed (not just .edge-runner) so the animation only
+     starts applying — and its animation-delay only starts counting down —
+     once the scene reveal begins. An unscoped animation would start its
+     delay countdown at page load, which is already well underway during
+     the multi-second boot sequence, making the runner lights appear to
+     start flowing immediately instead of after the reveal. */
+  .scene.is-revealed .edge-runner {
     animation: edgeRunnerFlow 4.5s linear infinite;
   }
 }
@@ -251,16 +257,16 @@ button.node:focus-visible {
 @media (prefers-reduced-motion: no-preference) {
   .node--project,
   .edge {
-    transition: opacity .2s ease;
+    transition: opacity .5s ease;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .node-dot {
-    transition: opacity .25s ease-out, transform .25s ease-out;
+    transition: opacity .7s ease-out, transform .7s ease-out;
   }
   .node-label {
-    transition: opacity .2s ease-out;
+    transition: opacity .55s ease-out;
   }
   .scene:not(.is-revealed) .node-dot {
     opacity: 0;
@@ -454,11 +460,17 @@ button.node:focus-visible {
   flex-direction: column;
   justify-content: center;
   padding: 24px;
-  background: var(--bg-deep);
+  background-color: var(--bg-deep);
   font-family: "Cascadia Code", "Consolas", ui-monospace, monospace;
   font-size: 13px;
   color: var(--teal);
   cursor: pointer;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .boot-overlay.is-fading {
+    transition: background-color 3.5s linear;
+    background-color: transparent;
+  }
 }
 .boot-line {
   opacity: .8;
