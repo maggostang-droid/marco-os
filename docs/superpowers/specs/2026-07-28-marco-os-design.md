@@ -85,9 +85,12 @@ brauchen nur einen neuen Dateneintrag, keine manuelle Koordinaten-Pflege.
 3. **`graph-layout.js`** — reine Funktion: nimmt Projektliste (+ optional
    fokussiertes Projekt für Tech-Stack-Knoten), gibt Knoten-Koordinaten
    zurück. Kein DOM-Zugriff, gut isoliert testbar.
-4. **`scene.js`** — rendert SVG-Kanten + Knoten-Elemente aus den
-   Layout-Koordinaten, hängt Klick-/Tastatur-Handler an, aktualisiert
-   `state.activeProjectId` bei Interaktion.
+4. **`scene.js`** — rendert Kanten (als per CSS-`transform` positionierte
+   `div`-Elemente, nicht SVG — vermeidet Skalierungs-Inkonsistenzen
+   zwischen SVG-`viewBox` und pixelbasiert positionierten Knoten bei
+   variabler Fenstergröße) + Knoten-Elemente aus den Layout-Koordinaten,
+   hängt Klick-/Tastatur-Handler an, aktualisiert `state.activeProjectId`
+   bei Interaktion.
 5. **`window-manager.js`** — rendert/aktualisiert das Terminal-Fenster für
    `state.activeProjectId` (Inhalt aus `data/projects.js`), rendert nichts,
    wenn kein Projekt aktiv ist.
@@ -124,11 +127,16 @@ brauchen nur einen neuen Dateneintrag, keine manuelle Koordinaten-Pflege.
   da der zusätzliche Zustand (aktiver Knoten/Fenster) über ein einziges
   zentrales State-Objekt (`state.js`) sauber handhabbar bleibt, ohne
   Reaktivitäts-Library.
-- **Rendering:** Echte DOM-/SVG-Elemente für Knoten und Kanten (kein
+- **Rendering:** Echte DOM-Elemente für Knoten und Kanten (kein SVG, kein
   Canvas/WebGL) — Begründung: reale DOM-Elemente liefern Tastatur-Fokus
   und Screenreader-Zugänglichkeit praktisch geschenkt, was bei Canvas
-  komplett manuell nachgebaut werden müsste. Für die erwartete Knotenzahl
-  (~3–10 + Tech-Stack-Satelliten) ist DOM/SVG performant genug.
+  komplett manuell nachgebaut werden müsste. SVG wurde bewusst
+  verworfen, da dessen `viewBox`-Skalierung nicht ohne Weiteres mit
+  pixelbasiert positionierten Knoten-`div`s synchron bleibt; stattdessen
+  werden Kanten als per CSS-`transform` rotierte/skalierte `div`s
+  gerendert, die dieselbe Koordinatenbasis wie die Knoten nutzen. Für die
+  erwartete Knotenzahl (~3–10 + Tech-Stack-Satelliten) ist das performant
+  genug.
 - **Hosting:** GitHub Pages, "Deploy from branch" wie bei stangfolio — kein
   Build-Schritt, keine GitHub-Actions-Pipeline nötig.
 - **Repo:** Eigenständiges neues Repo `marco-os`, lokal unter
