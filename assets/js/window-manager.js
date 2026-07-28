@@ -1,5 +1,6 @@
 import { subscribe, state, closeWindow } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
+import { nextFocusTarget } from "./focus-target.js";
 
 export function initWindowManager(container, projects) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -17,15 +18,16 @@ export function initWindowManager(container, projects) {
   function render() {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
     const hadFocusInWindow = container.contains(document.activeElement);
-    const closingProjectId = !project && lastRenderedProjectId ? lastRenderedProjectId : null;
-    const isNewlyOpenedOrSwitched = project && project.id !== lastRenderedProjectId;
+    const prevProjectId = lastRenderedProjectId;
+    const focusTarget = nextFocusTarget(prevProjectId, project ? project.id : null, hadFocusInWindow);
 
     container.innerHTML = "";
     lastRenderedProjectId = project ? project.id : null;
 
     if (!project) {
-      if (hadFocusInWindow && closingProjectId) {
-        document.querySelector(`[data-node-id="${closingProjectId}"]`)?.focus();
+      if (focusTarget.startsWith("graph-node:")) {
+        const graphNodeId = focusTarget.slice("graph-node:".length);
+        document.querySelector(`[data-node-id="${graphNodeId}"]`)?.focus();
       }
       return;
     }
@@ -63,7 +65,7 @@ export function initWindowManager(container, projects) {
     closeBtn.addEventListener("click", closeWindow);
     container.appendChild(win);
 
-    if (isNewlyOpenedOrSwitched || hadFocusInWindow) {
+    if (focusTarget === "open-window") {
       closeBtn.focus();
     }
   }
