@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { state, subscribe, completeBoot, focusProject, closeWindow, resetState } from "../assets/js/state.js";
+import { state, subscribe, completeBoot, focusProject, closeWindow, resetState, zoomIn, zoomOut } from "../assets/js/state.js";
 
 test("completeBoot flips bootComplete to true", () => {
   resetState();
@@ -37,5 +37,44 @@ test("unsubscribe stops further notifications", () => {
   focusProject("sql-agent");
   unsubscribe();
   closeWindow();
+  assert.equal(callCount, 1);
+});
+
+test("zoomIn increases zoomLevel by 0.1", () => {
+  resetState();
+  zoomIn();
+  assert.equal(state.zoomLevel, 1.1);
+});
+
+test("zoomOut decreases zoomLevel by 0.1", () => {
+  resetState();
+  zoomOut();
+  assert.equal(state.zoomLevel, 0.9);
+});
+
+test("zoomIn clamps at the maximum zoom level", () => {
+  resetState();
+  for (let i = 0; i < 20; i += 1) zoomIn();
+  assert.equal(state.zoomLevel, 1.8);
+});
+
+test("zoomOut clamps at the minimum zoom level", () => {
+  resetState();
+  for (let i = 0; i < 20; i += 1) zoomOut();
+  assert.equal(state.zoomLevel, 0.6);
+});
+
+test("resetState resets zoomLevel back to 1", () => {
+  resetState();
+  zoomIn();
+  resetState();
+  assert.equal(state.zoomLevel, 1);
+});
+
+test("zoomIn notifies subscribers", () => {
+  resetState();
+  let callCount = 0;
+  subscribe(() => { callCount += 1; });
+  zoomIn();
   assert.equal(callCount, 1);
 });
