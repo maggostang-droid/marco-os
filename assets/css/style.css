@@ -335,3 +335,22 @@ button.node:focus-visible {
 .tb-clock {
   font-variant-numeric: tabular-nums;
 }
+
+.boot-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-deep);
+  font-family: "Cascadia Code", "Consolas", ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--teal);
+  cursor: pointer;
+}
+.boot-line {
+  opacity: .8;
+  line-height: 1.8;
+}
