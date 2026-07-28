@@ -78,10 +78,18 @@ function buildEdgeLayer(edges, nodesById) {
   return layer;
 }
 
+const PLANET_TEXTURE_VARIANTS = ["node--planet-shaded", "node--planet-ringed", "node--planet-blotchy"];
+
 function buildNodeLayer(nodes, projects) {
   const layer = document.createElement("div");
   layer.className = "graph-nodes";
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+
+  // Cycle through the texture variants in render order (not a content hash)
+  // so with only 3 variants and few planet nodes, every variant actually
+  // gets used instead of coincidentally landing on the same one repeatedly.
+  let planetIndex = 0;
+  const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
 
   nodes.forEach((node) => {
     const isProject = node.type === "project";
@@ -91,10 +99,12 @@ function buildNodeLayer(nodes, projects) {
     el.dataset.nodeId = node.id;
 
     if (node.type === "center") {
+      el.classList.add(nextPlanetVariant());
       el.innerHTML = `<span class="node-dot"></span><h1 class="node-label">Marco Stang</h1>`;
     } else if (isProject) {
       const project = projectById[node.id];
       if (node.tier === "idea") el.classList.add("node--idea");
+      el.classList.add(nextPlanetVariant());
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
