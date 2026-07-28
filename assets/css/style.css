@@ -105,10 +105,6 @@ body {
 .edge--idea {
   background: repeating-linear-gradient(90deg, rgba(138, 134, 168, .5) 0 6px, transparent 6px 11px);
 }
-.edge--tag {
-  height: 1px;
-  background: rgba(94, 234, 212, .4);
-}
 .edge--active {
   background: var(--teal);
   box-shadow: 0 0 6px rgba(94, 234, 212, .6);
@@ -121,6 +117,10 @@ body {
 @keyframes edgePulse {
   0%, 100% { opacity: .55; }
   50% { opacity: 1; }
+}
+
+.edge.is-dimmed {
+  opacity: .2;
 }
 
 .graph-nodes {
@@ -220,15 +220,14 @@ button.node:focus-visible {
   opacity: .75;
 }
 
-.node--tag .node-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--teal);
-  box-shadow: 0 0 6px rgba(94, 234, 212, .7);
+.node--project.is-dimmed {
+  opacity: .32;
 }
-.node--tag .node-label {
-  font-size: 9px;
-  color: var(--dim);
+@media (prefers-reduced-motion: no-preference) {
+  .node--project,
+  .edge {
+    transition: opacity .2s ease;
+  }
 }
 
 .window-layer {

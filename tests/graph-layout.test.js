@@ -34,17 +34,6 @@ test("planned projects sit further from the center than active ones", () => {
   assert.ok(dist("idea") > dist("active"));
 });
 
-test("renders tag nodes only for the focused project", () => {
-  const projects = [
-    { id: "a", status: "coming-soon", tags: ["Python", "SQL"] },
-    { id: "b", status: "planned", tags: ["React"] }
-  ];
-  const { nodes } = computeLayout(projects, "a");
-  assert.ok(nodes.some((n) => n.id === "a:Python"));
-  assert.ok(nodes.some((n) => n.id === "a:SQL"));
-  assert.ok(!nodes.some((n) => n.id === "b:React"));
-});
-
 test("base radius grows once there are more than three projects", () => {
   const makeProjects = (count) =>
     Array.from({ length: count }, (_, i) => ({ id: `p${i}`, status: "coming-soon", tags: [] }));
@@ -58,11 +47,11 @@ test("base radius grows once there are more than three projects", () => {
   assert.ok(distOfFirst(5) > distOfFirst(3));
 });
 
-test("narrow viewports shrink the project radius so tag nodes stay on screen", () => {
+test("narrow viewports shrink the project radius", () => {
   const projects = [{ id: "a", status: "coming-soon", tags: [] }];
 
   const distAt = (viewportSize) => {
-    const { nodes } = computeLayout(projects, null, viewportSize);
+    const { nodes } = computeLayout(projects, viewportSize);
     const node = nodes.find((n) => n.id === "a");
     return Math.hypot(node.x, node.y);
   };
@@ -75,42 +64,4 @@ test("omitting viewportSize keeps the original fixed radius", () => {
   const { nodes } = computeLayout(projects);
   const node = nodes.find((n) => n.id === "a");
   assert.equal(Math.hypot(node.x, node.y), 150);
-});
-
-test("viewport scaling also shrinks the tag radius", () => {
-  const projects = [{ id: "a", status: "coming-soon", tags: ["Python"] }];
-
-  const tagDistAt = (viewportSize) => {
-    const { nodes } = computeLayout(projects, "a", viewportSize);
-    const project = nodes.find((n) => n.id === "a");
-    const tag = nodes.find((n) => n.id === "a:Python");
-    return Math.hypot(tag.x - project.x, tag.y - project.y);
-  };
-
-  assert.ok(tagDistAt(375) < tagDistAt(1280));
-});
-
-function angleBetweenAdjacentTags(tagCount) {
-  const tags = Array.from({ length: tagCount }, (_, i) => `tag${i}`);
-  const projects = [{ id: "a", status: "coming-soon", tags }];
-  const { nodes } = computeLayout(projects, "a");
-  const project = nodes.find((n) => n.id === "a");
-  const angleOf = (tag) => {
-    const node = nodes.find((n) => n.id === `a:${tag}`);
-    return Math.atan2(node.y - project.y, node.x - project.x);
-  };
-  return angleOf(tags[1]) - angleOf(tags[0]);
-}
-
-test("tag angle spread matches the fixed value for small tag counts", () => {
-  assert.ok(Math.abs(angleBetweenAdjacentTags(3) - 0.35) < 1e-9);
-});
-
-test("tag angle spread narrows as tag count grows so tags don't overlap the main edges", () => {
-  assert.ok(angleBetweenAdjacentTags(10) < angleBetweenAdjacentTags(3));
-});
-
-test("treats a missing tags array as empty instead of throwing", () => {
-  const projects = [{ id: "a", status: "coming-soon" }];
-  assert.doesNotThrow(() => computeLayout(projects, "a"));
 });

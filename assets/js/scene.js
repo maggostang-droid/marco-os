@@ -1,8 +1,8 @@
 import { computeLayout } from "./graph-layout.js";
-import { subscribe, state, focusProject, zoomIn, zoomOut } from "./state.js";
+import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 
-const FOCUS_ZOOM_BONUS = 1.6;
+const FOCUS_ZOOM_BONUS = 2.6;
 
 export function initScene(container, projects) {
   const viewport = document.createElement("div");
@@ -32,21 +32,31 @@ export function initScene(container, projects) {
     { passive: false }
   );
 
+  container.addEventListener("click", (event) => {
+    if (state.activeProjectId && !event.target.closest(".node--project")) {
+      closeWindow();
+    }
+  });
+
   render();
   subscribe(render);
 
   function render() {
     const viewportSize = Math.min(container.clientWidth, window.innerHeight);
-    const { nodes, edges } = computeLayout(projects, state.activeProjectId, viewportSize);
+    const { nodes, edges } = computeLayout(projects, viewportSize);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
+    const focusedProjectId = state.activeProjectId;
 
-    const effectiveZoom = state.zoomLevel * (state.activeProjectId ? FOCUS_ZOOM_BONUS : 1);
-    viewport.style.transform = `scale(${effectiveZoom})`;
+    const effectiveZoom = state.zoomLevel * (focusedProjectId ? FOCUS_ZOOM_BONUS : 1);
+    const focusedNode = focusedProjectId ? nodesById[focusedProjectId] : null;
+    const translateX = focusedNode ? -focusedNode.x * effectiveZoom : 0;
+    const translateY = focusedNode ? -focusedNode.y * effectiveZoom : 0;
+    viewport.style.transform = `translate(${translateX}px, ${translateY}px) scale(${effectiveZoom})`;
 
     viewport.innerHTML = "";
-    viewport.appendChild(buildEdgeLayer(edges, nodesById));
-    viewport.appendChild(buildNodeLayer(nodes, projects));
+    viewport.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId));
+    viewport.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
 
     if (previouslyFocusedId) {
       container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus({ preventScroll: true });
@@ -54,7 +64,7 @@ export function initScene(container, projects) {
   }
 }
 
-function buildEdgeLayer(edges, nodesById) {
+function buildEdgeLayer(edges, nodesById, focusedProjectId) {
   const layer = document.createElement("div");
   layer.className = "graph-edges";
 
@@ -70,6 +80,7 @@ function buildEdgeLayer(edges, nodesById) {
 
     const line = document.createElement("div");
     line.className = `edge edge--${edge.kind}`;
+    if (focusedProjectId && edge.to !== focusedProjectId) line.classList.add("is-dimmed");
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
     layer.appendChild(line);
@@ -80,7 +91,7 @@ function buildEdgeLayer(edges, nodesById) {
 
 const PLANET_TEXTURE_VARIANTS = ["node--planet-shaded", "node--planet-ringed", "node--planet-blotchy"];
 
-function buildNodeLayer(nodes, projects) {
+function buildNodeLayer(nodes, projects, focusedProjectId) {
   const layer = document.createElement("div");
   layer.className = "graph-nodes";
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -95,13 +106,14 @@ function buildNodeLayer(nodes, projects) {
     const isProject = node.type === "project";
     const el = document.createElement(isProject ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
+    if (isProject && focusedProjectId && node.id !== focusedProjectId) el.classList.add("is-dimmed");
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
 
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());
       el.innerHTML = `<span class="node-dot"></span><h1 class="node-label">Marco Stang</h1>`;
-    } else if (isProject) {
+    } else {
       const project = projectById[node.id];
       if (node.tier === "idea") el.classList.add("node--idea");
       el.classList.add(nextPlanetVariant());
@@ -110,8 +122,6 @@ function buildNodeLayer(nodes, projects) {
       el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
       el.innerHTML = `<span class="node-dot"></span><span class="node-label">${escapeHtml(project.title)}</span>`;
       el.addEventListener("click", () => focusProject(node.id));
-    } else {
-      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${escapeHtml(node.label)}</span>`;
     }
 
     layer.appendChild(el);
