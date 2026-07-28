@@ -8,10 +8,15 @@ export function initScene(container, projects) {
   function render() {
     const { nodes, edges } = computeLayout(projects, state.activeProjectId);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
+    const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
     container.innerHTML = "";
     container.appendChild(buildEdgeLayer(edges, nodesById));
     container.appendChild(buildNodeLayer(nodes, projects));
+
+    if (previouslyFocusedId) {
+      container.querySelector(`[data-node-id="${previouslyFocusedId}"]`)?.focus();
+    }
   }
 }
 
@@ -49,6 +54,7 @@ function buildNodeLayer(nodes, projects) {
     const el = document.createElement(isProject ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
+    el.dataset.nodeId = node.id;
 
     if (node.type === "center") {
       el.innerHTML = `<span class="node-dot"></span><span class="node-label">Marco Stang</span>`;
