@@ -78,3 +78,21 @@ test("zoomIn notifies subscribers", () => {
   zoomIn();
   assert.equal(callCount, 1);
 });
+
+test("zoomIn at the maximum zoom level does not notify subscribers", () => {
+  resetState();
+  for (let i = 0; i < 20; i += 1) zoomIn();
+  let callCount = 0;
+  subscribe(() => { callCount += 1; });
+  zoomIn();
+  assert.equal(callCount, 0);
+});
+
+test("zoomOut at the minimum zoom level does not notify subscribers", () => {
+  resetState();
+  for (let i = 0; i < 20; i += 1) zoomOut();
+  let callCount = 0;
+  subscribe(() => { callCount += 1; });
+  zoomOut();
+  assert.equal(callCount, 0);
+});

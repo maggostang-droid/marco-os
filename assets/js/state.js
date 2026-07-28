@@ -43,12 +43,16 @@ function clampZoom(value) {
 }
 
 export function zoomIn() {
-  state.zoomLevel = clampZoom(state.zoomLevel + ZOOM_STEP);
+  const next = clampZoom(state.zoomLevel + ZOOM_STEP);
+  if (next === state.zoomLevel) return;
+  state.zoomLevel = next;
   notify();
 }
 
 export function zoomOut() {
-  state.zoomLevel = clampZoom(state.zoomLevel - ZOOM_STEP);
+  const next = clampZoom(state.zoomLevel - ZOOM_STEP);
+  if (next === state.zoomLevel) return;
+  state.zoomLevel = next;
   notify();
 }
 

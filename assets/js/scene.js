@@ -9,12 +9,25 @@ export function initScene(container, projects) {
   viewport.className = "graph-viewport";
   container.appendChild(viewport);
 
+  const WHEEL_STEP_THRESHOLD = 100; // px of accumulated deltaY per zoom step — matches a
+  // typical single mouse-wheel notch, and smooths out high-frequency trackpad gesture events
+  // (which fire many small deltas per flick) instead of applying each one as its own step.
+
+  let wheelAccumulator = 0;
+
   container.addEventListener(
     "wheel",
     (event) => {
       event.preventDefault();
-      if (event.deltaY < 0) zoomIn();
-      else if (event.deltaY > 0) zoomOut();
+      wheelAccumulator += event.deltaY;
+      while (wheelAccumulator <= -WHEEL_STEP_THRESHOLD) {
+        zoomIn();
+        wheelAccumulator += WHEEL_STEP_THRESHOLD;
+      }
+      while (wheelAccumulator >= WHEEL_STEP_THRESHOLD) {
+        zoomOut();
+        wheelAccumulator -= WHEEL_STEP_THRESHOLD;
+      }
     },
     { passive: false }
   );
@@ -36,7 +49,7 @@ export function initScene(container, projects) {
     viewport.appendChild(buildNodeLayer(nodes, projects));
 
     if (previouslyFocusedId) {
-      container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus();
+      container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus({ preventScroll: true });
     }
   }
 }

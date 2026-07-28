@@ -17,8 +17,17 @@ export function initWindowManager(container, projects) {
 
   function render() {
     const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
-    const hadFocusInWindow = container.contains(document.activeElement);
     const prevProjectId = lastRenderedProjectId;
+
+    if (project && project.id === prevProjectId) {
+      // Window content depends only on which project is active, not on
+      // other state fields (e.g. zoomLevel) — skip the rebuild so
+      // unrelated notifies (zoom ticks) don't steal focus back to the
+      // close button or reset .win-body's scroll position.
+      return;
+    }
+
+    const hadFocusInWindow = container.contains(document.activeElement);
     const focusTarget = nextFocusTarget(prevProjectId, project ? project.id : null, hadFocusInWindow);
 
     container.innerHTML = "";
@@ -27,7 +36,7 @@ export function initWindowManager(container, projects) {
     if (!project) {
       if (focusTarget.startsWith("graph-node:")) {
         const graphNodeId = focusTarget.slice("graph-node:".length);
-        document.querySelector(`[data-node-id="${CSS.escape(graphNodeId)}"]`)?.focus();
+        document.querySelector(`[data-node-id="${CSS.escape(graphNodeId)}"]`)?.focus({ preventScroll: true });
       }
       return;
     }
@@ -66,7 +75,7 @@ export function initWindowManager(container, projects) {
     container.appendChild(win);
 
     if (focusTarget === "open-window") {
-      closeBtn.focus();
+      closeBtn.focus({ preventScroll: true });
     }
   }
 }
