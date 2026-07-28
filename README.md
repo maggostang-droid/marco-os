@@ -25,8 +25,11 @@ npm test
 ```
 
 Führt alle Dateien in `tests/` über Node's eingebauten Test-Runner aus
-(keine Abhängigkeiten nötig): `graph-layout.test.js`, `state.test.js`,
-`projects.test.js`, `html-utils.test.js` und `focus-target.test.js`.
+(keine Abhängigkeiten nötig): `graph-layout.test.js`, `state.test.js`
+(inkl. Zoom-Clamping), `projects.test.js`, `html-utils.test.js` und
+`focus-target.test.js`. `scene.js`/`window-manager.js`/`taskbar.js`/
+`starfield.js` sind DOM-lastig und bleiben wie bisher manuell im Browser
+verifiziert (375px/1280px+).
 
 ## Neues Projekt hinzufügen
 
@@ -45,9 +48,13 @@ berechnet — keine manuelle Koordinaten-Pflege nötig.
   nach Fenster-Öffnen/-Wechsel/-Schließen (unit-getestet)
 - `assets/js/html-utils.js` — `escapeHtml()`-Helfer für Projektdaten in
   Templates (unit-getestet)
-- `assets/js/scene.js` — rendert Graph-Knoten & -Kanten
+- `assets/js/scene.js` — rendert Graph-Knoten & -Kanten, inkl. Zoom
+  (Mausrad + `state.zoomLevel`, automatischer Fokus-Zoom-Bonus)
 - `assets/js/window-manager.js` — Projekt-Detail-Fenster
-- `assets/js/taskbar.js` — Uhr, aktive App, KI-Guide-Tipps
+- `assets/js/taskbar.js` — Uhr, aktive App, KI-Guide-Tipps, Zoom-Buttons
+  (+/−)
 - `assets/js/boot.js` — überspringbare Boot-Sequenz
+- `assets/js/starfield.js` — parallaxender Sternfeld-Hintergrund
+  (mausreaktiv, respektiert `prefers-reduced-motion`)
 
 Details zu Design-Entscheidungen: [docs/superpowers/specs/2026-07-28-marco-os-design.md](docs/superpowers/specs/2026-07-28-marco-os-design.md)
