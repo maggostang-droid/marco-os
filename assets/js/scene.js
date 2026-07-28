@@ -3,6 +3,8 @@ import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut } from "./
 import { escapeHtml } from "./html-utils.js";
 
 const FOCUS_ZOOM_BONUS = 2.6;
+const REVEAL_STAGGER_MS = 90;
+const REVEAL_LABEL_EXTRA_MS = 60;
 
 export function initScene(container, projects) {
   const viewport = document.createElement("div");
@@ -67,6 +69,8 @@ export function initScene(container, projects) {
     // above already applies to the whole layer. Rebuilding on every zoom
     // tick (mouse wheel fires many notifies) restarted the edge-runner
     // CSS animations from scratch every time, making them visibly stutter.
+    if (state.bootComplete) container.classList.add("is-revealed");
+
     const contentKey = `${focusedProjectId ?? ""}:${viewportSize}`;
     if (contentKey === lastContentKey) return;
     lastContentKey = contentKey;
@@ -105,6 +109,9 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId) {
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
 
+    const edgeRevealOrder = index * 2 + 1;
+    line.style.transitionDelay = `${edgeRevealOrder * REVEAL_STAGGER_MS}ms`;
+
     // Staggered negative delay so runners on different edges don't all
     // travel in lockstep.
     const runner = document.createElement("div");
@@ -131,7 +138,7 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
   let planetIndex = 0;
   const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
 
-  nodes.forEach((node) => {
+  nodes.forEach((node, nodeIndex) => {
     const isProject = node.type === "project";
     const el = document.createElement(isProject ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
@@ -139,9 +146,13 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
 
+    const revealOrder = nodeIndex === 0 ? 0 : nodeIndex * 2;
+    const dotDelay = `${revealOrder * REVEAL_STAGGER_MS}ms`;
+    const labelDelay = `${revealOrder * REVEAL_STAGGER_MS + REVEAL_LABEL_EXTRA_MS}ms`;
+
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());
-      el.innerHTML = `<span class="node-dot"></span><h1 class="node-label">Marco Stang</h1>`;
+      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
     } else {
       const project = projectById[node.id];
       if (node.tier === "idea") el.classList.add("node--idea");
@@ -149,7 +160,7 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
-      el.innerHTML = `<span class="node-dot"></span><span class="node-label">${escapeHtml(project.title)}</span>`;
+      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><span class="node-label" style="transition-delay: ${labelDelay}">${escapeHtml(project.title)}</span>`;
       el.addEventListener("click", () => focusProject(node.id));
     }
 
