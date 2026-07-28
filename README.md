@@ -24,8 +24,9 @@ python -m http.server 8000
 npm test
 ```
 
-Führt `graph-layout.test.js`, `state.test.js` und `projects.test.js` über
-Node's eingebauten Test-Runner aus (keine Abhängigkeiten nötig).
+Führt alle Dateien in `tests/` über Node's eingebauten Test-Runner aus
+(keine Abhängigkeiten nötig): `graph-layout.test.js`, `state.test.js`,
+`projects.test.js`, `html-utils.test.js` und `focus-target.test.js`.
 
 ## Neues Projekt hinzufügen
 
@@ -37,8 +38,13 @@ berechnet — keine manuelle Koordinaten-Pflege nötig.
 ## Struktur
 
 - `data/projects.js` — Projektdaten (einzige Quelle für Inhalte)
-- `assets/js/graph-layout.js` — reine Layout-Funktion (unit-getestet)
+- `assets/js/graph-layout.js` — reine Layout-Funktion (unit-getestet),
+  inkl. Viewport-abhängiger Radius-Skalierung
 - `assets/js/state.js` — zentrales State-Modul (unit-getestet)
+- `assets/js/focus-target.js` — reine Funktion für Fokus-Restore-Logik
+  nach Fenster-Öffnen/-Wechsel/-Schließen (unit-getestet)
+- `assets/js/html-utils.js` — `escapeHtml()`-Helfer für Projektdaten in
+  Templates (unit-getestet)
 - `assets/js/scene.js` — rendert Graph-Knoten & -Kanten
 - `assets/js/window-manager.js` — Projekt-Detail-Fenster
 - `assets/js/taskbar.js` — Uhr, aktive App, KI-Guide-Tipps
