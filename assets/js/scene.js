@@ -6,7 +6,8 @@ export function initScene(container, projects) {
   subscribe(render);
 
   function render() {
-    const { nodes, edges } = computeLayout(projects, state.activeProjectId);
+    const viewportSize = Math.min(container.clientWidth, window.innerHeight);
+    const { nodes, edges } = computeLayout(projects, state.activeProjectId, viewportSize);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
