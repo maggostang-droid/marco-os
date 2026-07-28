@@ -42,7 +42,12 @@ export function initBoot(overlay, projects) {
   document.addEventListener("keydown", finish, { signal: controller.signal });
 
   if (prefersReducedMotion) {
-    overlay.innerHTML = lines.map((line) => `<div class="boot-line">${line}</div>`).join("");
+    lines.forEach((line) => {
+      const lineEl = document.createElement("div");
+      lineEl.className = "boot-line";
+      lineEl.textContent = line;
+      overlay.appendChild(lineEl);
+    });
     setTimeout(finish, FINISH_PAUSE_MS);
     return;
   }
