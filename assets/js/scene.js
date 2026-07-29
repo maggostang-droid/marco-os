@@ -103,9 +103,11 @@ export function initScene(container, projects) {
     // project, so same-cluster planets fade in together.
     const nodeBatchCount = 1 + rings.length;
 
+    const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+
     content.innerHTML = "";
     content.appendChild(buildOrbitLayer(rings, nodeBatchCount, focusedProjectId));
-    content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount));
+    content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, projectById));
     content.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
 
     if (previouslyFocusedId) {
@@ -160,7 +162,7 @@ function buildOrbitLayer(rings, nodeBatchCount, focusedProjectId) {
   return svg;
 }
 
-function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount) {
+function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, projectById) {
   const layer = document.createElement("div");
   layer.className = "graph-edges";
 
@@ -168,9 +170,15 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount) {
   // duration), not just stagger order — so e.g. the edge phase only starts
   // once the *last* planet batch has actually finished fading in, not
   // merely once it started.
-  const edgeCount = edges.length;
+  //
+  // Reveal batches: edges arrive grouped by cluster (computeLayout iterates
+  // CLUSTER_ORDER, same as nodes), so — like buildNodeLayer's planets — every
+  // edge into the same cluster fades in together as one batch instead of
+  // staggering in individually. One batch per cluster ring, so the batch
+  // count matches nodeBatchCount minus the leading center-node batch.
+  const edgeBatchCount = Math.max(nodeBatchCount - 1, 0);
   const edgePhaseStartMs = edgePhaseStart(nodeBatchCount);
-  const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
+  const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeBatchCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
   const runnerPhaseStartMs = edgePhaseEndMs + PHASE_GAP_MS;
 
   // Only the very first build (before boot has completed) needs the long
@@ -180,6 +188,9 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount) {
   // so the animation would apply immediately regardless of delay; keep
   // runners starting right away for those, matching pre-existing behavior.
   const isInitialReveal = !state.bootComplete;
+
+  let batchIndex = -1;
+  let lastCluster = null;
 
   edges.forEach((edge, index) => {
     const from = nodesById[edge.from];
@@ -191,12 +202,23 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount) {
     const length = Math.hypot(dx, dy);
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
+    // Batch by the destination project's actual cluster, not edge.kind —
+    // "idea"-tier edges don't carry cluster info in their kind, but their
+    // target project still belongs to a real cluster ring (see graph-layout.js),
+    // so they must batch with their cluster's other edges, matching how
+    // buildNodeLayer batches planets by project.cluster regardless of tier.
+    const cluster = projectById[edge.to]?.cluster ?? null;
+    if (cluster !== lastCluster) {
+      batchIndex += 1;
+      lastCluster = cluster;
+    }
+
     const line = document.createElement("div");
     line.className = `edge edge--${edge.kind}`;
     if (focusedProjectId && edge.to !== focusedProjectId) line.classList.add("is-dimmed");
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
-    line.style.transitionDelay = `${edgePhaseStartMs + index * EDGE_STAGGER_MS}ms`;
+    line.style.transitionDelay = `${edgePhaseStartMs + batchIndex * EDGE_STAGGER_MS}ms`;
 
     // Positive delay so the runner sits invisible (its 0% keyframe is
     // opacity: 0) until after the whole edge-reveal phase has settled,
