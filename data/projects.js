@@ -149,7 +149,8 @@ export const projects = [
     demoUrl: "https://second-brain-projects.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/ask-marco-assistant",
     status: "live",
-    cluster: "agentic-ai"
+    cluster: "agentic-ai",
+    orbitsCenter: true
   },
   {
     id: "hr-interview-cockpit",

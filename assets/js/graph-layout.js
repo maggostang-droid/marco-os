@@ -45,6 +45,24 @@ const CLUSTER_ANGLE_OFFSET_DEG = {
 // "not built yet" stays legible even though they're still grouped by skill.
 const IDEA_ORBIT_MULTIPLIER = 1.2;
 
+// A project with orbitsCenter: true belongs to Marco himself, not a skill
+// cluster (currently just second-brain/Ask-Marco Assistant) — it skips the
+// cluster-ring system entirely and instead sits on its own small, fixed
+// orbit right next to the center node, like a moon. MOON_RADIUS is
+// deliberately far inside even the innermost cluster ring (agentic-ai sits
+// at ~0.95 * BASE_RADIUS) so it reads as "orbiting Marco", not "a tight
+// cluster ring" — but still large enough to clear the center node's own
+// 52px dot + glow and its "Marco Stang" label underneath (a smaller radius
+// visually collided the moon and its label into Marco's own sphere). A true
+// circle (no ELLIPSE_ASPECT flattening) since, unlike the wide cluster
+// rings, a single small moon orbit doesn't need to match the viewport's
+// aspect ratio.
+const MOON_RADIUS = 140;
+// -15deg (mostly rightward, barely up) sits clear of agentic-ai's own three
+// member angles (45/165/285deg, each ~60deg+ away), so the moon and its
+// label don't crowd whichever agentic-ai planet happens to render nearby.
+const MOON_ANGLE_OFFSET_DEG = -15;
+
 function viewportScale(viewportSize) {
   if (!viewportSize) return 1;
   return Math.min(1, Math.max(MIN_VIEWPORT_SCALE, viewportSize / REFERENCE_VIEWPORT));
@@ -56,11 +74,29 @@ export function computeLayout(projects, viewportSize = null) {
   const rings = [];
 
   const scale = viewportScale(viewportSize);
-  const count = projects.length;
+
+  const moonProjects = projects.filter((project) => project.orbitsCenter);
+  const ringProjects = projects.filter((project) => !project.orbitsCenter);
+
+  // Moons orbit Marco directly on their own small radius, evenly spaced if
+  // there's ever more than one — entirely separate from the cluster-ring
+  // system below, so they never join a ring or a cluster-colored edge.
+  const moonRadius = MOON_RADIUS * scale;
+  const moonAngleOffset = (MOON_ANGLE_OFFSET_DEG * Math.PI) / 180;
+  moonProjects.forEach((project, index) => {
+    const angle = (2 * Math.PI * index) / moonProjects.length + moonAngleOffset;
+    const x = Math.cos(angle) * moonRadius;
+    const y = Math.sin(angle) * moonRadius;
+
+    nodes.push({ id: project.id, type: "project", tier: "moon", x, y });
+    edges.push({ from: "center", to: project.id, kind: "moon" });
+  });
+
+  const count = ringProjects.length;
   const baseRadius = (BASE_RADIUS + Math.max(0, count - 3) * RADIUS_STEP_PER_EXTRA_PROJECT) * scale;
 
   const projectsByCluster = new Map();
-  for (const project of projects) {
+  for (const project of ringProjects) {
     if (!CLUSTER_ORDER.includes(project.cluster)) {
       console.warn(
         `computeLayout: project "${project.id}" has unrecognized cluster "${project.cluster}" — it will not be rendered as a node.`

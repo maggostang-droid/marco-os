@@ -181,6 +181,13 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, proj
   const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeBatchCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
   const runnerPhaseStartMs = edgePhaseEndMs + PHASE_GAP_MS;
 
+  // Moon edges (kind "moon") reveal with the center's own batch-0 nodes,
+  // not with the cluster planets — edgePhaseStart(1) reuses the same "start
+  // delay + fade duration" formula as the cluster edges above, but for a
+  // single node batch, so the moon's connector appears right after Marco
+  // and the moon itself finish fading in, well before any cluster planet.
+  const moonEdgePhaseStartMs = edgePhaseStart(1);
+
   // Only the very first build (before boot has completed) needs the long
   // phased delay — it's timed against .is-revealed being added at boot
   // completion (see the CSS rule this pairs with). Later rebuilds (e.g.
@@ -202,15 +209,21 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, proj
     const length = Math.hypot(dx, dy);
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
+    const isMoonEdge = edge.kind === "moon";
+
     // Batch by the destination project's actual cluster, not edge.kind —
     // "idea"-tier edges don't carry cluster info in their kind, but their
     // target project still belongs to a real cluster ring (see graph-layout.js),
     // so they must batch with their cluster's other edges, matching how
     // buildNodeLayer batches planets by project.cluster regardless of tier.
-    const cluster = projectById[edge.to]?.cluster ?? null;
-    if (cluster !== lastCluster) {
-      batchIndex += 1;
-      lastCluster = cluster;
+    // Moon edges skip this entirely — they never advance batchIndex/lastCluster,
+    // so they don't shift the cluster batching of the edges that follow them.
+    if (!isMoonEdge) {
+      const cluster = projectById[edge.to]?.cluster ?? null;
+      if (cluster !== lastCluster) {
+        batchIndex += 1;
+        lastCluster = cluster;
+      }
     }
 
     const line = document.createElement("div");
@@ -218,17 +231,23 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, proj
     if (focusedProjectId && edge.to !== focusedProjectId) line.classList.add("is-dimmed");
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
-    line.style.transitionDelay = `${edgePhaseStartMs + batchIndex * EDGE_STAGGER_MS}ms`;
+    line.style.transitionDelay = isMoonEdge
+      ? `${moonEdgePhaseStartMs}ms`
+      : `${edgePhaseStartMs + batchIndex * EDGE_STAGGER_MS}ms`;
 
     // Positive delay so the runner sits invisible (its 0% keyframe is
     // opacity: 0) until after the whole edge-reveal phase has settled,
     // then starts flowing — the fourth and final reveal phase. Still
     // staggered per-edge so runners don't all launch in perfect lockstep.
-    const runner = document.createElement("div");
-    runner.className = "edge-runner";
-    const runnerDelayMs = isInitialReveal ? runnerPhaseStartMs + index * RUNNER_STAGGER_MS : 0;
-    runner.style.animationDelay = `${runnerDelayMs}ms`;
-    line.appendChild(runner);
+    // Moon edges skip the runner light entirely — a short, static connector
+    // to Marco doesn't need a flowing "data" animation like the cluster edges.
+    if (!isMoonEdge) {
+      const runner = document.createElement("div");
+      runner.className = "edge-runner";
+      const runnerDelayMs = isInitialReveal ? runnerPhaseStartMs + index * RUNNER_STAGGER_MS : 0;
+      runner.style.animationDelay = `${runnerDelayMs}ms`;
+      line.appendChild(runner);
+    }
 
     layer.appendChild(line);
   });
@@ -261,13 +280,17 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
   // the same cluster fades in together as one batch, instead of each planet
   // staggering in individually. Nodes already arrive grouped by cluster
   // (computeLayout iterates CLUSTER_ORDER), so a new batch starts exactly
-  // when the cluster changes.
+  // when the cluster changes. Moons (tier "moon") belong to Marco, not a
+  // cluster — they always reveal in batch 0 alongside the center node
+  // itself, and never advance batchIndex/lastCluster, so they don't disturb
+  // the cluster batching of the planets that follow them in `nodes`.
   let batchIndex = 0;
   let lastCluster = null;
 
   nodes.forEach((node) => {
     const isProject = node.type === "project";
     const isCenter = node.type === "center";
+    const isMoon = isProject && node.tier === "moon";
     const el = document.createElement(isProject || isCenter ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
     if (isProject && focusedProjectId && node.id !== focusedProjectId) el.classList.add("is-dimmed");
@@ -275,13 +298,14 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
     el.dataset.nodeId = node.id;
 
     const project = isProject ? projectById[node.id] : null;
-    if (isProject && project.cluster !== lastCluster) {
+    if (isProject && !isMoon && project.cluster !== lastCluster) {
       batchIndex += 1;
       lastCluster = project.cluster;
     }
 
-    const dotDelay = `${batchIndex * NODE_STAGGER_MS}ms`;
-    const labelDelay = `${batchIndex * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
+    const effectiveBatch = isMoon ? 0 : batchIndex;
+    const dotDelay = `${effectiveBatch * NODE_STAGGER_MS}ms`;
+    const labelDelay = `${effectiveBatch * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
 
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());
@@ -292,12 +316,17 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
       el.addEventListener("click", () => focusProject(SECOND_BRAIN_CHAT_ID));
     } else {
-      if (node.tier === "idea") {
+      if (node.tier === "moon") {
+        // Moons get their own neutral look, not a cluster color or one of
+        // the planet-texture variants (those are sized/shaded for full
+        // planets and don't scale down cleanly to moon size).
+        el.classList.add("node--moon");
+      } else if (node.tier === "idea") {
         el.classList.add("node--idea");
       } else {
         el.classList.add(CLUSTER_COLOR_CLASS[project.cluster]);
       }
-      el.classList.add(nextPlanetVariant());
+      if (node.tier !== "moon") el.classList.add(nextPlanetVariant());
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));

@@ -120,6 +120,14 @@ body {
 .edge--idea {
   background: repeating-linear-gradient(90deg, rgba(138, 134, 168, .5) 0 6px, transparent 6px 11px);
 }
+/* Connector to the center's moon (see .node--moon) — thin, neutral, static
+   (no pulse/runner, unlike the cluster edges) so it reads as a short local
+   orbit line rather than a cluster-membership signal. */
+.edge--moon {
+  height: 1px;
+  background: rgba(255, 255, 255, .45);
+  box-shadow: 0 0 4px rgba(255, 255, 255, .35);
+}
 .edge--cluster-agentic-ai {
   background: var(--amber);
   box-shadow: 0 0 6px rgba(251, 191, 36, .6);
@@ -331,6 +339,16 @@ button.node--center:focus-visible .node-dot {
   background: radial-gradient(circle at 35% 30%, #c9c6df, #514c6e 60%, #332e4d);
   box-shadow: none;
   opacity: .75;
+}
+/* Moon of the center node (orbitsCenter: true projects, e.g. Ask-Marco
+   Assistant) — neutral white/silver, not a cluster color, and noticeably
+   smaller than a regular planet so it reads as "belongs to Marco" rather
+   than "a skill-cluster project". */
+.node--project.node--moon .node-dot {
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d8d5ea 55%, #8a86a8);
+  box-shadow: 0 0 14px rgba(255, 255, 255, .55);
 }
 
 .node--project.is-dimmed {
