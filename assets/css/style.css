@@ -333,8 +333,11 @@ button.node--center:focus-visible .node-label {
 .node--center .node-dot {
   width: 52px;
   height: 52px;
-  background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 60%, #4c3a8f);
-  box-shadow: 0 0 32px rgba(167, 139, 250, .55);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, .95), transparent 10%),
+    radial-gradient(circle at 78% 80%, rgba(0, 0, 0, .35), transparent 55%),
+    radial-gradient(circle at 35% 30%, #fff, var(--violet) 60%, #4c3a8f);
+  box-shadow: 0 0 14px rgba(167, 139, 250, .7), 0 0 46px rgba(167, 139, 250, .25);
 }
 
 .node--project .node-dot {
@@ -345,16 +348,25 @@ button.node--center:focus-visible .node-label {
    maps each project's cluster to a fixed color) so a planet's color
    reinforces which orbit it belongs to instead of being purely decorative. */
 .node--project.node--color-amber .node-dot {
-  background: radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
-  box-shadow: 0 0 22px rgba(251, 191, 36, .5);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, .95), transparent 10%),
+    radial-gradient(circle at 78% 80%, rgba(0, 0, 0, .35), transparent 55%),
+    radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
+  box-shadow: 0 0 10px rgba(251, 191, 36, .65), 0 0 32px rgba(251, 191, 36, .22);
 }
 .node--project.node--color-teal .node-dot {
-  background: radial-gradient(circle at 35% 30%, #d9fffa, var(--teal) 55%, #0f766e);
-  box-shadow: 0 0 22px rgba(94, 234, 212, .5);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, .95), transparent 10%),
+    radial-gradient(circle at 78% 80%, rgba(0, 0, 0, .35), transparent 55%),
+    radial-gradient(circle at 35% 30%, #d9fffa, var(--teal) 55%, #0f766e);
+  box-shadow: 0 0 10px rgba(94, 234, 212, .65), 0 0 32px rgba(94, 234, 212, .22);
 }
 .node--project.node--color-violet .node-dot {
-  background: radial-gradient(circle at 35% 30%, #ece7ff, var(--violet) 55%, #4c3a8f);
-  box-shadow: 0 0 22px rgba(167, 139, 250, .5);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, .95), transparent 10%),
+    radial-gradient(circle at 78% 80%, rgba(0, 0, 0, .35), transparent 55%),
+    radial-gradient(circle at 35% 30%, #ece7ff, var(--violet) 55%, #4c3a8f);
+  box-shadow: 0 0 10px rgba(167, 139, 250, .65), 0 0 32px rgba(167, 139, 250, .22);
 }
 .node--project.node--idea .node-dot {
   width: 22px;
@@ -370,8 +382,10 @@ button.node--center:focus-visible .node-label {
 .node--project.node--moon .node-dot {
   width: 18px;
   height: 18px;
-  background: radial-gradient(circle at 35% 30%, #ffffff, #d8d5ea 55%, #8a86a8);
-  box-shadow: 0 0 14px rgba(255, 255, 255, .55);
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, .95), transparent 12%),
+    radial-gradient(circle at 35% 30%, #ffffff, #d8d5ea 55%, #8a86a8);
+  box-shadow: 0 0 6px rgba(255, 255, 255, .5), 0 0 16px rgba(255, 255, 255, .25);
 }
 
 .node--project.is-dimmed {
