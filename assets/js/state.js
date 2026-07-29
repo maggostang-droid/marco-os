@@ -10,6 +10,10 @@ const ZOOM_STEP = 0.1;
 // would collide with it and hijack that project's own window).
 export const SECOND_BRAIN_CHAT_ID = "__second-brain-chat__";
 
+// Same reasoning as SECOND_BRAIN_CHAT_ID above — the résumé window isn't a
+// real data/projects.js entry either, so it needs its own collision-proof id.
+export const RESUME_ID = "__resume__";
+
 export const state = {
   bootComplete: false,
   activeProjectId: null,
@@ -67,4 +71,18 @@ export function resetState() {
   state.activeProjectId = null;
   state.zoomLevel = 1;
   listeners.clear();
+}
+
+// SECOND_BRAIN_CHAT_ID and RESUME_ID are UI sentinels, not real
+// graph-layout.js node ids — the résumé "lives" at the center node, the chat
+// "lives" at the second-brain moon node (see data/projects.js's
+// orbitsCenter entry). scene.js needs the *real* node id a sentinel
+// represents to correctly zoom/dim the right graph node — this is that
+// mapping, kept here (next to the sentinels themselves) so the two can't
+// drift apart.
+export function resolveFocusedNodeId(activeProjectId) {
+  if (!activeProjectId) return null;
+  if (activeProjectId === RESUME_ID) return "center";
+  if (activeProjectId === SECOND_BRAIN_CHAT_ID) return "second-brain";
+  return activeProjectId;
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { state, subscribe, completeBoot, focusProject, closeWindow, resetState, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID } from "../assets/js/state.js";
+import { state, subscribe, completeBoot, focusProject, closeWindow, resetState, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID, RESUME_ID, resolveFocusedNodeId } from "../assets/js/state.js";
 
 test("completeBoot flips bootComplete to true", () => {
   resetState();
@@ -105,4 +105,32 @@ test("focusProject accepts the second-brain sentinel id like any other id", () =
   resetState();
   focusProject(SECOND_BRAIN_CHAT_ID);
   assert.equal(state.activeProjectId, SECOND_BRAIN_CHAT_ID);
+});
+
+test("RESUME_ID is a stable, non-empty identifier distinct from SECOND_BRAIN_CHAT_ID", () => {
+  assert.equal(RESUME_ID, "__resume__");
+  assert.notEqual(RESUME_ID, SECOND_BRAIN_CHAT_ID);
+});
+
+test("focusProject accepts the resume sentinel id like any other id", () => {
+  resetState();
+  focusProject(RESUME_ID);
+  assert.equal(state.activeProjectId, RESUME_ID);
+});
+
+test("resolveFocusedNodeId maps RESUME_ID to the center node", () => {
+  assert.equal(resolveFocusedNodeId(RESUME_ID), "center");
+});
+
+test("resolveFocusedNodeId maps SECOND_BRAIN_CHAT_ID to the second-brain moon node", () => {
+  assert.equal(resolveFocusedNodeId(SECOND_BRAIN_CHAT_ID), "second-brain");
+});
+
+test("resolveFocusedNodeId passes through a real project id unchanged", () => {
+  assert.equal(resolveFocusedNodeId("sql-agent"), "sql-agent");
+});
+
+test("resolveFocusedNodeId returns null for a null/empty input", () => {
+  assert.equal(resolveFocusedNodeId(null), null);
+  assert.equal(resolveFocusedNodeId(""), null);
 });
