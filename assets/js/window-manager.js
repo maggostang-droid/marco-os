@@ -101,7 +101,7 @@ function buildProjectWindow(project) {
       <p class="summary">${escapeHtml(project.summary)}</p>
       <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
       <button type="button" class="tech-toggle" aria-expanded="false">▸ Technische Details anzeigen</button>
-      <p class="description" hidden>${escapeHtml(project.description)}</p>
+      <div class="description-wrap"><p class="description" aria-hidden="true">${escapeHtml(project.description)}</p></div>
       <div class="btn-row">${actionHtml}${repoHtml}</div>
     </div>
   `;
@@ -111,10 +111,12 @@ function buildProjectWindow(project) {
 
 function wireProjectWindowInteractions(win) {
   const techToggle = win.querySelector(".tech-toggle");
+  const descriptionWrap = win.querySelector(".description-wrap");
   const descriptionEl = win.querySelector(".description");
   techToggle.addEventListener("click", () => {
-    const expanding = descriptionEl.hidden;
-    descriptionEl.hidden = !expanding;
+    const expanding = !descriptionWrap.classList.contains("is-expanded");
+    descriptionWrap.classList.toggle("is-expanded", expanding);
+    descriptionEl.setAttribute("aria-hidden", String(!expanding));
     techToggle.setAttribute("aria-expanded", String(expanding));
     techToggle.textContent = expanding ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen";
   });
@@ -172,7 +174,7 @@ function buildResumeWindow(resume) {
       ${stationsHtml}
       <div class="tags">${skillsHtml}</div>
       <button type="button" class="resume-toggle" aria-expanded="false">▸ Vollständigen Werdegang anzeigen</button>
-      <ul class="resume-extra" hidden>${extraHtml}</ul>
+      <div class="resume-extra-wrap"><ul class="resume-extra" aria-hidden="true">${extraHtml}</ul></div>
       <div class="btn-row">
         <a class="btn primary" href="${resume.pdfUrl}" download>Vollständigen Lebenslauf laden (PDF)</a>
       </div>
@@ -183,11 +185,13 @@ function buildResumeWindow(resume) {
 }
 
 function wireResumeWindowInteractions(win) {
-  const toggle = win.querySelector(".resume-toggle");
+  const wrap = win.querySelector(".resume-extra-wrap");
   const extra = win.querySelector(".resume-extra");
+  const toggle = win.querySelector(".resume-toggle");
   toggle.addEventListener("click", () => {
-    const expanding = extra.hidden;
-    extra.hidden = !expanding;
+    const expanding = !wrap.classList.contains("is-expanded");
+    wrap.classList.toggle("is-expanded", expanding);
+    extra.setAttribute("aria-hidden", String(!expanding));
     toggle.setAttribute("aria-expanded", String(expanding));
     toggle.textContent = expanding ? "▾ Vollständigen Werdegang verbergen" : "▸ Vollständigen Werdegang anzeigen";
   });
