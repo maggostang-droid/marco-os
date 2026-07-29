@@ -508,10 +508,24 @@ button.node--center:focus-visible .node-label {
   margin: 8px 0 10px;
 }
 .description {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
   font-size: 12px;
   line-height: 1.6;
   color: var(--text-secondary);
+}
+.description.is-expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
   margin: 6px 0 12px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .description {
+    transition: grid-template-rows 200ms ease, opacity 200ms ease, margin 200ms ease;
+  }
 }
 .tech-toggle {
   display: block;
@@ -595,11 +609,25 @@ button.node--center:focus-visible .node-label {
   outline-offset: 2px;
 }
 .resume-extra {
-  margin: 0 0 12px;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
   padding-left: 16px;
   font-size: 11.5px;
   line-height: 1.6;
   color: var(--text-secondary);
+}
+.resume-extra.is-expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin: 0 0 12px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .resume-extra {
+    transition: grid-template-rows 200ms ease, opacity 200ms ease, margin 200ms ease;
+  }
 }
 .btn-row {
   display: flex;

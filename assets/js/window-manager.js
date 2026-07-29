@@ -95,7 +95,7 @@ function buildProjectWindow(project) {
       <p class="summary">${escapeHtml(project.summary)}</p>
       <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
       <button type="button" class="tech-toggle" aria-expanded="false">▸ Technische Details anzeigen</button>
-      <p class="description" hidden>${escapeHtml(project.description)}</p>
+      <p class="description" aria-hidden="true">${escapeHtml(project.description)}</p>
       <div class="btn-row">${actionHtml}${repoHtml}</div>
     </div>
   `;
@@ -107,8 +107,9 @@ function wireProjectWindowInteractions(win) {
   const techToggle = win.querySelector(".tech-toggle");
   const descriptionEl = win.querySelector(".description");
   techToggle.addEventListener("click", () => {
-    const expanding = descriptionEl.hidden;
-    descriptionEl.hidden = !expanding;
+    const expanding = !descriptionEl.classList.contains("is-expanded");
+    descriptionEl.classList.toggle("is-expanded", expanding);
+    descriptionEl.setAttribute("aria-hidden", String(!expanding));
     techToggle.setAttribute("aria-expanded", String(expanding));
     techToggle.textContent = expanding ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen";
   });
@@ -166,7 +167,7 @@ function buildResumeWindow(resume) {
       ${stationsHtml}
       <div class="tags">${skillsHtml}</div>
       <button type="button" class="resume-toggle" aria-expanded="false">▸ Vollständigen Werdegang anzeigen</button>
-      <ul class="resume-extra" hidden>${extraHtml}</ul>
+      <ul class="resume-extra" aria-hidden="true">${extraHtml}</ul>
       <div class="btn-row">
         <a class="btn primary" href="${resume.pdfUrl}" target="_blank" rel="noopener" download>Vollständigen Lebenslauf laden (PDF)</a>
       </div>
@@ -180,8 +181,9 @@ function wireResumeWindowInteractions(win) {
   const toggle = win.querySelector(".resume-toggle");
   const extra = win.querySelector(".resume-extra");
   toggle.addEventListener("click", () => {
-    const expanding = extra.hidden;
-    extra.hidden = !expanding;
+    const expanding = !extra.classList.contains("is-expanded");
+    extra.classList.toggle("is-expanded", expanding);
+    extra.setAttribute("aria-hidden", String(!expanding));
     toggle.setAttribute("aria-expanded", String(expanding));
     toggle.textContent = expanding ? "▾ Vollständigen Werdegang verbergen" : "▸ Vollständigen Werdegang anzeigen";
   });
