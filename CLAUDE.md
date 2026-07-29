@@ -34,9 +34,12 @@ which (if either) becomes the permanent portfolio. Don't assume parity with
 stangverse's implementation choices.
 
 The `second-brain` chat app (separate repo/Streamlit) is implemented: clicking
-the "Marco Stang" center node opens a window embedding
+the "Ask-Marco Assistant" moon node opens a window embedding
 `https://second-brain-projects.streamlit.app/?embed=true` via `<iframe>` — see
-`docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md`.
+`docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md`. The
+"Marco Stang" center node instead opens a résumé window (see `data/resume.js`
+and the `RESUME_ID` sentinel below) — these two click targets were swapped
+from the chat window's original design.
 
 **Non-obvious gotcha:** there are two distinct "second-brain" things in this
 codebase. (a) A real `data/projects.js` project entry with `id: "second-brain"`
@@ -44,6 +47,9 @@ codebase. (a) A real `data/projects.js` project entry with `id: "second-brain"`
 `SECOND_BRAIN_CHAT_ID` in `state.js` (currently `"__second-brain-chat__"`),
 deliberately *not* the string `"second-brain"` so it can't collide with (a).
 Know both exist and why they're different strings before touching this area.
+Similarly, the résumé window's `RESUME_ID` sentinel (`"__resume__"`) has no
+collision risk of its own — `data/resume.js` isn't a `data/projects.js` entry
+at all, just a separate data module the résumé window reads from.
 
 ## Commands
 
@@ -74,8 +80,11 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   `coldStartNote`). No position field — layout is computed at runtime.
 - `assets/js/state.js` — central state singleton (`activeProjectId`,
   `bootComplete`, `zoomLevel`) with a subscribe/notify pattern. Also exports
-  `SECOND_BRAIN_CHAT_ID`, the sentinel `activeProjectId` value for the chat
-  window (see the "second-brain" gotcha above).
+  `SECOND_BRAIN_CHAT_ID` and `RESUME_ID`, the sentinel `activeProjectId`
+  values for the chat window and the résumé window respectively (see the
+  "second-brain" gotcha above), plus `resolveFocusedNodeId`, the single
+  source of truth for mapping a sentinel `activeProjectId` to the real
+  graph-layout.js node id it should restore focus/zoom to.
 - `assets/js/boot.js` — typewriter-style boot-line overlay (generic system
   lines + one line per project), skippable by click/keypress at any point,
   respects `prefers-reduced-motion`. Once it finishes, `state.bootComplete`
@@ -103,9 +112,10 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   per-star DOM nodes), lives inside `.graph-viewport` so it zooms/pans with
   the graph. Mouse-reactive parallax only, respects reduced-motion.
 - `assets/js/window-manager.js` — renders the single open "terminal window"
-  for the active project, or the second-brain chat window (an `<iframe>`
+  for the active project, the second-brain chat window (an `<iframe>`
   inside a `.window--chat`-modified window) when `activeProjectId ===
-  SECOND_BRAIN_CHAT_ID`.
+  SECOND_BRAIN_CHAT_ID`, or the résumé window (a `.window--resume`-modified
+  window built from `data/resume.js`) when `activeProjectId === RESUME_ID`.
 - `assets/js/taskbar.js` — real system clock, active-window indicator,
   zoom buttons, rotating static "AI guide" tips (no real LLM behind it).
 - `assets/js/focus-target.js` / `assets/js/html-utils.js` — small pure

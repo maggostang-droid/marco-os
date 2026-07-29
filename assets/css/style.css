@@ -415,6 +415,8 @@ button.node--center:focus-visible .node-label {
 }
 
 .window {
+  display: flex;
+  flex-direction: column;
   pointer-events: auto;
   width: 380px;
   max-width: 100%;
@@ -476,6 +478,8 @@ button.node--center:focus-visible .node-label {
 }
 
 .win-body {
+  flex: 1;
+  min-height: 0;
   padding: 16px 18px;
   font-family: "Segoe UI", sans-serif;
   overflow-y: auto;

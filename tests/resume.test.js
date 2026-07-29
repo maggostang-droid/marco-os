@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { resume } from "../data/resume.js";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("resume has the required top-level fields", () => {
   const requiredFields = ["name", "headline", "intro", "currentStations", "skills", "extendedHistory", "pdfUrl"];
@@ -36,6 +41,11 @@ test("pdfUrl is a relative path ending in .pdf", () => {
   assert.equal(typeof resume.pdfUrl, "string");
   assert.ok(resume.pdfUrl.endsWith(".pdf"));
   assert.ok(!resume.pdfUrl.startsWith("/"), "pdfUrl should be relative so it works under any base path");
+});
+
+test("pdfUrl points to a file that actually exists on disk", () => {
+  const resolvedPath = path.join(repoRoot, resume.pdfUrl);
+  assert.ok(existsSync(resolvedPath), `resume.pdfUrl "${resume.pdfUrl}" does not exist at ${resolvedPath}`);
 });
 
 test("no rendered field contains a raw phone number or email address", () => {

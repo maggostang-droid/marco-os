@@ -1,4 +1,4 @@
-import { subscribe, state, closeWindow, SECOND_BRAIN_CHAT_ID, RESUME_ID } from "./state.js";
+import { subscribe, state, closeWindow, SECOND_BRAIN_CHAT_ID, RESUME_ID, resolveFocusedNodeId } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 import { nextFocusTarget } from "./focus-target.js";
 
@@ -38,11 +38,10 @@ export function initWindowManager(container, projects, resume) {
     if (!activeId) {
       if (focusTarget.startsWith("graph-node:")) {
         const graphNodeId = focusTarget.slice("graph-node:".length);
-        // The chat's logical id (SECOND_BRAIN_CHAT_ID) is deliberately not a
-        // real graph node id (it must never collide with a real project id —
-        // see Task 1's fix) — the actual DOM node for it uses graph-layout.js's
-        // own "center" node id instead, so map the two before looking it up.
-        const domNodeId = graphNodeId === SECOND_BRAIN_CHAT_ID ? "center" : graphNodeId;
+        // Sentinel ids (SECOND_BRAIN_CHAT_ID, RESUME_ID) aren't real graph
+        // node ids — resolveFocusedNodeId (state.js) is the single source of
+        // truth for mapping a sentinel to the real [data-node-id] it lives at.
+        const domNodeId = resolveFocusedNodeId(graphNodeId);
         document.querySelector(`[data-node-id="${CSS.escape(domNodeId)}"]`)?.focus({ preventScroll: true });
       }
       return;
@@ -168,7 +167,7 @@ function buildResumeWindow(resume) {
       <button type="button" class="resume-toggle" aria-expanded="false">▸ Vollständigen Werdegang anzeigen</button>
       <ul class="resume-extra" hidden>${extraHtml}</ul>
       <div class="btn-row">
-        <a class="btn primary" href="${resume.pdfUrl}" target="_blank" rel="noopener" download>Vollständigen Lebenslauf laden (PDF)</a>
+        <a class="btn primary" href="${resume.pdfUrl}" download>Vollständigen Lebenslauf laden (PDF)</a>
       </div>
     </div>
   `;
