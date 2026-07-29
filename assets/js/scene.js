@@ -158,6 +158,7 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId) {
 }
 
 const PLANET_TEXTURE_VARIANTS = ["node--planet-shaded", "node--planet-ringed", "node--planet-blotchy"];
+const PROJECT_COLOR_VARIANTS = ["node--color-amber", "node--color-teal", "node--color-violet"];
 
 function buildNodeLayer(nodes, projects, focusedProjectId) {
   const layer = document.createElement("div");
@@ -169,6 +170,12 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
   // gets used instead of coincidentally landing on the same one repeatedly.
   let planetIndex = 0;
   const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
+
+  // Separate counter from the texture cycle (and skipped for idea-tier
+  // nodes, which keep their own muted "not built yet" color) so color and
+  // texture vary independently instead of always pairing the same way.
+  let colorIndex = 0;
+  const nextColorVariant = () => PROJECT_COLOR_VARIANTS[colorIndex++ % PROJECT_COLOR_VARIANTS.length];
 
   nodes.forEach((node, nodeIndex) => {
     const isProject = node.type === "project";
@@ -186,7 +193,11 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
     } else {
       const project = projectById[node.id];
-      if (node.tier === "idea") el.classList.add("node--idea");
+      if (node.tier === "idea") {
+        el.classList.add("node--idea");
+      } else {
+        el.classList.add(nextColorVariant());
+      }
       el.classList.add(nextPlanetVariant());
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
