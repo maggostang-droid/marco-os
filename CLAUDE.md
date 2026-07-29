@@ -62,8 +62,8 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 ## Architecture
 
 - `data/projects.js` — project data (`id`, `title`, `summary`, `description`,
-  `tags`, `demoUrl`, `repoUrl`, `status`, optional `coldStartNote`). No
-  position field — layout is computed at runtime.
+  `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional
+  `coldStartNote`). No position field — layout is computed at runtime.
 - `assets/js/state.js` — central state singleton (`activeProjectId`,
   `bootComplete`, `zoomLevel`) with a subscribe/notify pattern.
 - `assets/js/boot.js` — typewriter-style boot-line overlay (generic system
@@ -71,10 +71,14 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   respects `prefers-reduced-motion`. Once it finishes, `state.bootComplete`
   flips and the background overlay fades out while the graph scene reveals
   itself.
-- `assets/js/graph-layout.js` — pure function computing node/edge coordinates
-  (radial auto-layout, viewport-responsive radius). No tag/tech-stack nodes in
-  the graph itself anymore — tech stack shows in the project window's
-  collapsible list instead. Kept unit-tested and DOM-free.
+- `assets/js/graph-layout.js` — pure function computing node/edge coordinates.
+  Projects are grouped by `cluster` (`agentic-ai`/`cloud`/`full-stack`) onto
+  their own concentric elliptical orbit around the center node, evenly
+  spaced within each ring; `status: "planned"` projects sit further out on
+  their own ring via `IDEA_ORBIT_MULTIPLIER`. Viewport-responsive radius.
+  No tag/tech-stack nodes in the graph itself anymore — tech stack shows in
+  the project window's collapsible list instead. Kept unit-tested and
+  DOM-free.
 - `assets/js/scene.js` — renders the graph: `.graph-viewport` (gets the
   zoom/pan transform) wraps a `.graph-content` div (edges + nodes, rebuilt
   only when the focused project or viewport size changes — *not* on every

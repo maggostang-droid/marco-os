@@ -15,7 +15,7 @@ const NODE_STAGGER_MS = 380;
 const NODE_FADE_MS = 700; // matches .node-dot's transition-duration
 const LABEL_EXTRA_MS = 150;
 const EDGE_STAGGER_MS = 380;
-const EDGE_FADE_MS = 500; // matches the shared .node--project/.edge opacity transition-duration
+const EDGE_FADE_MS = 500; // matches the shared .node--project/.edge/.orbit-ring opacity transition-duration
 const RUNNER_STAGGER_MS = 700;
 const PHASE_GAP_MS = 700; // pause inserted between each phase
 
@@ -67,7 +67,7 @@ export function initScene(container, projects) {
 
   function render() {
     const viewportSize = Math.min(container.clientWidth, window.innerHeight);
-    const { nodes, edges } = computeLayout(projects, viewportSize);
+    const { nodes, edges, rings } = computeLayout(projects, viewportSize);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const focusedProjectId = state.activeProjectId;
 
@@ -91,6 +91,7 @@ export function initScene(container, projects) {
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
     content.innerHTML = "";
+    content.appendChild(buildOrbitLayer(rings, edges.length));
     content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId));
     content.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
 
@@ -98,6 +99,37 @@ export function initScene(container, projects) {
       container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus({ preventScroll: true });
     }
   }
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// Faint dashed ellipse per skill cluster, drawn behind edges/nodes so the
+// cluster grouping is legible at a glance. cx/cy as percentages center each
+// ellipse on the container regardless of its pixel size — the same origin
+// edges/nodes already position themselves around via `left: 50%; top: 50%`.
+function buildOrbitLayer(rings, edgeCount) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "graph-orbits");
+
+  // Same phase-start math as buildEdgeLayer below (kept in sync deliberately
+  // — see the NODE_FADE_MS comment above): rings fade in at the start of the
+  // "lines" reveal phase, all together, while edges then stagger in across
+  // that same phase.
+  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
+  const edgePhaseStartMs = nodePhaseEndMs + PHASE_GAP_MS;
+
+  rings.forEach((ring) => {
+    const ellipse = document.createElementNS(SVG_NS, "ellipse");
+    ellipse.setAttribute("cx", "50%");
+    ellipse.setAttribute("cy", "50%");
+    ellipse.setAttribute("rx", String(ring.rx));
+    ellipse.setAttribute("ry", String(ring.ry));
+    ellipse.setAttribute("class", `orbit-ring orbit-ring--${ring.cluster}`);
+    ellipse.style.transitionDelay = `${edgePhaseStartMs}ms`;
+    svg.appendChild(ellipse);
+  });
+
+  return svg;
 }
 
 function buildEdgeLayer(edges, nodesById, focusedProjectId) {
@@ -158,7 +190,14 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId) {
 }
 
 const PLANET_TEXTURE_VARIANTS = ["node--planet-shaded", "node--planet-ringed", "node--planet-blotchy"];
-const PROJECT_COLOR_VARIANTS = ["node--color-amber", "node--color-teal", "node--color-violet"];
+
+// Fixed cluster -> color mapping (not round-robin) so color reinforces which
+// orbit a planet belongs to instead of being purely decorative.
+const CLUSTER_COLOR_CLASS = {
+  "agentic-ai": "node--color-amber",
+  cloud: "node--color-teal",
+  "full-stack": "node--color-violet"
+};
 
 function buildNodeLayer(nodes, projects, focusedProjectId) {
   const layer = document.createElement("div");
@@ -170,12 +209,6 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
   // gets used instead of coincidentally landing on the same one repeatedly.
   let planetIndex = 0;
   const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
-
-  // Separate counter from the texture cycle (and skipped for idea-tier
-  // nodes, which keep their own muted "not built yet" color) so color and
-  // texture vary independently instead of always pairing the same way.
-  let colorIndex = 0;
-  const nextColorVariant = () => PROJECT_COLOR_VARIANTS[colorIndex++ % PROJECT_COLOR_VARIANTS.length];
 
   nodes.forEach((node, nodeIndex) => {
     const isProject = node.type === "project";
@@ -196,7 +229,7 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       if (node.tier === "idea") {
         el.classList.add("node--idea");
       } else {
-        el.classList.add(nextColorVariant());
+        el.classList.add(CLUSTER_COLOR_CLASS[project.cluster]);
       }
       el.classList.add(nextPlanetVariant());
       el.type = "button";
