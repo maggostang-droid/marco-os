@@ -85,6 +85,24 @@ body {
   inset: 0;
 }
 
+.graph-orbits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.orbit-ring {
+  fill: none;
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+  opacity: .35;
+}
+.orbit-ring--agentic-ai { stroke: var(--amber); }
+.orbit-ring--cloud { stroke: var(--teal); }
+.orbit-ring--full-stack { stroke: var(--violet); }
+
 .graph-edges {
   position: absolute;
   inset: 0;
@@ -102,12 +120,22 @@ body {
 .edge--idea {
   background: repeating-linear-gradient(90deg, rgba(138, 134, 168, .5) 0 6px, transparent 6px 11px);
 }
-.edge--active {
+.edge--cluster-agentic-ai {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(251, 191, 36, .6);
+}
+.edge--cluster-cloud {
   background: var(--teal);
   box-shadow: 0 0 6px rgba(94, 234, 212, .6);
 }
+.edge--cluster-full-stack {
+  background: var(--violet);
+  box-shadow: 0 0 6px rgba(167, 139, 250, .6);
+}
 @media (prefers-reduced-motion: no-preference) {
-  .edge--active {
+  .edge--cluster-agentic-ai,
+  .edge--cluster-cloud,
+  .edge--cluster-full-stack {
     animation: edgePulse 2.4s ease-in-out infinite;
   }
 }
@@ -118,6 +146,14 @@ body {
 
 .edge.is-dimmed {
   opacity: .2;
+}
+
+/* Rings aren't tied to a specific project (unlike .edge/.node--project's
+   is-dimmed, which only dim non-focused ones), so this dims ALL rings
+   together whenever any project is focused — see the focusedProjectId
+   check in scene.js's buildOrbitLayer. */
+.orbit-ring.is-dimmed {
+  opacity: .1;
 }
 
 .edge-runner {
@@ -251,8 +287,9 @@ button.node--project:focus-visible .node-dot {
   width: 34px;
   height: 34px;
 }
-/* Color variants, cycled per project in scene.js so the graph reads as a
-   varied field of planets instead of one repeated amber dot. */
+/* Color variants, one per skill cluster (CLUSTER_COLOR_CLASS in scene.js
+   maps each project's cluster to a fixed color) so a planet's color
+   reinforces which orbit it belongs to instead of being purely decorative. */
 .node--project.node--color-amber .node-dot {
   background: radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
   box-shadow: 0 0 22px rgba(251, 191, 36, .5);
@@ -278,7 +315,8 @@ button.node--project:focus-visible .node-dot {
 }
 @media (prefers-reduced-motion: no-preference) {
   .node--project,
-  .edge {
+  .edge,
+  .orbit-ring {
     transition: opacity .5s ease;
   }
 }
@@ -301,6 +339,9 @@ button.node--project:focus-visible .node-dot {
     pointer-events: none;
   }
   .scene:not(.is-revealed) .edge {
+    opacity: 0;
+  }
+  .scene:not(.is-revealed) .orbit-ring {
     opacity: 0;
   }
 }

@@ -9,7 +9,7 @@ test("projects is a non-empty array", () => {
 
 test("every project has the required fields", () => {
   const requiredFields = [
-    "id", "title", "summary", "description", "tags", "demoUrl", "repoUrl", "status"
+    "id", "title", "summary", "description", "tags", "demoUrl", "repoUrl", "status", "cluster"
   ];
   for (const project of projects) {
     for (const field of requiredFields) {
@@ -40,5 +40,15 @@ test("status is a non-empty string", () => {
   for (const project of projects) {
     assert.equal(typeof project.status, "string", `${project.id}.status must be a string`);
     assert.ok(project.status.length > 0, `${project.id}.status must not be empty`);
+  }
+});
+
+test("every project has a valid cluster", () => {
+  const validClusters = ["agentic-ai", "cloud", "full-stack"];
+  for (const project of projects) {
+    assert.ok(
+      validClusters.includes(project.cluster),
+      `${project.id}.cluster must be one of ${validClusters.join(", ")}, got ${project.cluster}`
+    );
   }
 });
