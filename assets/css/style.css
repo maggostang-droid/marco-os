@@ -530,6 +530,65 @@ button.node--center:focus-visible .node-label {
   padding: 3px 8px;
   border-radius: 5px;
 }
+.window--resume {
+  width: 460px;
+}
+.resume-headline {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--teal);
+  margin: 0 0 6px;
+}
+.resume-intro {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c9c5e8;
+  margin: 0 0 14px;
+}
+.resume-station {
+  margin: 0 0 12px;
+}
+.resume-station-header {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #eae7fb;
+  margin: 0 0 2px;
+}
+.resume-station-period {
+  font-size: 10.5px;
+  color: var(--dim);
+  margin: 0 0 4px;
+}
+.resume-bullets {
+  margin: 0 0 4px;
+  padding-left: 16px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #c9c5e8;
+}
+.resume-toggle {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--teal);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 0;
+  margin: 4px 0 8px;
+  cursor: pointer;
+}
+.resume-toggle:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.resume-extra {
+  margin: 0 0 12px;
+  padding-left: 16px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #c9c5e8;
+}
 .btn-row {
   display: flex;
   gap: 8px;
