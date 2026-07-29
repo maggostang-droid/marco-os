@@ -327,6 +327,19 @@ button.node--project:focus-visible .node-dot {
   overflow: hidden;
 }
 
+.window--chat {
+  width: 520px;
+}
+.window--chat .win-body {
+  padding: 0;
+}
+.chat-frame {
+  display: block;
+  width: 100%;
+  height: 480px;
+  border: 0;
+}
+
 .win-title {
   background: var(--panel-2);
   padding: 8px 12px;
