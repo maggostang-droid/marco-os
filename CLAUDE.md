@@ -103,9 +103,6 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 
 ## Working style notes for this repo
 
-- Work happens directly on `master`, no worktrees/branches — an explicit,
-  repeated choice by the project owner, not an oversight. Ask before
-  introducing one for new work.
 - Bigger features go through `superpowers:brainstorming` →
   `superpowers:writing-plans` → `superpowers:subagent-driven-development`
   (spec + plan committed under `docs/superpowers/`). Small visual/timing
