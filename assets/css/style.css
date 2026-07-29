@@ -259,8 +259,23 @@ button.node--project:hover .node-dot,
 button.node--project:focus-visible .node-dot,
 button.node--center:hover .node-dot,
 button.node--center:focus-visible .node-dot {
+  scale: 1.4;
+  filter: brightness(1.8) drop-shadow(0 0 14px rgba(255, 255, 255, .8));
+}
+
+/* Label lights up alongside the planet on hover/focus — same selectors,
+   same near-instant timing (see the .node-dot/.node-label transition-
+   duration override below). Uses the standalone `scale` property (not
+   `transform`) so it composes with .node-label's own `transform:
+   translateX(-50%)` centering instead of overwriting it. */
+button.node--project:hover .node-label,
+button.node--project:focus-visible .node-label,
+button.node--center:hover .node-label,
+button.node--center:focus-visible .node-label {
   scale: 1.15;
-  filter: brightness(1.3);
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 255, 255, .95), 0 0 20px rgba(255, 255, 255, .6);
 }
 
 /* Planet-texture variants, distributed pseudo-randomly per node id
@@ -364,10 +379,10 @@ button.node--center:focus-visible .node-dot {
 
 @media (prefers-reduced-motion: no-preference) {
   .node-dot {
-    transition: opacity .7s ease-out, transform .7s ease-out, scale .18s ease-out, filter .18s ease-out;
+    transition: opacity .7s ease-out, transform .7s ease-out, scale .05s ease-out, filter .05s ease-out;
   }
   .node-label {
-    transition: opacity .55s ease-out;
+    transition: opacity .55s ease-out, color .05s ease-out, text-shadow .05s ease-out, scale .05s ease-out;
   }
   .scene:not(.is-revealed) .node-dot {
     opacity: 0;
