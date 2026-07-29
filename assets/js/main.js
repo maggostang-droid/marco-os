@@ -1,4 +1,5 @@
 import { projects } from "../../data/projects.js";
+import { resume } from "../../data/resume.js";
 import { initBoot } from "./boot.js";
 import { initStarfield } from "./starfield.js";
 import { initScene } from "./scene.js";
@@ -13,6 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // initScene) to exist so the starfield zooms/pans together with the graph.
   initScene(document.querySelector("#scene"), projects);
   initStarfield(document.querySelector(".graph-viewport"));
-  initWindowManager(document.querySelector("#window-layer"), projects);
+  initWindowManager(document.querySelector("#window-layer"), projects, resume);
   initTaskbar(document.querySelector("#taskbar"), projects);
 });

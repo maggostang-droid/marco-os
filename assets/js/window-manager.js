@@ -1,10 +1,10 @@
-import { subscribe, state, closeWindow, SECOND_BRAIN_CHAT_ID } from "./state.js";
+import { subscribe, state, closeWindow, SECOND_BRAIN_CHAT_ID, RESUME_ID } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 import { nextFocusTarget } from "./focus-target.js";
 
 const SECOND_BRAIN_CHAT_URL = "https://second-brain-projects.streamlit.app/?embed=true";
 
-export function initWindowManager(container, projects) {
+export function initWindowManager(container, projects, resume) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
   let lastRenderedId = null;
 
@@ -49,10 +49,16 @@ export function initWindowManager(container, projects) {
     }
 
     const isChat = activeId === SECOND_BRAIN_CHAT_ID;
-    const { win, closeBtn } = isChat ? buildChatWindow() : buildProjectWindow(projectById[activeId]);
+    const isResume = activeId === RESUME_ID;
+    const { win, closeBtn } = isChat
+      ? buildChatWindow()
+      : isResume
+        ? buildResumeWindow(resume)
+        : buildProjectWindow(projectById[activeId]);
 
     closeBtn.addEventListener("click", closeWindow);
-    if (!isChat) wireProjectWindowInteractions(win);
+    if (isResume) wireResumeWindowInteractions(win);
+    if (!isChat && !isResume) wireProjectWindowInteractions(win);
 
     container.appendChild(win);
 
@@ -125,4 +131,58 @@ function buildChatWindow() {
   `;
 
   return { win, closeBtn: win.querySelector(".win-close") };
+}
+
+function buildResumeWindow(resume) {
+  const stationsHtml = resume.currentStations
+    .map(
+      (station) => `
+        <div class="resume-station">
+          <p class="resume-station-header">${escapeHtml(station.role)} | ${escapeHtml(station.org)}</p>
+          <p class="resume-station-period">${escapeHtml(station.period)}</p>
+          <ul class="resume-bullets">${station.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>
+        </div>
+      `
+    )
+    .join("");
+  const skillsHtml = resume.skills.map((skill) => `<span class="tag">${escapeHtml(skill)}</span>`).join("");
+  const extraHtml = resume.extendedHistory.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  const win = document.createElement("div");
+  win.className = "window window--resume";
+  win.setAttribute("role", "dialog");
+  win.setAttribute("aria-label", "Lebenslauf");
+  win.innerHTML = `
+    <div class="win-title">
+      <span class="dot dot--1"></span><span class="dot dot--2"></span><span class="dot dot--3"></span>
+      <span class="win-name">app://lebenslauf — Terminal</span>
+      <button type="button" class="win-close" aria-label="Fenster schließen">×</button>
+    </div>
+    <div class="win-body">
+      <p class="prompt">marco@portfolio:~$ cat lebenslauf.txt</p>
+      <h3>${escapeHtml(resume.name)}</h3>
+      <p class="resume-headline">${escapeHtml(resume.headline)}</p>
+      <p class="resume-intro">${escapeHtml(resume.intro)}</p>
+      ${stationsHtml}
+      <div class="tags">${skillsHtml}</div>
+      <button type="button" class="resume-toggle" aria-expanded="false">▸ Vollständigen Werdegang anzeigen</button>
+      <ul class="resume-extra" hidden>${extraHtml}</ul>
+      <div class="btn-row">
+        <a class="btn primary" href="${resume.pdfUrl}" target="_blank" rel="noopener" download>Vollständigen Lebenslauf laden (PDF)</a>
+      </div>
+    </div>
+  `;
+
+  return { win, closeBtn: win.querySelector(".win-close") };
+}
+
+function wireResumeWindowInteractions(win) {
+  const toggle = win.querySelector(".resume-toggle");
+  const extra = win.querySelector(".resume-extra");
+  toggle.addEventListener("click", () => {
+    const expanding = extra.hidden;
+    extra.hidden = !expanding;
+    toggle.setAttribute("aria-expanded", String(expanding));
+    toggle.textContent = expanding ? "▾ Vollständigen Werdegang verbergen" : "▸ Vollständigen Werdegang anzeigen";
+  });
 }
