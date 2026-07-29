@@ -132,5 +132,27 @@ export const projects = [
     demoUrl: null,
     repoUrl: null,
     status: "planned"
+  },
+  {
+    id: "hr-interview-cockpit",
+    title: "HR Interview Cockpit",
+    summary:
+      "Strukturiertes Interview-Cockpit mit Fragenpool, Live-Bewertung und Radar-Chart-Summary — komplett client-seitig.",
+    description:
+      "Ein Single-File-Tool für strukturierte Bewerbungsgespräche: Stellenanzeige/CV-Intake, " +
+      "ein importierbarer Fragenpool (xlsx) mit Cluster- und Verhaltensanker-Bewertung, " +
+      "Terminplanung per Kalender, ein Live-Interview-Cockpit mit Timer/Phasen-Tracking und " +
+      "4-stufiger Bewertungsskala, sowie eine KPI/Radar-Chart-Zusammenfassung je Kandidat:in. " +
+      "Kein Backend, kein Build-Schritt — auch der optionale KI-Copilot ruft " +
+      "api.anthropic.com direkt aus dem Browser mit einem selbst eingegebenen Key auf. " +
+      "Entstanden als privates Projekt während eines Bewerbungsprozesses bei Festo (kein " +
+      "Anstellungsverhältnis); diese Version ist bereinigt und umbenannt, nur mit " +
+      "synthetischen Beispieldaten (fiktive Stellenanzeige, fiktiver Beispiel-Kandidat, " +
+      "selbst verfasster generischer Fragenpool) — keine echten Kandidatendaten, " +
+      "Stellenausschreibungen oder Drittanbieter-Kompetenzmodelle.",
+    tags: ["JavaScript", "HTML/CSS", "Chart.js", "Claude API"],
+    demoUrl: "https://maggostang-droid.github.io/hr-interview-cockpit/",
+    repoUrl: "https://github.com/maggostang-droid/hr-interview-cockpit",
+    status: "live"
   }
 ];
