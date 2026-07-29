@@ -71,6 +71,14 @@ export function initScene(container, projects) {
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const focusedProjectId = state.activeProjectId;
 
+    // When the chat window is open, focusedProjectId is SECOND_BRAIN_CHAT_ID
+    // (truthy), so FOCUS_ZOOM_BONUS still applies here — but that sentinel
+    // matches no entry in nodesById, so focusedNode below is null and the
+    // translate stays (0,0). Because the center node itself sits at (0,0),
+    // this accidentally produces the desired "zoom in on Marco, dim the rest"
+    // effect without focusedNode ever actually resolving to the center node.
+    // Not deliberate — don't "fix" this into computing a real focusedNode for
+    // the sentinel without checking it doesn't change the translate math.
     const effectiveZoom = state.zoomLevel * (focusedProjectId ? FOCUS_ZOOM_BONUS : 1);
     const focusedNode = focusedProjectId ? nodesById[focusedProjectId] : null;
     const translateX = focusedNode ? -focusedNode.x * effectiveZoom : 0;

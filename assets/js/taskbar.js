@@ -1,4 +1,4 @@
-import { subscribe, state, zoomIn, zoomOut } from "./state.js";
+import { subscribe, state, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID } from "./state.js";
 
 export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -23,7 +23,11 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
   }, 60000 - (Date.now() % 60000));
 
   function renderTaskbar() {
-    const project = state.activeProjectId ? projectById[state.activeProjectId] : null;
+    // The chat window's activeProjectId is the SECOND_BRAIN_CHAT_ID sentinel,
+    // not a real data/projects.js id, so it never matches projectById — special-
+    // case it here rather than letting the chip silently disappear.
+    const isChatOpen = state.activeProjectId === SECOND_BRAIN_CHAT_ID;
+    const project = state.activeProjectId && !isChatOpen ? projectById[state.activeProjectId] : null;
     const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
     const focusedZoomDirection = container.contains(document.activeElement)
       ? document.activeElement.dataset.zoom
@@ -31,7 +35,7 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
 
     container.innerHTML = `
       <span class="tb-start">◆ MARCO.OS</span>
-      ${project ? `<span class="tb-app">${project.id}.exe</span>` : ""}
+      ${isChatOpen ? `<span class="tb-app">second-brain.exe</span>` : project ? `<span class="tb-app">${project.id}.exe</span>` : ""}
       <span class="tb-spacer"></span>
       <span class="tb-guide">${TIPS[tipIndex]}</span>
       <div class="tb-zoom">

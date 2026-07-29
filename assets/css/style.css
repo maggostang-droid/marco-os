@@ -242,9 +242,15 @@ button.node:focus-visible {
 /* Hover/focus affordance for clickable planets. Uses the standalone `scale`
    property (not `transform`) so it doesn't interfere with the reveal
    animation's `transform` transition on the same element — see the
-   NODE_FADE_MS comment in scene.js for why that transform timing is exact. */
+   NODE_FADE_MS comment in scene.js for why that transform timing is exact.
+   Also applies to the center node (now a clickable button too, see scene.js) —
+   its dot is already much larger/glowier than a project dot (see
+   .node--center .node-dot below) and the same 1.15 scale + brightness bump
+   reads fine there without fighting that sizing. */
 button.node--project:hover .node-dot,
-button.node--project:focus-visible .node-dot {
+button.node--project:focus-visible .node-dot,
+button.node--center:hover .node-dot,
+button.node--center:focus-visible .node-dot {
   scale: 1.15;
   filter: brightness(1.3);
 }
