@@ -1,153 +1,170 @@
 # Handover — marco-os
 
 Stand: 2026-07-29, Ende der Session. Für einen Agenten/eine neue Session,
-die hier weitermacht, ohne den ganzen Gesprächsverlauf zu kennen.
+die hier weitermacht, ohne den ganzen Gesprächsverlauf zu kennen. Ersetzt
+die vorherige Handover-Version (deren Inhalt größtenteils durch die
+parallele orbit-clusters-Session und diese Session überholt ist).
 
 ## Was das hier ist
 
 KI-Portfolio von Marco Stang als "MARCO.OS"-Desktop: Hintergrund ist ein
 lebendiges neuronales Netz (Marco im Zentrum, Projekte als Satelliten-Knoten
-= "Planeten"). Klick auf einen Knoten öffnet ein Terminal-Fenster mit
+= "Planeten", nach Skill-Cluster auf eigenen elliptischen Orbits gruppiert).
+Klick auf einen Projekt-Knoten öffnet ein Terminal-Fenster mit
 Projekt-Details. Plain HTML/CSS/Vanilla-JS (ES-Module), kein Build-Tool,
 keine npm-Dependencies. Hosting: GitHub Pages.
 
-`CLAUDE.md` im Repo-Root wurde in dieser Session korrigiert (behauptete
-vorher fälschlich "kein Code existiert" — war seit mehreren Sessions
-veraltet). Jetzt aktuell, kann als verlässlicher Architektur-Überblick
-genutzt werden.
-
 ## Ist-Zustand: voll funktionsfähig
 
-- `npm test` → 32/32 Tests grün (Node's `node:test`, keine Dependencies).
-  (`node --test tests/` mit Verzeichnis-Pfad funktioniert auf diesem
-  Node-Build **nicht** — `npm test` oder `node --test "tests/*.test.js"`
-  benutzen. Testzahl sank von 37→32 gegenüber der letzten Handover, weil
-  Tag-Knoten aus dem Graph entfernt wurden — siehe Zoom-Focus-Feature
-  unten, keine fehlende Abdeckung.)
+- `npm test` → **39/39 Tests grün** (Node's `node:test`, keine
+  Dependencies).
 - Lokal starten: `python -m http.server 8000` im Repo-Root, dann
   `http://localhost:8000/`. Direktes Öffnen per `file://` geht **nicht**.
 - **Cache-Falle:** `python -m http.server` schickt keine
   Cache-Busting-Header — nach JS/CSS-Änderungen Hard-Refresh
   (Strg+Shift+R) nötig.
 
-## Architektur (kurz — Details in `CLAUDE.md`)
+## Neu in dieser Session: second-brain-Chat-Fenster
 
-`.graph-viewport` (bekommt Zoom/Pan-Transform) enthält `.graph-content`
-(Kanten+Knoten, wird nur bei Fokus-/Viewport-Änderung neu gebaut, nicht bei
-jedem Zoom-Tick) sowie das Sternfeld — beide skalieren/verschieben sich
-dadurch gemeinsam mit dem Graph. Nach Boot-Abschluss bauen sich Planeten →
-Linien → Lauflichter in gestaffelten Phasen auf (`is-revealed`-Klasse +
-CSS-Transitions). Tag-/Tech-Stack-Knoten existieren nicht mehr im Graph
-(nur noch als Liste im Projekt-Fenster).
+Der zentrale "Marco Stang"-Knoten war bisher rein dekorativ (kein
+`<button>`, nicht fokussierbar). Er ist jetzt klickbar/fokussierbar und
+öffnet ein Fenster, das den live second-brain-Chat
+(https://second-brain-projects.streamlit.app/ — separates Repo, siehe
+`../second-brain/`) per `<iframe src=".../?embed=true">` einbettet, über
+denselben `state.activeProjectId`-Mechanismus, den Projekt-Fenster
+verwenden (Sentinel-ID `SECOND_BRAIN_CHAT_ID` in `state.js`).
 
-## Was in dieser Session passiert ist (chronologisch, mit Lehren)
+Vollständiger Brainstorming→Spec→Plan→SDD-Prozess (4 Tasks + finaler
+Review + eine Fix-Welle):
+- Spec: [`docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md`](docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md)
+  (inkl. Addendum zur Sentinel-Kollision, siehe unten)
+- Plan: [`docs/superpowers/plans/2026-07-29-second-brain-chat-window-implementation.md`](docs/superpowers/plans/2026-07-29-second-brain-chat-window-implementation.md)
 
-1. **Nebula-Hintergrund gebaut, dann komplett verworfen.** Volles
-   Brainstorming→Spec→Plan→SDD-Umsetzung (4 Tasks, mehrschichtige
-   CSS-Blobs + SVG-Rauschtextur, an "Cosmic Cliffs"-Foto orientiert).
-   Nutzer fand das Ergebnis optisch nicht gut und bat um Revert **vor**
-   Nebula-Start — per `git reset --hard` auf den Handover-Commit der
-   letzten Session zurückgesetzt. Spec/Plan-Dokumente sind dadurch aus der
-   Historie verschwunden (falls jemand nach `2026-07-28-nebula-*` sucht:
-   bewusst entfernt, nicht verloren gegangen).
-2. **Wichtige Erkenntnis: parallele Session im selben Checkout.** Während
-   der Nebula-SDD-Arbeit fanden mehrere Task-Subagenten wiederholt
-   "unautorisierte" Änderungen an `scene.js`/`graph-layout.js` vor und ein
-   Subagent legte sogar ein eigenes Git-Worktree an. Ursprünglich als
-   "durchgedrehter Subagent" fehlgedeutet (mehrfach per `git stash`
-   gesichert). Am Ende stellte sich heraus: der Nutzer hatte **parallel
-   eine zweite Claude-Code-Session** offen, die unabhängig an einem
-   "Fokus zentrieren"-Feature arbeitete — teils direkt im selben
-   Haupt-Checkout (daher die Kollisionen), später sauber in einem
-   Worktree isoliert. Nichts ging verloren (alles lag in Stashes bzw.
-   landete am Ende im Worktree-Commit), aber es kostete Debugging-Zeit.
-   **Für künftige Sessions:** Bei "direkt auf master, kein Worktree" und
-   unerklärlichen Datei-Änderungen zuerst fragen, ob eine andere Session
-   parallel im selben Repo läuft, bevor man von Subagenten-Fehlverhalten
-   ausgeht.
-3. **Zoom-Focus-Feature übernommen** (aus der parallelen Session, per
-   `git cherry-pick` nach dem Nebula-Revert sauber auf `master`
-   aufgesetzt, ein CSS-Konflikt manuell gelöst): Klick auf einen
-   Projekt-Planeten zentriert ihn im Viewport (Pan, nicht nur Skalierung),
-   stärkerer Fokus-Zoom-Bonus (1.6× → 2.6×), andere Planeten/Kanten werden
-   gedimmt, Klick auf den Hintergrund schließt das Fenster. Tag-Knoten aus
-   dem Graph entfernt (5 Tests mitentfernt, dadurch 37→32).
-4. **Direkte UI-Politur** (kleine Tweaks, ohne vollen SDD-Prozess):
-   Hintergrund-Gradient verstärkt und auf `.graph-viewport` verschoben
-   (skaliert/verschiebt sich jetzt mit dem Zoom); Sternfeld dichter,
-   bunter (Violet/Teal/Amber-Akzente), größer, mehr Parallax-Bewegung;
-   Knoten-Zentrierungs-Fix (Label war Teil der zentrierten Flexbox,
-   dadurch trafen Verbindungslinien nicht den echten Kugel-Mittelpunkt —
-   Label ist jetzt `position: absolute`, außerhalb der Zentrierung);
-   Lauflicht-Element (`edge-runner`) auf den Verbindungslinien; Fix für
-   Zoom-Stutter (Kanten/Knoten wurden bei jedem Zoom-Tick neu gebaut,
-   dadurch rissen CSS-Animationen ständig ab — jetzt Rebuild nur bei
-   Fokus-/Viewport-Änderung).
-5. **Boot-Screen + Szenen-Aufbau** (voller Brainstorming→Spec→Plan→SDD-
-   Prozess, 3 Tasks + Final-Review + eine Fix-Welle):
-   - Boot-Zeilen jetzt Typewriter-Effekt, mehr Zeilen (generisch + eine
-     pro Projekt, gedeckelt auf 6), respektiert `prefers-reduced-motion`.
-   - Nach Boot: Szene baut sich in **vier klar getrennten Phasen mit
-     echten Pausen dazwischen** auf: Zentrum+Planeten → (Pause) →
-     Verbindungslinien → (Pause) → Lauflichter. Timing-Konstanten
-     (`NODE_STAGGER_MS`, `PHASE_GAP_MS`, etc.) oben in `scene.js`
-     gesammelt, mehrfach nach Nutzer-Feedback live nachjustiert (aktuell
-     recht langsam/großzügig, ~6s Gesamtdauer — bewusst so gewünscht).
-   - Hintergrund fadet während des Tippens langsam ein
-     (`.boot-overlay.is-fading`, `background-color`-Transition).
-   - **Zwei echte Bugs im Final-Review gefunden und gefixt:** (a)
-     `edgePulse`-Animation animierte `opacity`, was aktive Kanten
-     permanent von der Reveal-/Dimm-Opacity ausnahm — jetzt animiert sie
-     `filter: brightness()` stattdessen. (b) Typewriter mutierte
-     `textContent` ~250× in einer `role="status"`-Live-Region — jetzt
-     `aria-hidden="true"` auf dem Boot-Overlay (rein dekorativ, kein
-     echter Ladezustand dahinter).
-   - **Weiterer eigenständig gefundener Bug:** Lauflicht-Animation lief
-     ursprünglich unbedingt (`animation-delay` zählt ab Skript-Start, aber
-     Boot dauert selbst schon ~4s) — dadurch war die geplante Verzögerung
-     längst abgelaufen, bevor der Nutzer überhaupt etwas sah. Fix: Lauflicht-
-     `animation` ist jetzt an `.is-revealed` gebunden, sodass die
-     Verzögerung erst ab Boot-Ende zählt.
-   - Spec: [docs/superpowers/specs/2026-07-28-boot-reveal-design.md](docs/superpowers/specs/2026-07-28-boot-reveal-design.md),
-     Plan: [docs/superpowers/plans/2026-07-28-boot-reveal-implementation.md](docs/superpowers/plans/2026-07-28-boot-reveal-implementation.md).
-6. **`CLAUDE.md` korrigiert** (siehe oben) und Stashes aus dem Nebula-
-   Vorfall aufgeräumt (waren längst durch den finalen Zoom-Focus-Commit
-   überholt).
+### Zwei echte Bugs, nur durch Playwright-gestützte Browser-Verifikation gefunden
 
-## Reliability-Lehre zu Subagenten-Modellwahl
+Beide waren aus reinem Code-Review nicht ersichtlich, weil `scene.js`/
+`window-manager.js` keine Unit-Tests haben (DOM-lastig, kein jsdom im
+Repo — etablierte Konvention, kein Gap):
 
-In dieser Session hat ein günstiges Modell (Haiku) als Task-1-Implementer
-wiederholt unautorisierte, nicht angeforderte Code-Änderungen gemacht und
-fälschlich "git status ist sauber" behauptet — mehrfach, auch nach
-Korrektur-Hinweis. (Im Nachhinein größtenteils durch die parallele Session
-erklärbar, s.o., aber die falschen Selbstauskünfte blieben trotzdem ein
-Problem.) Ab da wurden Implementer-Subagenten durchgehend auf Sonnet
-gesetzt statt Haiku — lief seitdem sauber. Für zukünftige SDD-Läufe in
-diesem Repo: nicht blind auf die günstigste Modellstufe vertrauen, gerade
-wenn direkt auf `master` (ohne Worktree-Isolation) gearbeitet wird.
+1. **Sentinel-ID-Kollision mit einer echten Projekt-Karte.** Die
+   Design-Spec nahm an, `SECOND_BRAIN_CHAT_ID = "second-brain"` kollidiere
+   mit keiner echten `data/projects.js`-ID — falsch, `data/projects.js`
+   hatte (durch die parallele orbit-clusters-Session synct) bereits eine
+   echte Karte mit genau dieser ID. Klick auf den echten second-brain-
+   Planeten öffnete dadurch den Chat statt seines eigenen Fensters. Fix:
+   Sentinel auf `"__second-brain-chat__"` geändert (bewusst kein
+   plausibler echter Projekt-ID-String).
+2. **Fokus-Restaurations-Bug.** Escape schloss das Chat-Fenster, aber der
+   Fokus landete auf `<body>` statt zurück auf dem Marco-Knoten — die
+   generische Fokus-Restaurations-Logik nimmt an, `activeProjectId`
+   entspreche immer dem `data-node-id`-Attribut des zugehörigen DOM-Knotens
+   (stimmt für echte Projekte, aber nicht für den Chat: dessen DOM-Knoten
+   trägt `data-node-id="center"`, ein anderer String als die Sentinel-ID).
+   Fix: Mapping Sentinel → `"center"` an der `querySelector`-Stelle in
+   `window-manager.js`.
+
+**Lehre für künftige Sessions:** Bei "reuse existing state field mit einer
+neuen Sentinel-ID"-Features immer alle Konsumenten des Felds greppen
+(`grep -rn "activeProjectId" assets/js/`) — der finale Review fand einen
+dritten, übersehenen Konsumenten (`taskbar.js`, zeigte keinen Chip, wenn
+der Chat offen war; inzwischen gefixt).
+
+### Kollision mit einer parallelen Session mitten in der Arbeit
+
+Während dieser Session lief **noch eine zweite Session** parallel am
+selben Haupt-Checkout und baute ein großes orbit-clusters-Feature
+(Skill-Cluster-Orbits, SVG-Ring-Layer, Projekt-Neusortierung) — inklusive
+eigener finaler Review-Fix-Runde. Deshalb wurde für second-brain **bewusst
+ein isolierter Git-Worktree** verwendet (`git worktree add
+.worktrees/second-brain-chat-window master -b
+feature/second-brain-chat-window`) statt direkt auf `master` zu arbeiten —
+mit Marco abgestimmt, bevor der Worktree angelegt wurde. Die andere Session
+hatte aus demselben Grund selbst schon einen Branch (`feature/orbit-
+clusters`) benutzt und **die "kein Worktree/Branch"-Regel aus `CLAUDE.md`
+bereits entfernt** (Commit `52c251f`), bevor diese Session überhaupt
+begann — Worktrees/Branches sind in diesem Repo jetzt also grundsätzlich
+akzeptiert, wenn Isolation gebraucht wird, nicht mehr nur "direkt auf
+master".
+
+Master wurde zweimal in den Feature-Branch gemerged, während die andere
+Session weiterarbeitete (`git merge master` in den eigenen Worktree, nicht
+umgekehrt) — beide Male von git automatisch konfliktfrei aufgelöst
+(`scene.js`/`style.css` betroffen). **Auto-Merge garantiert nur textuelle
+Nicht-Überlappung, keine semantische Korrektheit** — nach jedem Merge
+wurde deshalb die komplette Test-Suite plus eine frische
+Playwright-Verifikation erneut durchlaufen, nicht nur angenommen, dass es
+passt.
+
+### Finaler Review fand zusätzlich
+
+- `taskbar.js` zeigte keinen aktiven-Fenster-Chip, wenn der Chat offen war
+  (dritter, übersehener `activeProjectId`-Konsument, siehe oben) — gefixt.
+- `CLAUDE.md` und die Design-Spec behaupteten noch den alten,
+  überholten Stand ("noch nicht implementiert" bzw. die falsche
+  Kollisions-Annahme) — korrigiert.
+- Center-Knoten hatte einen Fokus-Ring, aber kein Hover-Feedback wie
+  Projekt-Knoten — Selektor erweitert.
+- Emergentes, unbeabsichtigtes aber korrektes Verhalten dokumentiert statt
+  "gefixt": Öffnen des Chats wendet den Fokus-Zoom-Bonus an, aber der
+  Sentinel matcht keinen echten Knoten, wodurch die Translation bei `(0,0)`
+  bleibt — sieht durch Zufall korrekt aus, weil der Zentrum-Knoten selbst
+  bei `(0,0)` sitzt. Ein-Zeilen-Kommentar in `scene.js` ergänzt, damit ein
+  künftiger Refactor das nicht "verschlimmbessert".
+- **Bewusst nicht angefasst:** iframe-`sandbox`/`referrerpolicy`-Härtung
+  (sinnvoll, aber braucht eigene Verifikation gegen die Live-App, kein
+  Drive-by-Fix) und die echte second-brain-Projektkarte in
+  `data/projects.js` (siehe nächster Abschnitt — die haben wir separat auf
+  Nutzeranfrage angefasst).
+
+### second-brain-Planet aktualisiert (separater Nutzerwunsch, nach dem Feature-Merge)
+
+Die echte `data/projects.js`-Karte für `second-brain` war stehen
+geblieben auf `status: "planned"`, `demoUrl: null`, Beschreibung "noch in
+Arbeit" — obwohl second-brain inzwischen fertig und live ist. Auf
+Brainstorming mit Marco: Karte korrigiert (`status: "live"`, echte
+Demo-/Repo-Links), Beschreibung verweist jetzt zusätzlich explizit auf den
+Marco-Knoten-Shortcut ("Psst: du kannst mich auch direkt hier fragen —
+klick auf Marco im Zentrum"), statt die Doppel-Rolle (eigener Planet +
+Sonderfunktion am Zentrum) unerklärt nebeneinander stehen zu lassen.
+
+### Push-Vorfall (Prozess-Lehre, kein Code-Problem)
+
+Ein routinemäßig wirkender, kleiner Commit (die second-brain-Karten-
+Korrektur) wurde gepusht, ohne vorher zu prüfen, wie viele unpushte
+Commits bereits lokal auf `master` lagen. Ergebnis: **28 Commits auf
+einmal live** — sowohl das komplette second-brain-Chat-Feature dieser
+Session als auch die komplette, bereits lokal gemergte orbit-clusters-
+Arbeit der anderen Session, die beide seit Sitzungsbeginn nur lokal
+committet, aber nie gepusht worden waren. Inhaltlich unproblematisch (alles
+getestet, beide Features durch ihren jeweils eigenen finalen Review
+gelaufen), aber die Entscheidung "jetzt live schalten" wurde damit ungefragt
+getroffen statt bewusst vom Nutzer freigegeben. **Für künftige Sessions:**
+vor einem `git push`, der beiläufig wirkt, `git log origin/master..HEAD
+--oneline` prüfen — ein kleiner eigener Commit kann einen großen,
+unpushten Rucksack mitreißen.
 
 ## Bekannte offene Punkte
 
-- **`taskbar.js` hat weiterhin denselben Fokus-/Rebuild-Bug** wie
+- **`taskbar.js` hatte weiterhin denselben Fokus-/Rebuild-Bug** wie
   `window-manager.js` vor dessen Fix (baut bei jedem `notify()` komplett
-  neu). Bewusst nicht mitgefixt, siehe frühere Handover-Version.
-- **Nur 3 Projekte in `data/projects.js`** (sql-agent aktiv, 2
-  Platzhalter).
+  neu) — unverändert aus der letzten Handover-Version übernommen, nicht
+  Teil dieser Session.
+- **iframe-Sandboxing** — siehe oben, bewusst zurückgestellt.
+- **`list_projects()`/Datenmodell in second-brain selbst** haben keine
+  `demo_url`/`repo_url`/`status` (Detail lebt in `second-brain/HANDOVER.md`,
+  nicht hier — betrifft nur den MCP-Server/Chat, nicht marco-os).
 - **Verhältnis zu `stangfolio`/`stangverse`** weiterhin ungeklärt
   (Produktentscheidung, keine Code-Aufgabe).
-- **Second-Brain-Iframe-Integration geplant, nicht umgesetzt** — separate
-  Streamlit-App wird später per `<iframe>` eingebettet, sobald sie eine
-  Live-URL hat (Notiz von der parallelen Session,
-  `docs/superpowers/specs/2026-07-28-marco-os-design.md`, Abschnitt
-  "Zukünftig geplant"). Keine eigene Spec/Plan bisher.
 
 ## Workflow-Hinweise für die nächste Session
 
-- **Direkt auf `master`, kein Worktree/Branch** — weiterhin explizite
-  Nutzer-Entscheidung. **Aber:** siehe Punkt 2 oben — bei parallelen
-  Sessions im selben Repo kann das zu Kollisionen führen. Bei
-  unerklärlichen Datei-Änderungen erst nachfragen statt vorschnell
-  "Subagent ist durchgedreht" zu folgern.
+- **Worktrees/Branches sind jetzt grundsätzlich akzeptiert**, wenn
+  Isolation von paralleler Arbeit gebraucht wird (die alte "immer direkt
+  auf master"-Regel wurde aus `CLAUDE.md` entfernt). Bei Unsicherheit
+  trotzdem kurz nachfragen, bevor ein Worktree angelegt wird.
+- Bei unerklärlichen Datei-Änderungen im Haupt-Checkout: erst prüfen, ob
+  eine andere Session parallel am selben Repo arbeitet (`git status`,
+  `git branch -vv`), bevor man von Subagenten-Fehlverhalten ausgeht.
 - Größere Features: `superpowers:brainstorming` →
   `superpowers:writing-plans` → `superpowers:subagent-driven-development`.
   Kleinere visuelle/Timing-Tweaks: direkt mit Playwright-gestützter
@@ -155,10 +172,23 @@ wenn direkt auf `master` (ohne Worktree-Isolation) gearbeitet wird.
 - Playwright läuft lokal installiert im Scratchpad-Verzeichnis (npm-Paket
   + Chromium-Browser, **nicht** im Projekt selbst). Chromium-Binaries
   liegen meist schon unter `~/AppData/Local/ms-playwright` gecacht, nur
-  `npm install playwright` im Scratch-Ordner nötig.
+  `npm install playwright` im Scratch-Ordner nötig. Für Fokus-/Tab-Order-
+  Checks: jeden Check auf einer frischen `page`/`context` laufen lassen,
+  nicht mehrere Interaktionen in derselben Seite verketten — sonst
+  verfälscht der Fokus-Zustand aus dem vorherigen Check das Ergebnis
+  (ist dieser Session passiert, siehe Diagnose-Skripte in der
+  Zusammenfassung des Chatverlaufs).
+- Merges gegen eine schnell laufende `master` während eigener Arbeit: nach
+  jedem Merge komplette Test-Suite **und** eine frische
+  Playwright-Verifikation laufen lassen, nicht nur auf konfliktfreiem
+  Auto-Merge vertrauen.
 - Nutzer testet oft selbst parallel im Browser und gibt kurzes, direktes
   Feedback — bei Unklarheit lieber kurz nachfragen (`AskUserQuestion`)
-  als zu raten, besonders bei visuellen/Timing-Fragen. Iteriert gerne in
-  mehreren kleinen Schritten (z.B. "langsamer", "noch langsamer", "Pausen
-  dazwischen") statt alles auf einmal zu spezifizieren — das ist normal,
-  kein Zeichen für ein falsches Erst-Ergebnis.
+  als zu raten.
+
+## Links
+
+- Repo: https://github.com/maggostang-droid/marco-os
+- second-brain-Integration (Details zum Chat selbst): [`../second-brain/HANDOVER.md`](../second-brain/HANDOVER.md)
+- Portfolio-Backlog: [`../PORTFOLIO_BACKLOG.md`](../PORTFOLIO_BACKLOG.md)
+- Ablauf-Anleitung für Agenten-Sessions: [`../PORTFOLIO_AGENT_GUIDE.md`](../PORTFOLIO_AGENT_GUIDE.md)
