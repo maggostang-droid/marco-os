@@ -18,7 +18,8 @@ export const projects = [
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/sql-agent",
-    status: "coming-soon"
+    status: "coming-soon",
+    cluster: "agentic-ai"
   },
   {
     id: "ai-act-validation-toolkit",
@@ -39,7 +40,8 @@ export const projects = [
     tags: ["Python", "LangChain", "Streamlit", "pytest"],
     demoUrl: "https://ai-act-validation-toolkit.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/ai-act-validation-toolkit",
-    status: "live"
+    status: "live",
+    cluster: "agentic-ai"
   },
   {
     id: "ai-analytics-portal",
@@ -58,7 +60,8 @@ export const projects = [
     tags: ["React", "TypeScript", "FastAPI", "scikit-learn", "SHAP"],
     demoUrl: null,
     repoUrl: null,
-    status: "coming-soon"
+    status: "coming-soon",
+    cluster: "full-stack"
   },
   {
     id: "amalea",
@@ -75,7 +78,8 @@ export const projects = [
     tags: ["Python", "Jupyter", "Machine Learning", "Deep Learning"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/AMALEA",
-    status: "coming-soon"
+    status: "coming-soon",
+    cluster: "full-stack"
   },
   {
     id: "cloud-native-pipeline",
@@ -94,7 +98,8 @@ export const projects = [
     tags: ["AWS Lambda", "Terraform", "DynamoDB", "Streamlit", "Claude API"],
     demoUrl: "https://cloud-native-pipeline.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/cloud-native-pipeline",
-    status: "live"
+    status: "live",
+    cluster: "cloud"
   },
   {
     id: "goz-finetune-vs-rag",
@@ -114,7 +119,8 @@ export const projects = [
     tags: ["PyTorch", "LoRA", "RAG", "Llama 3.2", "Python"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/goz-finetune-vs-rag",
-    status: "coming-soon"
+    status: "coming-soon",
+    cluster: "agentic-ai"
   },
   {
     id: "second-brain",
@@ -131,7 +137,8 @@ export const projects = [
     tags: ["Python", "LangChain", "MCP", "Streamlit"],
     demoUrl: null,
     repoUrl: null,
-    status: "planned"
+    status: "planned",
+    cluster: "agentic-ai"
   },
   {
     id: "hr-interview-cockpit",
@@ -153,6 +160,7 @@ export const projects = [
     tags: ["JavaScript", "HTML/CSS", "Chart.js", "Claude API"],
     demoUrl: "https://maggostang-droid.github.io/hr-interview-cockpit/",
     repoUrl: "https://github.com/maggostang-droid/hr-interview-cockpit",
-    status: "live"
+    status: "live",
+    cluster: "full-stack"
   }
 ];

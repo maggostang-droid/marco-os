@@ -40,7 +40,7 @@ section of the design spec. Not yet implemented.
 ## Commands
 
 ```bash
-npm test                     # runs `node --test`, discovers tests/*.test.js — 32/32 passing
+npm test                     # runs `node --test`, discovers tests/*.test.js — all passing
 node --check <file>.js       # per-file syntax check
 python -m http.server 8000   # serve locally, then open http://localhost:8000/
 ```
@@ -62,8 +62,8 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 ## Architecture
 
 - `data/projects.js` — project data (`id`, `title`, `summary`, `description`,
-  `tags`, `demoUrl`, `repoUrl`, `status`, optional `coldStartNote`). No
-  position field — layout is computed at runtime.
+  `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional
+  `coldStartNote`). No position field — layout is computed at runtime.
 - `assets/js/state.js` — central state singleton (`activeProjectId`,
   `bootComplete`, `zoomLevel`) with a subscribe/notify pattern.
 - `assets/js/boot.js` — typewriter-style boot-line overlay (generic system
@@ -71,18 +71,24 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   respects `prefers-reduced-motion`. Once it finishes, `state.bootComplete`
   flips and the background overlay fades out while the graph scene reveals
   itself.
-- `assets/js/graph-layout.js` — pure function computing node/edge coordinates
-  (radial auto-layout, viewport-responsive radius). No tag/tech-stack nodes in
-  the graph itself anymore — tech stack shows in the project window's
-  collapsible list instead. Kept unit-tested and DOM-free.
+- `assets/js/graph-layout.js` — pure function computing node/edge coordinates.
+  Projects are grouped by `cluster` (`agentic-ai`/`cloud`/`full-stack`) onto
+  their own concentric elliptical orbit around the center node, evenly
+  spaced within each ring; `status: "planned"` projects sit further out on
+  their own ring via `IDEA_ORBIT_MULTIPLIER`. Viewport-responsive radius.
+  No tag/tech-stack nodes in the graph itself anymore — tech stack shows in
+  the project window's collapsible list instead. Kept unit-tested and
+  DOM-free.
 - `assets/js/scene.js` — renders the graph: `.graph-viewport` (gets the
-  zoom/pan transform) wraps a `.graph-content` div (edges + nodes, rebuilt
-  only when the focused project or viewport size changes — *not* on every
-  zoom tick, to avoid restarting CSS animations). After boot, nodes/edges/
-  edge-runner lights reveal themselves in staggered phases (planets → lines →
-  runner lights) via CSS transitions gated on an `is-revealed` class.
-  Clicking a planet centers/zooms on it and dims the rest; clicking the
-  background closes the open window.
+  zoom/pan transform) wraps a `.graph-content` div (a `.graph-orbits` SVG
+  layer of per-cluster orbit rings, plus edges + nodes, rebuilt only when
+  the focused project or viewport size changes — *not* on every zoom tick,
+  to avoid restarting CSS animations). After boot, rings/nodes/edges/
+  edge-runner lights reveal themselves in staggered phases (planets → rings
+  + lines → runner lights) via CSS transitions gated on an `is-revealed`
+  class. Clicking a planet centers/zooms on it and dims the rest (including
+  the orbit rings, which all dim together since they aren't tied to one
+  project); clicking the background closes the open window.
 - `assets/js/starfield.js` — parallax star field (`box-shadow`-based, no
   per-star DOM nodes), lives inside `.graph-viewport` so it zooms/pans with
   the graph. Mouse-reactive parallax only, respects reduced-motion.
@@ -97,9 +103,6 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 
 ## Working style notes for this repo
 
-- Work happens directly on `master`, no worktrees/branches — an explicit,
-  repeated choice by the project owner, not an oversight. Ask before
-  introducing one for new work.
 - Bigger features go through `superpowers:brainstorming` →
   `superpowers:writing-plans` → `superpowers:subagent-driven-development`
   (spec + plan committed under `docs/superpowers/`). Small visual/timing
