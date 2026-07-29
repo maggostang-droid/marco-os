@@ -148,6 +148,14 @@ body {
   opacity: .2;
 }
 
+/* Rings aren't tied to a specific project (unlike .edge/.node--project's
+   is-dimmed, which only dim non-focused ones), so this dims ALL rings
+   together whenever any project is focused — see the focusedProjectId
+   check in scene.js's buildOrbitLayer. */
+.orbit-ring.is-dimmed {
+  opacity: .1;
+}
+
 .edge-runner {
   position: absolute;
   top: 50%;
@@ -279,8 +287,9 @@ button.node--project:focus-visible .node-dot {
   width: 34px;
   height: 34px;
 }
-/* Color variants, cycled per project in scene.js so the graph reads as a
-   varied field of planets instead of one repeated amber dot. */
+/* Color variants, one per skill cluster (CLUSTER_COLOR_CLASS in scene.js
+   maps each project's cluster to a fixed color) so a planet's color
+   reinforces which orbit it belongs to instead of being purely decorative. */
 .node--project.node--color-amber .node-dot {
   background: radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
   box-shadow: 0 0 22px rgba(251, 191, 36, .5);

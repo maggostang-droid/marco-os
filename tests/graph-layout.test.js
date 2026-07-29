@@ -128,8 +128,13 @@ test("omitting viewportSize keeps the original fixed radius", () => {
   const projects = [{ id: "a", status: "coming-soon", cluster: "agentic-ai", tags: [] }];
   const { nodes } = computeLayout(projects);
   const node = nodes.find((n) => n.id === "a");
-  // agentic-ai's rx multiplier is 0.65 and its angle offset is 0°, so a
-  // single project lands exactly on the ellipse's major axis (y = 0) —
-  // distance from center is exactly rx = 150 (BASE_RADIUS) * 0.65.
-  assert.equal(Math.hypot(node.x, node.y), 150 * 0.65);
+  // agentic-ai's rx multiplier is 0.95 (of BASE_RADIUS 170) and its angle
+  // offset is 45°, so a single project does NOT land on the ellipse's major
+  // axis — recompute the expected point from the same constants instead of
+  // hardcoding a plain distance, since x and y both depend on rx and ry here.
+  const rx = 170 * 0.95;
+  const ry = rx * 0.62;
+  const angle = (45 * Math.PI) / 180;
+  assert.ok(Math.abs(node.x - Math.cos(angle) * rx) < 1e-9);
+  assert.ok(Math.abs(node.y - Math.sin(angle) * ry) < 1e-9);
 });

@@ -91,7 +91,7 @@ export function initScene(container, projects) {
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
     content.innerHTML = "";
-    content.appendChild(buildOrbitLayer(rings, edges.length));
+    content.appendChild(buildOrbitLayer(rings, edges.length, focusedProjectId));
     content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId));
     content.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
 
@@ -103,20 +103,25 @@ export function initScene(container, projects) {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+// Shared by buildOrbitLayer and buildEdgeLayer: both need to know when the
+// "lines" reveal phase starts (rings + edges fade in together, once every
+// planet has actually finished fading in — start delay + fade duration, not
+// just stagger order). Factored out so the two copies of this formula can't
+// drift apart from each other in a future edit.
+function edgePhaseStart(edgeCount) {
+  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
+  return nodePhaseEndMs + PHASE_GAP_MS;
+}
+
 // Faint dashed ellipse per skill cluster, drawn behind edges/nodes so the
 // cluster grouping is legible at a glance. cx/cy as percentages center each
 // ellipse on the container regardless of its pixel size — the same origin
 // edges/nodes already position themselves around via `left: 50%; top: 50%`.
-function buildOrbitLayer(rings, edgeCount) {
+function buildOrbitLayer(rings, edgeCount, focusedProjectId) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("class", "graph-orbits");
 
-  // Same phase-start math as buildEdgeLayer below (kept in sync deliberately
-  // — see the NODE_FADE_MS comment above): rings fade in at the start of the
-  // "lines" reveal phase, all together, while edges then stagger in across
-  // that same phase.
-  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
-  const edgePhaseStartMs = nodePhaseEndMs + PHASE_GAP_MS;
+  const edgePhaseStartMs = edgePhaseStart(edgeCount);
 
   rings.forEach((ring) => {
     const ellipse = document.createElementNS(SVG_NS, "ellipse");
@@ -125,6 +130,12 @@ function buildOrbitLayer(rings, edgeCount) {
     ellipse.setAttribute("rx", String(ring.rx));
     ellipse.setAttribute("ry", String(ring.ry));
     ellipse.setAttribute("class", `orbit-ring orbit-ring--${ring.cluster}`);
+    // Rings aren't tied to any one project, so there's no "is this the
+    // focused project's ring" distinction to make — when any project is
+    // focused, dim all of them together so they recede like the rest of the
+    // unfocused scene instead of staying at full opacity through the ~2.6x
+    // focus zoom.
+    if (focusedProjectId) ellipse.classList.add("is-dimmed");
     ellipse.style.transitionDelay = `${edgePhaseStartMs}ms`;
     svg.appendChild(ellipse);
   });
@@ -143,8 +154,7 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId) {
   // computeLayout emits exactly one edge and one node per project plus the
   // center node.
   const edgeCount = edges.length;
-  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
-  const edgePhaseStartMs = nodePhaseEndMs + PHASE_GAP_MS;
+  const edgePhaseStartMs = edgePhaseStart(edgeCount);
   const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
   const runnerPhaseStartMs = edgePhaseEndMs + PHASE_GAP_MS;
 

@@ -40,7 +40,7 @@ section of the design spec. Not yet implemented.
 ## Commands
 
 ```bash
-npm test                     # runs `node --test`, discovers tests/*.test.js — 32/32 passing
+npm test                     # runs `node --test`, discovers tests/*.test.js — all passing
 node --check <file>.js       # per-file syntax check
 python -m http.server 8000   # serve locally, then open http://localhost:8000/
 ```
@@ -80,13 +80,15 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   the project window's collapsible list instead. Kept unit-tested and
   DOM-free.
 - `assets/js/scene.js` — renders the graph: `.graph-viewport` (gets the
-  zoom/pan transform) wraps a `.graph-content` div (edges + nodes, rebuilt
-  only when the focused project or viewport size changes — *not* on every
-  zoom tick, to avoid restarting CSS animations). After boot, nodes/edges/
-  edge-runner lights reveal themselves in staggered phases (planets → lines →
-  runner lights) via CSS transitions gated on an `is-revealed` class.
-  Clicking a planet centers/zooms on it and dims the rest; clicking the
-  background closes the open window.
+  zoom/pan transform) wraps a `.graph-content` div (a `.graph-orbits` SVG
+  layer of per-cluster orbit rings, plus edges + nodes, rebuilt only when
+  the focused project or viewport size changes — *not* on every zoom tick,
+  to avoid restarting CSS animations). After boot, rings/nodes/edges/
+  edge-runner lights reveal themselves in staggered phases (planets → rings
+  + lines → runner lights) via CSS transitions gated on an `is-revealed`
+  class. Clicking a planet centers/zooms on it and dims the rest (including
+  the orbit rings, which all dim together since they aren't tied to one
+  project); clicking the background closes the open window.
 - `assets/js/starfield.js` — parallax star field (`box-shadow`-based, no
   per-star DOM nodes), lives inside `.graph-viewport` so it zooms/pans with
   the graph. Mouse-reactive parallax only, respects reduced-motion.
