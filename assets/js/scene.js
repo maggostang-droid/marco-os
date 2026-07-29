@@ -254,7 +254,12 @@ function buildEdgeLayer(edges, nodesById, focusedNodeId, nodeBatchCount, project
   return layer;
 }
 
-const PLANET_TEXTURE_VARIANTS = ["node--planet-shaded", "node--planet-ringed", "node--planet-blotchy"];
+// Only one CSS texture overlay remains (the ring) now that real planet
+// photos supply their own shading — see docs/superpowers/specs/
+// 2026-07-30-higgsfield-planet-artwork-design.md. Alternate it by render
+// order (not per-id randomness) so, same as before, it doesn't
+// coincidentally land on the same nodes every reload.
+const RING_CLASS = "node--planet-ringed";
 
 // Fixed cluster -> color mapping (not round-robin) so color reinforces which
 // orbit a planet belongs to instead of being purely decorative.
@@ -269,11 +274,8 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
   layer.className = "graph-nodes";
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
 
-  // Cycle through the texture variants in render order (not a content hash)
-  // so with only 3 variants and few planet nodes, every variant actually
-  // gets used instead of coincidentally landing on the same one repeatedly.
   let planetIndex = 0;
-  const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
+  const shouldRing = () => planetIndex++ % 2 === 0;
 
   // Reveal batches: the center node leads (batch 0), then every planet in
   // the same cluster fades in together as one batch, instead of each planet
@@ -307,7 +309,7 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
     const labelDelay = `${effectiveBatch * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
 
     if (node.type === "center") {
-      el.classList.add(nextPlanetVariant());
+      if (shouldRing()) el.classList.add(RING_CLASS);
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(state.activeProjectId === RESUME_ID));
@@ -325,7 +327,7 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
       } else {
         el.classList.add(CLUSTER_COLOR_CLASS[project.cluster]);
       }
-      if (node.tier !== "moon") el.classList.add(nextPlanetVariant());
+      if (node.tier !== "moon" && shouldRing()) el.classList.add(RING_CLASS);
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       // The "second-brain" data/projects.js entry (title "Ask-Marco
