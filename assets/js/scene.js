@@ -1,5 +1,5 @@
 import { computeLayout } from "./graph-layout.js";
-import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID } from "./state.js";
+import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID, RESUME_ID, resolveFocusedNodeId } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 
 const FOCUS_ZOOM_BONUS = 2.6;
@@ -70,17 +70,16 @@ export function initScene(container, projects) {
     const { nodes, edges, rings } = computeLayout(projects, viewportSize);
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const focusedProjectId = state.activeProjectId;
+    // RESUME_ID and SECOND_BRAIN_CHAT_ID are UI sentinels, not real
+    // graph-layout.js node ids — résumé "lives" at the center node, chat
+    // "lives" at the second-brain moon node. Resolve to the real node id
+    // before using it for zoom-centering or dimming, so e.g. opening the
+    // chat (now reached via the moon, not the center) zooms in on and
+    // un-dims the moon, not the center.
+    const focusedNodeId = resolveFocusedNodeId(focusedProjectId);
 
-    // When the chat window is open, focusedProjectId is SECOND_BRAIN_CHAT_ID
-    // (truthy), so FOCUS_ZOOM_BONUS still applies here — but that sentinel
-    // matches no entry in nodesById, so focusedNode below is null and the
-    // translate stays (0,0). Because the center node itself sits at (0,0),
-    // this accidentally produces the desired "zoom in on Marco, dim the rest"
-    // effect without focusedNode ever actually resolving to the center node.
-    // Not deliberate — don't "fix" this into computing a real focusedNode for
-    // the sentinel without checking it doesn't change the translate math.
     const effectiveZoom = state.zoomLevel * (focusedProjectId ? FOCUS_ZOOM_BONUS : 1);
-    const focusedNode = focusedProjectId ? nodesById[focusedProjectId] : null;
+    const focusedNode = focusedNodeId ? nodesById[focusedNodeId] : null;
     const translateX = focusedNode ? -focusedNode.x * effectiveZoom : 0;
     const translateY = focusedNode ? -focusedNode.y * effectiveZoom : 0;
     viewport.style.transform = `translate(${translateX}px, ${translateY}px) scale(${effectiveZoom})`;
@@ -106,9 +105,9 @@ export function initScene(container, projects) {
     const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
 
     content.innerHTML = "";
-    content.appendChild(buildOrbitLayer(rings, nodeBatchCount, focusedProjectId));
-    content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, projectById));
-    content.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
+    content.appendChild(buildOrbitLayer(rings, nodeBatchCount, focusedNodeId));
+    content.appendChild(buildEdgeLayer(edges, nodesById, focusedNodeId, nodeBatchCount, projectById));
+    content.appendChild(buildNodeLayer(nodes, projects, focusedNodeId));
 
     if (previouslyFocusedId) {
       container.querySelector(`[data-node-id="${CSS.escape(previouslyFocusedId)}"]`)?.focus({ preventScroll: true });
@@ -136,7 +135,7 @@ function edgePhaseStart(nodeBatchCount) {
 // cluster grouping is legible at a glance. cx/cy as percentages center each
 // ellipse on the container regardless of its pixel size — the same origin
 // edges/nodes already position themselves around via `left: 50%; top: 50%`.
-function buildOrbitLayer(rings, nodeBatchCount, focusedProjectId) {
+function buildOrbitLayer(rings, nodeBatchCount, focusedNodeId) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("class", "graph-orbits");
 
@@ -154,7 +153,7 @@ function buildOrbitLayer(rings, nodeBatchCount, focusedProjectId) {
     // focused, dim all of them together so they recede like the rest of the
     // unfocused scene instead of staying at full opacity through the ~2.6x
     // focus zoom.
-    if (focusedProjectId) ellipse.classList.add("is-dimmed");
+    if (focusedNodeId) ellipse.classList.add("is-dimmed");
     ellipse.style.transitionDelay = `${edgePhaseStartMs}ms`;
     svg.appendChild(ellipse);
   });
@@ -162,7 +161,7 @@ function buildOrbitLayer(rings, nodeBatchCount, focusedProjectId) {
   return svg;
 }
 
-function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, projectById) {
+function buildEdgeLayer(edges, nodesById, focusedNodeId, nodeBatchCount, projectById) {
   const layer = document.createElement("div");
   layer.className = "graph-edges";
 
@@ -228,7 +227,7 @@ function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount, proj
 
     const line = document.createElement("div");
     line.className = `edge edge--${edge.kind}`;
-    if (focusedProjectId && edge.to !== focusedProjectId) line.classList.add("is-dimmed");
+    if (focusedNodeId && edge.to !== focusedNodeId) line.classList.add("is-dimmed");
     line.style.width = `${length}px`;
     line.style.transform = `translate(${from.x}px, ${from.y}px) rotate(${angle}deg)`;
     line.style.transitionDelay = isMoonEdge
@@ -265,7 +264,7 @@ const CLUSTER_COLOR_CLASS = {
   "full-stack": "node--color-violet"
 };
 
-function buildNodeLayer(nodes, projects, focusedProjectId) {
+function buildNodeLayer(nodes, projects, focusedNodeId) {
   const layer = document.createElement("div");
   layer.className = "graph-nodes";
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
@@ -293,7 +292,7 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
     const isMoon = isProject && node.tier === "moon";
     const el = document.createElement(isProject || isCenter ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
-    if (isProject && focusedProjectId && node.id !== focusedProjectId) el.classList.add("is-dimmed");
+    if (isProject && focusedNodeId && node.id !== focusedNodeId) el.classList.add("is-dimmed");
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
 
@@ -311,10 +310,10 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       el.classList.add(nextPlanetVariant());
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
-      el.setAttribute("aria-expanded", String(state.activeProjectId === SECOND_BRAIN_CHAT_ID));
-      el.setAttribute("aria-label", "Marco Stang — Chat mit second-brain öffnen");
+      el.setAttribute("aria-expanded", String(state.activeProjectId === RESUME_ID));
+      el.setAttribute("aria-label", "Marco Stang — Lebenslauf öffnen");
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
-      el.addEventListener("click", () => focusProject(SECOND_BRAIN_CHAT_ID));
+      el.addEventListener("click", () => focusProject(RESUME_ID));
     } else {
       if (node.tier === "moon") {
         // Moons get their own neutral look, not a cluster color or one of
@@ -329,9 +328,18 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       if (node.tier !== "moon") el.classList.add(nextPlanetVariant());
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
-      el.setAttribute("aria-expanded", String(node.id === state.activeProjectId));
+      // The "second-brain" data/projects.js entry (title "Ask-Marco
+      // Assistant") is rendered as a moon orbiting Marco. Clicking it opens
+      // the real embedded chat (SECOND_BRAIN_CHAT_ID) instead of its own
+      // generic project card — the chat now lives at the node whose name
+      // ("Ask-Marco") actually promises it, freeing the center node for the
+      // résumé. focusedNodeId is already resolved (see render()), so it
+      // reads as "second-brain" whenever the chat is open, matching node.id
+      // directly here.
+      const clickTargetId = node.id === "second-brain" ? SECOND_BRAIN_CHAT_ID : node.id;
+      el.setAttribute("aria-expanded", String(node.id === focusedNodeId));
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><span class="node-label" style="transition-delay: ${labelDelay}">${escapeHtml(project.title)}</span>`;
-      el.addEventListener("click", () => focusProject(node.id));
+      el.addEventListener("click", () => focusProject(clickTargetId));
     }
 
     layer.appendChild(el);
