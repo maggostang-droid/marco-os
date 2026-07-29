@@ -83,7 +83,7 @@ export const projects = [
     tags: ["Python", "Jupyter", "Machine Learning", "Deep Learning"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/applied-ml-course",
-    status: "coming-soon",
+    status: "no-demo",
     cluster: "full-stack"
   },
   {

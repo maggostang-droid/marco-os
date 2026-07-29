@@ -69,10 +69,17 @@ export function initWindowManager(container, projects, resume) {
 
 function buildProjectWindow(project) {
   const isLive = Boolean(project.demoUrl);
-  const statusLabel = isLive ? "● LIVE" : "● DEMO FOLGT";
+  const isComingSoon = !isLive && project.status === "coming-soon";
+  const statusBadgeHtml = isLive
+    ? `<p class="status-badge">● LIVE</p>`
+    : isComingSoon
+      ? `<p class="status-badge">● DEMO FOLGT</p>`
+      : "";
   const actionHtml = isLive
     ? `<a class="btn primary" href="${project.demoUrl}" target="_blank" rel="noopener">Demo starten</a>`
-    : `<button type="button" class="btn primary" disabled>Demo folgt</button>`;
+    : isComingSoon
+      ? `<button type="button" class="btn primary" disabled>Demo folgt</button>`
+      : "";
   const repoHtml = project.repoUrl
     ? `<a class="btn ghost" href="${project.repoUrl}" target="_blank" rel="noopener">Repo öffnen</a>`
     : "";
@@ -89,7 +96,7 @@ function buildProjectWindow(project) {
     </div>
     <div class="win-body">
       <p class="prompt">marco@portfolio:~$ open ${escapeHtml(project.id)} --info</p>
-      <p class="status-badge">${statusLabel}</p>
+      ${statusBadgeHtml}
       <h3>${escapeHtml(project.title)}</h3>
       <p class="summary">${escapeHtml(project.summary)}</p>
       <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
