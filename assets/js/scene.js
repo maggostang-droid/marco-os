@@ -90,9 +90,14 @@ export function initScene(container, projects) {
 
     const previouslyFocusedId = document.activeElement?.dataset?.nodeId ?? null;
 
+    // Center node leads its own reveal batch, then one batch per cluster
+    // ring actually present (see buildNodeLayer) — not one batch per
+    // project, so same-cluster planets fade in together.
+    const nodeBatchCount = 1 + rings.length;
+
     content.innerHTML = "";
-    content.appendChild(buildOrbitLayer(rings, edges.length, focusedProjectId));
-    content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId));
+    content.appendChild(buildOrbitLayer(rings, nodeBatchCount, focusedProjectId));
+    content.appendChild(buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount));
     content.appendChild(buildNodeLayer(nodes, projects, focusedProjectId));
 
     if (previouslyFocusedId) {
@@ -108,8 +113,12 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 // planet has actually finished fading in — start delay + fade duration, not
 // just stagger order). Factored out so the two copies of this formula can't
 // drift apart from each other in a future edit.
-function edgePhaseStart(edgeCount) {
-  const nodePhaseEndMs = edgeCount * NODE_STAGGER_MS + NODE_FADE_MS;
+//
+// nodeBatchCount, not project count: planets reveal in per-cluster batches
+// (see buildNodeLayer), so the last batch's index is nodeBatchCount - 1, not
+// the number of projects.
+function edgePhaseStart(nodeBatchCount) {
+  const nodePhaseEndMs = (nodeBatchCount - 1) * NODE_STAGGER_MS + NODE_FADE_MS;
   return nodePhaseEndMs + PHASE_GAP_MS;
 }
 
@@ -117,11 +126,11 @@ function edgePhaseStart(edgeCount) {
 // cluster grouping is legible at a glance. cx/cy as percentages center each
 // ellipse on the container regardless of its pixel size — the same origin
 // edges/nodes already position themselves around via `left: 50%; top: 50%`.
-function buildOrbitLayer(rings, edgeCount, focusedProjectId) {
+function buildOrbitLayer(rings, nodeBatchCount, focusedProjectId) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("class", "graph-orbits");
 
-  const edgePhaseStartMs = edgePhaseStart(edgeCount);
+  const edgePhaseStartMs = edgePhaseStart(nodeBatchCount);
 
   rings.forEach((ring) => {
     const ellipse = document.createElementNS(SVG_NS, "ellipse");
@@ -143,18 +152,16 @@ function buildOrbitLayer(rings, edgeCount, focusedProjectId) {
   return svg;
 }
 
-function buildEdgeLayer(edges, nodesById, focusedProjectId) {
+function buildEdgeLayer(edges, nodesById, focusedProjectId, nodeBatchCount) {
   const layer = document.createElement("div");
   layer.className = "graph-edges";
 
   // Phase boundaries computed from actual finish times (start delay + fade
   // duration), not just stagger order — so e.g. the edge phase only starts
-  // once the *last* planet has actually finished fading in, not merely
-  // once it started. edgeCount == project count == (node count - 1), since
-  // computeLayout emits exactly one edge and one node per project plus the
-  // center node.
+  // once the *last* planet batch has actually finished fading in, not
+  // merely once it started.
   const edgeCount = edges.length;
-  const edgePhaseStartMs = edgePhaseStart(edgeCount);
+  const edgePhaseStartMs = edgePhaseStart(nodeBatchCount);
   const edgePhaseEndMs = edgePhaseStartMs + Math.max(edgeCount - 1, 0) * EDGE_STAGGER_MS + EDGE_FADE_MS;
   const runnerPhaseStartMs = edgePhaseEndMs + PHASE_GAP_MS;
 
@@ -220,7 +227,15 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
   let planetIndex = 0;
   const nextPlanetVariant = () => PLANET_TEXTURE_VARIANTS[planetIndex++ % PLANET_TEXTURE_VARIANTS.length];
 
-  nodes.forEach((node, nodeIndex) => {
+  // Reveal batches: the center node leads (batch 0), then every planet in
+  // the same cluster fades in together as one batch, instead of each planet
+  // staggering in individually. Nodes already arrive grouped by cluster
+  // (computeLayout iterates CLUSTER_ORDER), so a new batch starts exactly
+  // when the cluster changes.
+  let batchIndex = 0;
+  let lastCluster = null;
+
+  nodes.forEach((node) => {
     const isProject = node.type === "project";
     const isCenter = node.type === "center";
     const el = document.createElement(isProject || isCenter ? "button" : "div");
@@ -229,8 +244,14 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
 
-    const dotDelay = `${nodeIndex * NODE_STAGGER_MS}ms`;
-    const labelDelay = `${nodeIndex * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
+    const project = isProject ? projectById[node.id] : null;
+    if (isProject && project.cluster !== lastCluster) {
+      batchIndex += 1;
+      lastCluster = project.cluster;
+    }
+
+    const dotDelay = `${batchIndex * NODE_STAGGER_MS}ms`;
+    const labelDelay = `${batchIndex * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
 
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());
@@ -241,7 +262,6 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
       el.addEventListener("click", () => focusProject(SECOND_BRAIN_CHAT_ID));
     } else {
-      const project = projectById[node.id];
       if (node.tier === "idea") {
         el.classList.add("node--idea");
       } else {

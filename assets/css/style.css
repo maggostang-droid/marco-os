@@ -169,6 +169,23 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+/* Runner light matches its edge's cluster color instead of always teal. */
+.edge--cluster-agentic-ai .edge-runner {
+  background: var(--amber);
+  box-shadow: 0 0 8px 2px rgba(251, 191, 36, .9);
+}
+.edge--cluster-cloud .edge-runner {
+  background: var(--teal);
+  box-shadow: 0 0 8px 2px rgba(94, 234, 212, .9);
+}
+.edge--cluster-full-stack .edge-runner {
+  background: var(--violet);
+  box-shadow: 0 0 8px 2px rgba(167, 139, 250, .9);
+}
+.edge--idea .edge-runner {
+  background: var(--dim);
+  box-shadow: 0 0 8px 2px rgba(138, 134, 168, .9);
+}
 @media (prefers-reduced-motion: no-preference) {
   /* Scoped to .is-revealed (not just .edge-runner) so the animation only
      starts applying — and its animation-delay only starts counting down —
