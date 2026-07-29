@@ -33,9 +33,17 @@ world). Neither knows about the other's progress — no decision has been made o
 which (if either) becomes the permanent portfolio. Don't assume parity with
 stangverse's implementation choices.
 
-A `second-brain` chat app (separate repo/Streamlit) is planned to be embedded
-later via `<iframe>` once it has a live URL — see the "Zukünftig geplant"
-section of the design spec. Not yet implemented.
+The `second-brain` chat app (separate repo/Streamlit) is implemented: clicking
+the "Marco Stang" center node opens a window embedding
+`https://second-brain-projects.streamlit.app/?embed=true` via `<iframe>` — see
+`docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md`.
+
+**Non-obvious gotcha:** there are two distinct "second-brain" things in this
+codebase. (a) A real `data/projects.js` project entry with `id: "second-brain"`
+— its own planet, its own window. (b) The chat's internal sentinel
+`SECOND_BRAIN_CHAT_ID` in `state.js` (currently `"__second-brain-chat__"`),
+deliberately *not* the string `"second-brain"` so it can't collide with (a).
+Know both exist and why they're different strings before touching this area.
 
 ## Commands
 
@@ -65,7 +73,9 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional
   `coldStartNote`). No position field — layout is computed at runtime.
 - `assets/js/state.js` — central state singleton (`activeProjectId`,
-  `bootComplete`, `zoomLevel`) with a subscribe/notify pattern.
+  `bootComplete`, `zoomLevel`) with a subscribe/notify pattern. Also exports
+  `SECOND_BRAIN_CHAT_ID`, the sentinel `activeProjectId` value for the chat
+  window (see the "second-brain" gotcha above).
 - `assets/js/boot.js` — typewriter-style boot-line overlay (generic system
   lines + one line per project), skippable by click/keypress at any point,
   respects `prefers-reduced-motion`. Once it finishes, `state.bootComplete`
@@ -93,7 +103,9 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   per-star DOM nodes), lives inside `.graph-viewport` so it zooms/pans with
   the graph. Mouse-reactive parallax only, respects reduced-motion.
 - `assets/js/window-manager.js` — renders the single open "terminal window"
-  for the active project.
+  for the active project, or the second-brain chat window (an `<iframe>`
+  inside a `.window--chat`-modified window) when `activeProjectId ===
+  SECOND_BRAIN_CHAT_ID`.
 - `assets/js/taskbar.js` — real system clock, active-window indicator,
   zoom buttons, rotating static "AI guide" tips (no real LLM behind it).
 - `assets/js/focus-target.js` / `assets/js/html-utils.js` — small pure

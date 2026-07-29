@@ -71,3 +71,21 @@ selbst seinen Ladezustand. Kein JS-seitiger Timeout/Fallback.
 - `node --check` für alle geänderten JS-Module.
 - Manuelle Verifikation im Browser bei 375px und 1280px+ (bestehende
   Praxis).
+
+## Addendum (2026-07-29)
+
+Die Annahme oben im Abschnitt "Trigger" — die synthetische ID
+`"second-brain"` stehe nicht in `data/projects.js` — war falsch. Es
+existierte bereits ein echter `data/projects.js`-Eintrag mit `id:
+"second-brain"` (eigener Planet, eigenes Fenster). Mit der ursprünglich
+geplanten ID hätte das Öffnen des Chat-Fensters also den echten
+`second-brain`-Projekt-Node "gekapert" (dessen Fokus-/Fenster-Zustand
+überschrieben) statt ein eigenständiges Chat-Fenster zu öffnen — ein
+echter Bug, der während der Implementierung gefunden und behoben wurde.
+
+Fix: Die Sentinel-ID wurde auf `"__second-brain-chat__"`
+(`SECOND_BRAIN_CHAT_ID` in `state.js`) geändert — bewusst kein gültiger
+`data/projects.js`-Id-Formatstring, um jede künftige Kollision
+auszuschließen. Alle Stellen, die oben noch `"second-brain"` als
+Sentinel-Wert nennen (z. B. im Abschnitt "Fenster-Inhalt"), sind in
+diesem Sinne zu lesen — der Code selbst ist die verbindliche Quelle.
