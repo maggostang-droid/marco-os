@@ -8,7 +8,7 @@ import { resume } from "../data/resume.js";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("resume has the required top-level fields", () => {
-  const requiredFields = ["name", "headline", "intro", "currentStations", "skills", "extendedHistory", "pdfUrl"];
+  const requiredFields = ["name", "headline", "intro", "currentStations", "skills", "extendedHistory", "pdfUrl", "email", "linkedinUrl"];
   for (const field of requiredFields) {
     assert.ok(field in resume, `resume is missing "${field}"`);
   }
@@ -48,8 +48,14 @@ test("pdfUrl points to a file that actually exists on disk", () => {
   assert.ok(existsSync(resolvedPath), `resume.pdfUrl "${resume.pdfUrl}" does not exist at ${resolvedPath}`);
 });
 
-test("no rendered field contains a raw phone number or email address", () => {
+test("email is a well-formed mailto-able address; no raw phone number is present", () => {
+  assert.equal(typeof resume.email, "string");
+  assert.ok(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resume.email), "resume.email must look like a valid email address");
   const haystack = JSON.stringify(resume);
-  assert.ok(!/@/.test(haystack), "resume data must not contain an email address");
-  assert.ok(!/0176|t-online/.test(haystack), "resume data must not contain the phone number or personal email domain");
+  assert.ok(!/0176/.test(haystack), "resume data must not contain the phone number");
+});
+
+test("linkedinUrl points at a linkedin.com profile", () => {
+  assert.equal(typeof resume.linkedinUrl, "string");
+  assert.ok(/^https:\/\/(www\.)?linkedin\.com\//.test(resume.linkedinUrl), "resume.linkedinUrl must be a linkedin.com URL");
 });

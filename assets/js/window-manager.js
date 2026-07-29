@@ -176,7 +176,9 @@ function buildResumeWindow(resume) {
       <button type="button" class="resume-toggle" aria-expanded="false">▸ Vollständigen Werdegang anzeigen</button>
       <div class="resume-extra-wrap"><ul class="resume-extra" aria-hidden="true">${extraHtml}</ul></div>
       <div class="btn-row">
-        <a class="btn primary" href="${resume.pdfUrl}" download>Vollständigen Lebenslauf laden (PDF)</a>
+        <a class="btn primary" href="mailto:${resume.email}">Kontakt aufnehmen</a>
+        <a class="btn ghost" href="${resume.linkedinUrl}" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn ghost" href="${resume.pdfUrl}" download>Lebenslauf laden (PDF)</a>
       </div>
     </div>
   `;

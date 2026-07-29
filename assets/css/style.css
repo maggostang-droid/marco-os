@@ -659,6 +659,7 @@ button.node--center:focus-visible .node-label {
 }
 .btn-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .btn {

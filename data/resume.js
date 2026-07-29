@@ -50,5 +50,7 @@ export const resume = {
     "Sprachen: Deutsch (Muttersprache), Englisch (verhandlungssicher)",
     "Referenz: auf Anfrage"
   ],
-  pdfUrl: "assets/docs/lebenslauf-marco-stang.pdf"
+  pdfUrl: "assets/docs/lebenslauf-marco-stang.pdf",
+  email: "stang.marco@t-online.de",
+  linkedinUrl: "https://www.linkedin.com/in/marco-stang"
 };
