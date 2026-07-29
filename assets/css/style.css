@@ -186,6 +186,16 @@ button.node:focus-visible {
   overflow: hidden;
 }
 
+/* Hover/focus affordance for clickable planets. Uses the standalone `scale`
+   property (not `transform`) so it doesn't interfere with the reveal
+   animation's `transform` transition on the same element — see the
+   NODE_FADE_MS comment in scene.js for why that transform timing is exact. */
+button.node--project:hover .node-dot,
+button.node--project:focus-visible .node-dot {
+  scale: 1.15;
+  filter: brightness(1.3);
+}
+
 /* Planet-texture variants, distributed pseudo-randomly per node id
    (see scene.js) so each planet-like node reads a bit differently. */
 .node--planet-shaded .node-dot::after {
@@ -240,8 +250,20 @@ button.node:focus-visible {
 .node--project .node-dot {
   width: 34px;
   height: 34px;
+}
+/* Color variants, cycled per project in scene.js so the graph reads as a
+   varied field of planets instead of one repeated amber dot. */
+.node--project.node--color-amber .node-dot {
   background: radial-gradient(circle at 35% 30%, #fff6db, var(--amber) 55%, #8a5f10);
   box-shadow: 0 0 22px rgba(251, 191, 36, .5);
+}
+.node--project.node--color-teal .node-dot {
+  background: radial-gradient(circle at 35% 30%, #d9fffa, var(--teal) 55%, #0f766e);
+  box-shadow: 0 0 22px rgba(94, 234, 212, .5);
+}
+.node--project.node--color-violet .node-dot {
+  background: radial-gradient(circle at 35% 30%, #ece7ff, var(--violet) 55%, #4c3a8f);
+  box-shadow: 0 0 22px rgba(167, 139, 250, .5);
 }
 .node--project.node--idea .node-dot {
   width: 22px;
@@ -263,7 +285,7 @@ button.node:focus-visible {
 
 @media (prefers-reduced-motion: no-preference) {
   .node-dot {
-    transition: opacity .7s ease-out, transform .7s ease-out;
+    transition: opacity .7s ease-out, transform .7s ease-out, scale .18s ease-out, filter .18s ease-out;
   }
   .node-label {
     transition: opacity .55s ease-out;

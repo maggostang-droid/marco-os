@@ -47,6 +47,17 @@ test("base radius grows once there are more than three projects", () => {
   assert.ok(distOfFirst(5) > distOfFirst(3));
 });
 
+test("active projects vary in distance from the center", () => {
+  const projects = Array.from({ length: 3 }, (_, i) => ({ id: `p${i}`, status: "coming-soon", tags: [] }));
+  const { nodes } = computeLayout(projects);
+  const dist = (id) => {
+    const node = nodes.find((n) => n.id === id);
+    return Math.hypot(node.x, node.y);
+  };
+  const distances = new Set([dist("p0"), dist("p1"), dist("p2")]);
+  assert.equal(distances.size, 3);
+});
+
 test("narrow viewports shrink the project radius", () => {
   const projects = [{ id: "a", status: "coming-soon", tags: [] }];
 
