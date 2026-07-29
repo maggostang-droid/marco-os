@@ -38,7 +38,12 @@ export function initWindowManager(container, projects) {
     if (!activeId) {
       if (focusTarget.startsWith("graph-node:")) {
         const graphNodeId = focusTarget.slice("graph-node:".length);
-        document.querySelector(`[data-node-id="${CSS.escape(graphNodeId)}"]`)?.focus({ preventScroll: true });
+        // The chat's logical id (SECOND_BRAIN_CHAT_ID) is deliberately not a
+        // real graph node id (it must never collide with a real project id —
+        // see Task 1's fix) — the actual DOM node for it uses graph-layout.js's
+        // own "center" node id instead, so map the two before looking it up.
+        const domNodeId = graphNodeId === SECOND_BRAIN_CHAT_ID ? "center" : graphNodeId;
+        document.querySelector(`[data-node-id="${CSS.escape(domNodeId)}"]`)?.focus({ preventScroll: true });
       }
       return;
     }
