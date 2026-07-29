@@ -17,9 +17,9 @@ export const projects = [
       "Referenzfragen korrekt beantwortet, mit klarem Muster nach Schwierigkeit " +
       "(Grundlagen 5/5, Joins & Aggregation 3/5, Window Functions 0/5).",
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
-    demoUrl: null,
+    demoUrl: "https://sql-copilot-portfolio.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/sql-copilot",
-    status: "coming-soon",
+    status: "live",
     cluster: "agentic-ai"
   },
   {
