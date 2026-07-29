@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { state, subscribe, completeBoot, focusProject, closeWindow, resetState, zoomIn, zoomOut } from "../assets/js/state.js";
+import { state, subscribe, completeBoot, focusProject, closeWindow, resetState, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID } from "../assets/js/state.js";
 
 test("completeBoot flips bootComplete to true", () => {
   resetState();
@@ -95,4 +95,14 @@ test("zoomOut at the minimum zoom level does not notify subscribers", () => {
   subscribe(() => { callCount += 1; });
   zoomOut();
   assert.equal(callCount, 0);
+});
+
+test("SECOND_BRAIN_CHAT_ID is a stable, non-empty identifier", () => {
+  assert.equal(SECOND_BRAIN_CHAT_ID, "second-brain");
+});
+
+test("focusProject accepts the second-brain sentinel id like any other id", () => {
+  resetState();
+  focusProject(SECOND_BRAIN_CHAT_ID);
+  assert.equal(state.activeProjectId, SECOND_BRAIN_CHAT_ID);
 });

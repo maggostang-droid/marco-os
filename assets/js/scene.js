@@ -1,5 +1,5 @@
 import { computeLayout } from "./graph-layout.js";
-import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut } from "./state.js";
+import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 
 const FOCUS_ZOOM_BONUS = 2.6;
@@ -55,7 +55,7 @@ export function initScene(container, projects) {
   );
 
   container.addEventListener("click", (event) => {
-    if (state.activeProjectId && !event.target.closest(".node--project")) {
+    if (state.activeProjectId && !event.target.closest(".node--project, .node--center")) {
       closeWindow();
     }
   });
@@ -179,7 +179,8 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
 
   nodes.forEach((node, nodeIndex) => {
     const isProject = node.type === "project";
-    const el = document.createElement(isProject ? "button" : "div");
+    const isCenter = node.type === "center";
+    const el = document.createElement(isProject || isCenter ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
     if (isProject && focusedProjectId && node.id !== focusedProjectId) el.classList.add("is-dimmed");
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
@@ -190,7 +191,12 @@ function buildNodeLayer(nodes, projects, focusedProjectId) {
 
     if (node.type === "center") {
       el.classList.add(nextPlanetVariant());
+      el.type = "button";
+      el.setAttribute("aria-haspopup", "dialog");
+      el.setAttribute("aria-expanded", String(state.activeProjectId === SECOND_BRAIN_CHAT_ID));
+      el.setAttribute("aria-label", "Marco Stang — Chat mit second-brain öffnen");
       el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
+      el.addEventListener("click", () => focusProject(SECOND_BRAIN_CHAT_ID));
     } else {
       const project = projectById[node.id];
       if (node.tier === "idea") {
