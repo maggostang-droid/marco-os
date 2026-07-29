@@ -144,7 +144,7 @@ export const projects = [
       "Stuffing statt Vektor-RAG, reicht bei der aktuellen Projektzahl locker ins Prompt) " +
       "— z.B. 'welche Projekte zeigen Cloud-Erfahrung?'. Dasselbe Wissen wird zusätzlich " +
       "über einen MCP-Server exponiert, sodass Claude Code/Desktop direkt danach fragen " +
-      "kann. Live und erreichbar über den Marco-Zentrum-Knoten in der Graph-Ansicht.",
+      "kann. Live und erreichbar über den Ask-Marco-Mond-Knoten in der Graph-Ansicht.",
     tags: ["Python", "LangChain", "MCP", "Streamlit"],
     demoUrl: "https://second-brain-projects.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/ask-marco-assistant",
