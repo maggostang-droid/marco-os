@@ -15,7 +15,7 @@ export const projects = [
       "Guardrails und Selbstkorrektur sichtbar statt sie nur im Code zu verstecken, " +
       "inklusive Live-Button, der den Korrektur-Loop provoziert. Eval-Ergebnis: 8/15 " +
       "Referenzfragen korrekt beantwortet, mit klarem Muster nach Schwierigkeit " +
-      "(Grundlagen 5/5, Joins 3/4, Window Functions 0/6).",
+      "(Grundlagen 5/5, Joins & Aggregation 3/5, Window Functions 0/5).",
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/sql-copilot",
@@ -118,11 +118,14 @@ export const projects = [
       "zahnärztlichen Behandlungsnotizen (Multi-Label, 10 Kern-Codes) und tritt gegen eine " +
       "RAG-Baseline (BM25 + Embeddings) auf demselben, unveränderten Basismodell an — eine " +
       "konkrete, messbare Antwort auf 'schlägt Finetuning RAG?' statt nur eine Behauptung. " +
-      "Systematisches Debugging deckte bei schwachen Finetune-Ergebnissen klassisches " +
-      "Exposure Bias auf (gesunde Trainings-Loss-Kurve, aber kollabierende freie " +
-      "Generierung) statt eines Daten- oder Trainingsbugs — ein ehrliches, dokumentiertes " +
-      "Negativergebnis statt geschönter Zahlen. Trainingsdaten sind komplett synthetisch " +
-      "generiert, kein Abgleich mit realen Praxisfällen im großen Stil.",
+      "Der Weg dahin war kein Selbstläufer: zwei frühe Trainingsläufe kollabierten in " +
+      "nahezu konstante Vorhersagen — systematisches Debugging führte das zunächst auf " +
+      "klassisches Exposure Bias zurück (gesunde Trainings-Loss-Kurve, aber kollabierende " +
+      "freie Generierung), danach auf schlicht zu wenige Gradientenschritte. Nach der " +
+      "Korrektur schlägt das Finetune die RAG-Baseline auf F1 (0,59 vs. 0,48) und deutlich " +
+      "auf Exact Match (0,38 vs. 0,07); die RAG-Baseline behält den höheren Recall. " +
+      "Trainingsdaten sind komplett synthetisch generiert, kein Abgleich mit realen " +
+      "Praxisfällen im großen Stil.",
     tags: ["PyTorch", "LoRA", "RAG", "Llama 3.2", "Python"],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/medical-coding-extractor",
