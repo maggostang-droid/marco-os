@@ -86,9 +86,10 @@ function buildProjectWindow(project) {
       <p class="prompt">marco@portfolio:~$ open ${escapeHtml(project.id)} --info</p>
       <p class="status-badge">${statusLabel}</p>
       <h3>${escapeHtml(project.title)}</h3>
-      <p class="description">${escapeHtml(project.description)}</p>
-      <button type="button" class="tech-toggle" aria-expanded="false">▸ Tech-Stack anzeigen</button>
-      <div class="tags" hidden>${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+      <p class="summary">${escapeHtml(project.summary)}</p>
+      <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+      <button type="button" class="tech-toggle" aria-expanded="false">▸ Technische Details anzeigen</button>
+      <p class="description" hidden>${escapeHtml(project.description)}</p>
       <div class="btn-row">${actionHtml}${repoHtml}</div>
     </div>
   `;
@@ -98,12 +99,12 @@ function buildProjectWindow(project) {
 
 function wireProjectWindowInteractions(win) {
   const techToggle = win.querySelector(".tech-toggle");
-  const tagsEl = win.querySelector(".tags");
+  const descriptionEl = win.querySelector(".description");
   techToggle.addEventListener("click", () => {
-    const expanding = tagsEl.hidden;
-    tagsEl.hidden = !expanding;
+    const expanding = descriptionEl.hidden;
+    descriptionEl.hidden = !expanding;
     techToggle.setAttribute("aria-expanded", String(expanding));
-    techToggle.textContent = expanding ? "▾ Tech-Stack verbergen" : "▸ Tech-Stack anzeigen";
+    techToggle.textContent = expanding ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen";
   });
 }
 

@@ -455,6 +455,13 @@ button.node--center:focus-visible .node-dot {
   margin: 4px 0;
   font-size: 17px;
 }
+.summary {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: #eae7fb;
+  margin: 8px 0 10px;
+}
 .description {
   font-size: 12px;
   line-height: 1.6;
@@ -481,9 +488,6 @@ button.node--center:focus-visible .node-dot {
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 14px;
-}
-.tags[hidden] {
-  display: none;
 }
 .tag {
   font-size: 9.5px;
