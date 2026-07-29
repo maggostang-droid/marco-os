@@ -14,7 +14,7 @@
 - No font-family changes — Segoe UI / Cascadia Code stay exactly as-is.
 - No changes to boot sequence, graph layout, starfield, or window-manager logic beyond the two toggle-reveal transitions (Task 2).
 - `npm test` must pass after every task.
-- Every new transition must be gated behind `@media (prefers-reduced-motion: no-preference)`, matching the existing codebase convention (see `.edge-runner`, `.node-dot` rules already in `style.css`).
+- Every new transition that reveals/hides content or moves/scales an element (e.g. Task 2's grid-rows/opacity reveal) must be gated behind `@media (prefers-reduced-motion: no-preference)`, matching the existing codebase convention (see `.edge-runner`, `.node-dot` rules already in `style.css`). Simple hover color/background fades (e.g. Task 1's `.win-close:hover`) are not motion and follow the codebase's existing ungated convention for hover color changes (see `.tb-zoom-btn:hover`).
 - Every task that changes something visible must be verified in-browser at 375px and 1280px width via Playwright screenshots, before and after — not just inspected as CSS source. This directly addresses the prior redesign attempt's failure mode (a change that didn't visually register, followed by an overcorrection that looked broken).
 - Any new color pairing must be checked against WCAG 4.5:1 minimum contrast (values below are pre-computed in this plan; re-verify if you change any of them).
 
