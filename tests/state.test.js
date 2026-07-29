@@ -98,7 +98,7 @@ test("zoomOut at the minimum zoom level does not notify subscribers", () => {
 });
 
 test("SECOND_BRAIN_CHAT_ID is a stable, non-empty identifier", () => {
-  assert.equal(SECOND_BRAIN_CHAT_ID, "second-brain");
+  assert.equal(SECOND_BRAIN_CHAT_ID, "__second-brain-chat__");
 });
 
 test("focusProject accepts the second-brain sentinel id like any other id", () => {

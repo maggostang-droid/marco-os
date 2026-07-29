@@ -4,9 +4,11 @@ const MIN_ZOOM = 0.6;
 const MAX_ZOOM = 1.8;
 const ZOOM_STEP = 0.1;
 
-// Sentinel activeProjectId for the second-brain chat window — distinct from
-// any real data/projects.js id, so window-manager.js can special-case it.
-export const SECOND_BRAIN_CHAT_ID = "second-brain";
+// Deliberately not a plausible data/projects.js id (those are always plain
+// kebab-case repo-name strings, e.g. "sql-agent" — this repo *has* a real
+// project literally id'd "second-brain", so a bare "second-brain" sentinel
+// would collide with it and hijack that project's own window).
+export const SECOND_BRAIN_CHAT_ID = "__second-brain-chat__";
 
 export const state = {
   bootComplete: false,
