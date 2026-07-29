@@ -2,8 +2,7 @@
 
 Stand: 2026-07-29, Ende der Session. Für einen Agenten/eine neue Session,
 die hier weitermacht, ohne den ganzen Gesprächsverlauf zu kennen. Ersetzt
-die vorherige Handover-Version (deren Inhalt größtenteils durch die
-parallele orbit-clusters-Session und diese Session überholt ist).
+die vorherige Handover-Version (second-brain-Chat-Fenster-Session).
 
 ## Was das hier ist
 
@@ -12,9 +11,9 @@ lebendiges neuronales Netz (Marco im Zentrum, Projekte als Satelliten-Knoten
 = "Planeten", nach Skill-Cluster auf eigenen elliptischen Orbits gruppiert).
 Klick auf einen Projekt-Knoten öffnet ein Terminal-Fenster mit
 Projekt-Details. Plain HTML/CSS/Vanilla-JS (ES-Module), kein Build-Tool,
-keine npm-Dependencies. Hosting: GitHub Pages.
+keine npm-Dependencies. Hosting: GitHub Pages, deployt von `master`.
 
-## Ist-Zustand: voll funktionsfähig
+## Ist-Zustand auf `master`: voll funktionsfähig
 
 - `npm test` → **39/39 Tests grün** (Node's `node:test`, keine
   Dependencies).
@@ -24,167 +23,146 @@ keine npm-Dependencies. Hosting: GitHub Pages.
   Cache-Busting-Header — nach JS/CSS-Änderungen Hard-Refresh
   (Strg+Shift+R) nötig.
 
-## Neu in dieser Session: second-brain-Chat-Fenster
+## ⚠️ Wichtig: paralleler Redesign-Branch existiert, ist NICHT Teil von master
 
-Der zentrale "Marco Stang"-Knoten war bisher rein dekorativ (kein
-`<button>`, nicht fokussierbar). Er ist jetzt klickbar/fokussierbar und
-öffnet ein Fenster, das den live second-brain-Chat
-(https://second-brain-projects.streamlit.app/ — separates Repo, siehe
-`../second-brain/`) per `<iframe src=".../?embed=true">` einbettet, über
-denselben `state.activeProjectId`-Mechanismus, den Projekt-Fenster
-verwenden (Sentinel-ID `SECOND_BRAIN_CHAT_ID` in `state.js`).
+Während dieser Session lief (offenbar automatisiert/durch einen anderen
+Prozess, nicht durch mich) auf demselben Checkout ein kompletter Frontend-
+Umbau auf dem lokalen Branch `redesign/frontend-design-overhaul` — 20+
+Commits: Vite als Build-Tool, WebGL/PixiJS-Renderer statt SVG,
+Multi-Window-Fenstermanager (Drag/Resize/Z-Order), Command Palette
+(Strg/Cmd+K), CRT/Synthwave-Design-Token-System, umgeschriebene Taskbar,
+CI/gh-pages-Deploy-Workflow. **Dieser Branch wurde nie nach `origin`
+gepusht und ist auf Nutzerwunsch nicht weiterverfolgt worden** — er
+existiert weiterhin lokal in diesem Checkout, wuchs aber noch während
+dieser Session in Echtzeit weiter (Branch wechselte mehrfach unter der
+Hand, neue Commits erschienen ungefragt).
 
-Vollständiger Brainstorming→Spec→Plan→SDD-Prozess (4 Tasks + finaler
-Review + eine Fix-Welle):
-- Spec: [`docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md`](docs/superpowers/specs/2026-07-29-second-brain-chat-window-design.md)
-  (inkl. Addendum zur Sentinel-Kollision, siehe unten)
-- Plan: [`docs/superpowers/plans/2026-07-29-second-brain-chat-window-implementation.md`](docs/superpowers/plans/2026-07-29-second-brain-chat-window-implementation.md)
+**Für die nächste Session:** Vor dem Arbeiten `git branch -vv` prüfen. Falls
+der Checkout wieder auf `redesign/frontend-design-overhaul` steht statt
+`master`: das ist nicht dein Branch, nicht committen/pushen ohne
+Rücksprache mit Marco — er hat entschieden, dass der Inhalt (Stand dieser
+Session) nicht weiterverfolgt wird. Ein versehentlicher Commit auf diesen
+Branch ist mir selbst in dieser Session passiert (kleiner Fix-Commit,
+danach dort belassen, siehe unten) — die Dateien, die er berührt
+(`command-palette.js`, die CRT-Boot-Transition in `boot.js`/`style.css`)
+existieren auf `master` gar nicht, ein Cherry-Pick schlägt entsprechend
+fehl (ausprobiert, abgebrochen).
 
-### Zwei echte Bugs, nur durch Playwright-gestützte Browser-Verifikation gefunden
+## Neu in dieser Session (alles auf `master`)
 
-Beide waren aus reinem Code-Review nicht ersichtlich, weil `scene.js`/
-`window-manager.js` keine Unit-Tests haben (DOM-lastig, kein jsdom im
-Repo — etablierte Konvention, kein Gap):
+### 1. Projekt-Content-Rebrand
 
-1. **Sentinel-ID-Kollision mit einer echten Projekt-Karte.** Die
-   Design-Spec nahm an, `SECOND_BRAIN_CHAT_ID = "second-brain"` kollidiere
-   mit keiner echten `data/projects.js`-ID — falsch, `data/projects.js`
-   hatte (durch die parallele orbit-clusters-Session synct) bereits eine
-   echte Karte mit genau dieser ID. Klick auf den echten second-brain-
-   Planeten öffnete dadurch den Chat statt seines eigenen Fensters. Fix:
-   Sentinel auf `"__second-brain-chat__"` geändert (bewusst kein
-   plausibler echter Projekt-ID-String).
-2. **Fokus-Restaurations-Bug.** Escape schloss das Chat-Fenster, aber der
-   Fokus landete auf `<body>` statt zurück auf dem Marco-Knoten — die
-   generische Fokus-Restaurations-Logik nimmt an, `activeProjectId`
-   entspreche immer dem `data-node-id`-Attribut des zugehörigen DOM-Knotens
-   (stimmt für echte Projekte, aber nicht für den Chat: dessen DOM-Knoten
-   trägt `data-node-id="center"`, ein anderer String als die Sentinel-ID).
-   Fix: Mapping Sentinel → `"center"` an der `querySelector`-Stelle in
-   `window-manager.js`.
+Alle 8 Projekte bekamen marketing-taugliche Namen, eine zweigeteilte
+Beschreibung (immer sichtbares High-Level-`summary` + technisches
+`description` hinter Toggle, vorher nur ein einziger dichter Text), und die
+zugehörigen GitHub-Repos wurden umbenannt (alte URLs redirecten via GitHub,
+außer bei `hr-interview-cockpit`/`interview-cockpit` — dessen GitHub-Pages-
+Demo-Link musste manuell aktualisiert werden, GitHub redirected Pages-URLs
+nicht automatisch).
 
-**Lehre für künftige Sessions:** Bei "reuse existing state field mit einer
-neuen Sentinel-ID"-Features immer alle Konsumenten des Felds greppen
-(`grep -rn "activeProjectId" assets/js/`) — der finale Review fand einen
-dritten, übersehenen Konsumenten (`taskbar.js`, zeigte keinen Chip, wenn
-der Chat offen war; inzwischen gefixt).
+Vollständiger Brainstorming→Spec→Plan→SDD-Prozess:
+- Spec: [`docs/superpowers/specs/2026-07-29-project-content-rebrand-design.md`](docs/superpowers/specs/2026-07-29-project-content-rebrand-design.md)
+- Plan: [`docs/superpowers/plans/2026-07-29-project-content-rebrand-implementation.md`](docs/superpowers/plans/2026-07-29-project-content-rebrand-implementation.md)
 
-### Kollision mit einer parallelen Session mitten in der Arbeit
+**Zwei echte Bugs während der SDD-Ausführung:**
 
-Während dieser Session lief **noch eine zweite Session** parallel am
-selben Haupt-Checkout und baute ein großes orbit-clusters-Feature
-(Skill-Cluster-Orbits, SVG-Ring-Layer, Projekt-Neusortierung) — inklusive
-eigener finaler Review-Fix-Runde. Deshalb wurde für second-brain **bewusst
-ein isolierter Git-Worktree** verwendet (`git worktree add
-.worktrees/second-brain-chat-window master -b
-feature/second-brain-chat-window`) statt direkt auf `master` zu arbeiten —
-mit Marco abgestimmt, bevor der Worktree angelegt wurde. Die andere Session
-hatte aus demselben Grund selbst schon einen Branch (`feature/orbit-
-clusters`) benutzt und **die "kein Worktree/Branch"-Regel aus `CLAUDE.md`
-bereits entfernt** (Commit `52c251f`), bevor diese Session überhaupt
-begann — Worktrees/Branches sind in diesem Repo jetzt also grundsätzlich
-akzeptiert, wenn Isolation gebraucht wird, nicht mehr nur "direkt auf
-master".
+1. **Task-1-Brief hatte veraltete Description-Texte.** Der Plan wurde aus
+   einem sehr frühen Read von `data/projects.js` geschrieben, aber
+   `sql-agent` und `goz-finetune-vs-rag` waren zwischenzeitlich (außerhalb
+   dieser Konversation) mit neuen Eval-Zahlen/einer anderen Ergebnis-
+   Erzählung aktualisiert worden. Der Task-Reviewer fand das als Critical
+   Finding; Marco bestätigte, welche Version aktuell/korrekt ist; Fix-Runde
+   1 stellte den richtigen Text wieder her. **Lehre:** Ein Plan, der
+   vollständigen Dateiinhalt vorschreibt, ist nur so aktuell wie der Moment
+   seines letzten Reads — bei einer länger laufenden Session lohnt sich ein
+   Diff-Check gegen den tatsächlichen Dateiinhalt direkt vor Ausführung,
+   nicht nur Vertrauen in den zu Beginn gelesenen Stand.
+2. **Implementer committete in den Haupt-Checkout statt in den isolierten
+   Worktree**, obwohl explizit angewiesen. Per Cherry-Pick auf den
+   korrekten Worktree-Branch übertragen, Haupt-Checkout zurückgesetzt.
+   **Lehre:** Nach jedem Implementer-Report prüfen, auf welchem Branch der
+   Commit tatsächlich gelandet ist (`git log --oneline -3` im Report
+   verlangen oder selbst nachprüfen), nicht nur den Report-Status
+   vertrauen.
 
-Master wurde zweimal in den Feature-Branch gemerged, während die andere
-Session weiterarbeitete (`git merge master` in den eigenen Worktree, nicht
-umgekehrt) — beide Male von git automatisch konfliktfrei aufgelöst
-(`scene.js`/`style.css` betroffen). **Auto-Merge garantiert nur textuelle
-Nicht-Überlappung, keine semantische Korrektheit** — nach jedem Merge
-wurde deshalb die komplette Test-Suite plus eine frische
-Playwright-Verifikation erneut durchlaufen, nicht nur angenommen, dass es
-passt.
+### 2. Edge-Reveal-Batching pro Cluster
 
-### Finaler Review fand zusätzlich
+Verbindungslinien (Kanten) zum selben Skill-Cluster erscheinen jetzt
+gleichzeitig als eine Gruppe, statt einzeln nacheinander gestaffelt zu
+werden (`assets/js/scene.js`, `buildEdgeLayer`) — spiegelt das bestehende
+Node-Batching-Muster aus `buildNodeLayer`.
 
-- `taskbar.js` zeigte keinen aktiven-Fenster-Chip, wenn der Chat offen war
-  (dritter, übersehener `activeProjectId`-Konsument, siehe oben) — gefixt.
-- `CLAUDE.md` und die Design-Spec behaupteten noch den alten,
-  überholten Stand ("noch nicht implementiert" bzw. die falsche
-  Kollisions-Annahme) — korrigiert.
-- Center-Knoten hatte einen Fokus-Ring, aber kein Hover-Feedback wie
-  Projekt-Knoten — Selektor erweitert.
-- Emergentes, unbeabsichtigtes aber korrektes Verhalten dokumentiert statt
-  "gefixt": Öffnen des Chats wendet den Fokus-Zoom-Bonus an, aber der
-  Sentinel matcht keinen echten Knoten, wodurch die Translation bei `(0,0)`
-  bleibt — sieht durch Zufall korrekt aus, weil der Zentrum-Knoten selbst
-  bei `(0,0)` sitzt. Ein-Zeilen-Kommentar in `scene.js` ergänzt, damit ein
-  künftiger Refactor das nicht "verschlimmbessert".
-- **Bewusst nicht angefasst:** iframe-`sandbox`/`referrerpolicy`-Härtung
-  (sinnvoll, aber braucht eigene Verifikation gegen die Live-App, kein
-  Drive-by-Fix) und die echte second-brain-Projektkarte in
-  `data/projects.js` (siehe nächster Abschnitt — die haben wir separat auf
-  Nutzeranfrage angefasst).
+### 3. Ask-Marco Assistant als kleiner Mond von Marco
 
-### second-brain-Planet aktualisiert (separater Nutzerwunsch, nach dem Feature-Merge)
+`second-brain`-Projekt bekam `orbitsCenter: true` in `data/projects.js` und
+umgeht damit das Cluster-Ring-System komplett (`graph-layout.js`): eigener
+kleiner, fixer Orbit direkt neben dem Zentrum-Knoten statt im
+agentic-ai-Ring, kleinerer neutral-weißer Knoten statt Cluster-Farbe, dünne
+statische Verbindungslinie statt gepulster Cluster-Kante, erscheint sofort
+mit Marcos eigenem Reveal-Batch. Klick öffnet weiterhin das normale
+Projekt-Fenster (keine Änderung an diesem Verhalten).
 
-Die echte `data/projects.js`-Karte für `second-brain` war stehen
-geblieben auf `status: "planned"`, `demoUrl: null`, Beschreibung "noch in
-Arbeit" — obwohl second-brain inzwischen fertig und live ist. Auf
-Brainstorming mit Marco: Karte korrigiert (`status: "live"`, echte
-Demo-/Repo-Links), Beschreibung verweist jetzt zusätzlich explizit auf den
-Marco-Knoten-Shortcut ("Psst: du kannst mich auch direkt hier fragen —
-klick auf Marco im Zentrum"), statt die Doppel-Rolle (eigener Planet +
-Sonderfunktion am Zentrum) unerklärt nebeneinander stehen zu lassen.
+Iteratives Tuning bei `MOON_RADIUS`/`MOON_ANGLE_OFFSET_DEG` nötig — erste
+Werte ließen Mond-Knoten und -Label mit Marcos eigener Sphäre bzw. mit dem
+nächsten Cluster-Planeten kollidieren; per Playwright-Screenshot-Vergleich
+iteriert bis überlappungsfrei.
 
-### Push-Vorfall (Prozess-Lehre, kein Code-Problem)
+### 4. Hover-/Fokus-Effekt auf Planeten: sofort und stärker
 
-Ein routinemäßig wirkender, kleiner Commit (die second-brain-Karten-
-Korrektur) wurde gepusht, ohne vorher zu prüfen, wie viele unpushte
-Commits bereits lokal auf `master` lagen. Ergebnis: **28 Commits auf
-einmal live** — sowohl das komplette second-brain-Chat-Feature dieser
-Session als auch die komplette, bereits lokal gemergte orbit-clusters-
-Arbeit der anderen Session, die beide seit Sitzungsbeginn nur lokal
-committet, aber nie gepusht worden waren. Inhaltlich unproblematisch (alles
-getestet, beide Features durch ihren jeweils eigenen finalen Review
-gelaufen), aber die Entscheidung "jetzt live schalten" wurde damit ungefragt
-getroffen statt bewusst vom Nutzer freigegeben. **Für künftige Sessions:**
-vor einem `git push`, der beiläufig wirkt, `git log origin/master..HEAD
---oneline` prüfen — ein kleiner eigener Commit kann einen großen,
-unpushten Rucksack mitreißen.
+`scale`/`filter`-Transition-Dauer von .18s auf .05s (fühlt sich jetzt
+"sofort" an), Effekt selbst verstärkt (Scale 1.15→1.4, Brightness 1.3→1.8,
+zusätzlicher weißer Drop-Shadow-Glow), und die Node-Label leuchtet jetzt
+mit auf (skaliert, wird weiß/fett, bekommt eigenen Text-Shadow-Glow) statt
+unverändert zu bleiben.
+
+**Playwright-Testfalle, die hier auftrat:** `page.screenshot({ clip: ... })`
+(zugeschnittener Ausschnitt) gefolgt von `getComputedStyle()` las
+wiederholt und reproduzierbar **veraltete Werte** für compositor-lastige
+Properties (`scale`, `filter`) — ein normales Property in derselben Regel
+(`font-weight`) zeigte dagegen korrekt den Hover-Wert. Ein **volles,
+nicht zugeschnittenes** `page.screenshot()` direkt vor `getComputedStyle()`
+lieferte dagegen zuverlässig korrekte Werte, jedes Mal. Vermutlich erzwingt
+nur ein vollständiger Seiten-Screenshot den kompletten Style-/Compositor-
+Flush, den ein geclipptes Screenshot nicht auslöst. **Für künftige
+Sessions:** Bei Hover-/Fokus-CSS-Verifikation per Playwright IMMER ein
+volles `page.screenshot()` (kein `clip`) vor jedem `getComputedStyle()`-Read
+einschieben, sonst können `scale`/`filter`-Werte falsch-negativ erscheinen.
 
 ## Bekannte offene Punkte
 
-- **`taskbar.js` hatte weiterhin denselben Fokus-/Rebuild-Bug** wie
-  `window-manager.js` vor dessen Fix (baut bei jedem `notify()` komplett
-  neu) — unverändert aus der letzten Handover-Version übernommen, nicht
-  Teil dieser Session.
-- **iframe-Sandboxing** — siehe oben, bewusst zurückgestellt.
-- **`list_projects()`/Datenmodell in second-brain selbst** haben keine
-  `demo_url`/`repo_url`/`status` (Detail lebt in `second-brain/HANDOVER.md`,
-  nicht hier — betrifft nur den MCP-Server/Chat, nicht marco-os).
+- **Redesign-Branch** (siehe Warnhinweis oben) — Entscheidung über dessen
+  Zukunft (verwerfen, weiterführen, teilweise übernehmen) steht noch aus,
+  ist eine Produktentscheidung für Marco, keine Code-Aufgabe.
+- **second-brain-Planet vs. Marco-Zentrum-Chat-Zugang** — zwei Wege zum
+  selben Chat (eigener Planet + Zentrum-Knoten-Shortcut) bestehen weiterhin
+  nebeneinander, bewusst nicht in dieser Session aufgelöst (siehe Design-
+  Spec des Rebrands, Abschnitt "Bekannter Nebeneffekt").
 - **Verhältnis zu `stangfolio`/`stangverse`** weiterhin ungeklärt
   (Produktentscheidung, keine Code-Aufgabe).
 
 ## Workflow-Hinweise für die nächste Session
 
-- **Worktrees/Branches sind jetzt grundsätzlich akzeptiert**, wenn
-  Isolation von paralleler Arbeit gebraucht wird (die alte "immer direkt
-  auf master"-Regel wurde aus `CLAUDE.md` entfernt). Bei Unsicherheit
-  trotzdem kurz nachfragen, bevor ein Worktree angelegt wird.
-- Bei unerklärlichen Datei-Änderungen im Haupt-Checkout: erst prüfen, ob
-  eine andere Session parallel am selben Repo arbeitet (`git status`,
-  `git branch -vv`), bevor man von Subagenten-Fehlverhalten ausgeht.
-- Größere Features: `superpowers:brainstorming` →
-  `superpowers:writing-plans` → `superpowers:subagent-driven-development`.
-  Kleinere visuelle/Timing-Tweaks: direkt mit Playwright-gestützter
-  Browser-Verifikation, kein voller SDD-Prozess nötig.
-- Playwright läuft lokal installiert im Scratchpad-Verzeichnis (npm-Paket
-  + Chromium-Browser, **nicht** im Projekt selbst). Chromium-Binaries
-  liegen meist schon unter `~/AppData/Local/ms-playwright` gecacht, nur
-  `npm install playwright` im Scratch-Ordner nötig. Für Fokus-/Tab-Order-
-  Checks: jeden Check auf einer frischen `page`/`context` laufen lassen,
-  nicht mehrere Interaktionen in derselben Seite verketten — sonst
-  verfälscht der Fokus-Zustand aus dem vorherigen Check das Ergebnis
-  (ist dieser Session passiert, siehe Diagnose-Skripte in der
-  Zusammenfassung des Chatverlaufs).
-- Merges gegen eine schnell laufende `master` während eigener Arbeit: nach
-  jedem Merge komplette Test-Suite **und** eine frische
-  Playwright-Verifikation laufen lassen, nicht nur auf konfliktfreiem
-  Auto-Merge vertrauen.
-- Nutzer testet oft selbst parallel im Browser und gibt kurzes, direktes
-  Feedback — bei Unklarheit lieber kurz nachfragen (`AskUserQuestion`)
-  als zu raten.
+- **Vor jeder Aktion `git branch -vv` prüfen**, besonders nach einer
+  längeren Pause im Gespräch — diese Session wurde mehrfach ohne eigenes
+  Zutun auf einen anderen Branch versetzt (siehe Warnhinweis oben).
+- Kleinere visuelle/Timing-Tweaks: direkt mit Playwright-gestützter
+  Browser-Verifikation, kein voller Brainstorming→Spec→Plan-Prozess nötig
+  (Edge-Batching, Mond-Feature, Hover-Effekt liefen alle so). Größere
+  Content-/Datenmodell-Änderungen (wie der Rebrand): voller Prozess über
+  `superpowers:brainstorming` → `superpowers:writing-plans` →
+  `superpowers:subagent-driven-development`.
+- Bei SDD-Ausführung: Implementer-Reports nicht blind vertrauen, welcher
+  Branch/Verzeichnis tatsächlich committet wurde — selbst nachprüfen.
+- Playwright läuft lokal installiert im Scratchpad-Verzeichnis, erreichbar
+  über den `NODE_PATH`-Trick auf den npx-Cache
+  (`AppData/Local/npm-cache/_npx/<hash>/node_modules`), falls kein
+  eigenständiges `npm install playwright` gemacht wurde. Für einen lokalen
+  HTTP-Server unter Windows/Git-Bash: `--directory` braucht einen
+  **Windows-Pfad** (`C:\Users\...`), ein MSYS-Pfad (`/c/Users/...`) liefert
+  ein leeres Directory-Listing statt der echten Dateien.
+- Nutzer testet oft selbst parallel und gibt kurzes, direktes Feedback —
+  bei Unklarheit lieber kurz nachfragen (`AskUserQuestion`) als zu raten,
+  besonders bevor auf `origin` gepusht wird.
 
 ## Links
 
