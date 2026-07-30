@@ -1173,13 +1173,82 @@ button.node--center:focus-visible .node-label {
   }
 }
 
+/* --- Nebula (Start) — wolkige Nebelschwaden hinter dem Sternfeld ---------
+   Vom starfield.js als unterste Ebene in .graph-viewport geprepended und mit
+   der kleinsten Maus-Parallax bewegt. Zwei feTurbulence-Wolkenschichten als
+   Inline-SVG-Data-URLs (Violett oben links, Teal unten rechts) — wie der
+   Grain auf .desktop: keine Bild-Assets, kein CDN, aufloesungsunabhaengig.
+   CSS-Masken begrenzen jede Schicht auf ihre Ecke, damit die Bildmitte
+   (Zentrum, Labels) ruhig bleibt; ein Hauch Amber liegt statisch oben
+   rechts auf dem Layer selbst. Der ultra-langsame Drift (~2,5 min bzw.
+   ~3 min pro Halbzyklus, gegenlaeufig) sitzt auf den Pseudo-Elementen,
+   die Parallax-Translation auf dem Layer-Div — so ueberschreiben sich
+   Keyframe-Transform und Inline-Transform aus starfield.js nicht.
+   Drift nur hinter prefers-reduced-motion. NICHT von Hand editieren:
+   Block wird von tools/gen-nebula.mjs generiert (Tuning-Werte dort). */
+.nebula-layer {
+  position: absolute;
+  /* -35% statt z.B. -22%: die Taskbar erlaubt Zoom-out bis 0.6 (MIN_ZOOM in
+     state.js), und der Layer skaliert als Viewport-Kind mit. 170% Kantenlaenge
+     x 0.6 = 102% — deckt den Bildschirm auch voll ausgezoomt noch ab, sonst
+     staenden die Turbulence-Kanten als Saum im Bild. */
+  inset: -35%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 22% 17% at 78% 22%, rgba(251, 191, 36, .07), transparent 70%),
+    radial-gradient(ellipse 60% 60% at 38% 38%, rgba(167, 139, 250, .26), transparent 65%),
+    radial-gradient(ellipse 50% 50% at 71% 71%, rgba(94, 234, 212, .18), transparent 60%);
+}
+.nebula-layer::before,
+.nebula-layer::after {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.nebula-layer::before {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='620'%3E%3Cfilter%20id='n'%20x='-10%'%20y='-10%'%20width='120%'%20height='120%'%20color-interpolation-filters='sRGB'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.0052%200.0074'%20numOctaves='5'%20seed='8'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.655%20%200%200%200%200%200.545%20%200%200%200%200%200.980%20%200%200%200%201.6%20-0.54'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='gamma'%20amplitude='1'%20exponent='1.35'%20offset='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect%20width='100%'%20height='100%'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  -webkit-mask-image: radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%);
+}
+.nebula-layer::after {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='620'%3E%3Cfilter%20id='n'%20x='-10%'%20y='-10%'%20width='120%'%20height='120%'%20color-interpolation-filters='sRGB'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.0044%200.0066'%20numOctaves='5'%20seed='27'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.369%20%200%200%200%200%200.918%20%200%200%200%200%200.831%20%200%200%200%201.5%20-0.52'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='gamma'%20amplitude='1'%20exponent='1.4'%20offset='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect%20width='100%'%20height='100%'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%);
+  mask-image: radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nebula-layer {
+    transition: transform 0.3s ease-out;
+  }
+  .nebula-layer::before {
+    animation: nebulaDriftA 150s ease-in-out infinite alternate;
+  }
+  .nebula-layer::after {
+    animation: nebulaDriftB 190s ease-in-out infinite alternate;
+  }
+}
+@keyframes nebulaDriftA {
+  from { transform: translate3d(-1.4%, -1%, 0) scale(1); }
+  to { transform: translate3d(1.4%, 1%, 0) scale(1.06); }
+}
+@keyframes nebulaDriftB {
+  from { transform: translate3d(1.2%, 0.8%, 0) scale(1.05); }
+  to { transform: translate3d(-1.2%, -0.8%, 0) scale(1); }
+}
+/* --- Nebula (Ende) ------------------------------------------------------ */
+
 .graph-viewport {
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(167, 139, 250, .26), transparent 65%),
-    radial-gradient(ellipse at 85% 85%, rgba(94, 234, 212, .18), transparent 60%);
+  /* Die frueheren Farb-Washes (Violett 30/30, Teal 85/85) leben jetzt auf
+     .nebula-layer: der ist ueberdimensioniert (inset -35%) und endet darum
+     beim Zoom-out (MIN_ZOOM 0.6) nicht als sichtbares helles Rechteck an
+     den Viewport-Elementkanten. */
 }
 @media (prefers-reduced-motion: no-preference) {
   .graph-viewport {

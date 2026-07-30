@@ -24,6 +24,10 @@ const LAYERS = [
   { className: "star-layer--near", count: 65, opacity: 1, maxShift: 22 }
 ];
 
+// Nebula-Parallax: kleiner als der fernste Sternlayer (maxShift 6), damit
+// die Wolken als tiefste Ebene hinter allen Sternen lesen.
+const NEBULA_MAX_SHIFT = 4;
+
 export function initStarfield(container) {
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -34,6 +38,16 @@ export function initStarfield(container) {
     container.prepend(el);
     return { el, maxShift: layer.maxShift };
   });
+
+  // Nach den Sternlayern geprepended → DOM-Index 0 → wird zuerst gemalt,
+  // liegt also hinter allen Sternen. Bewusst VOR dem reduced-motion-Return
+  // erzeugt: auch ohne Animationen soll die (dann statische) Nebula sichtbar
+  // sein — ihre Drift-Keyframes sind separat in CSS hinter
+  // prefers-reduced-motion gegated (siehe .nebula-layer in style.css).
+  const nebula = document.createElement("div");
+  nebula.className = "nebula-layer";
+  container.prepend(nebula);
+  layers.push({ el: nebula, maxShift: NEBULA_MAX_SHIFT });
 
   if (prefersReducedMotion) return;
 

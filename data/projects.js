@@ -7,7 +7,7 @@ export const projects = [
       "SQL-Kenntnisse — und kann Daten nur lesen, nie verändern.",
     description:
       "Fachabteilungen brauchen schnelle Antworten aus Firmendaten, aber die wenigsten " +
-      "können SQL schreiben. sql-agent ist ein LangGraph-basierter Text-to-SQL-Agent, der " +
+      "können SQL schreiben. SQL Copilot ist ein LangGraph-basierter Text-to-SQL-Agent, der " +
       "natürlichsprachige Fragen gegen eine echte PostgreSQL-Datenbank (Olist E-Commerce, " +
       "~100.000 Bestellungen) beantwortet — inklusive Schema-Exploration, SQL-Guardrails " +
       "(Whitelist statt Blacklist, nur lesende SELECT-Queries, read-only DB-User) und einem " +
@@ -65,14 +65,14 @@ export const projects = [
       "SHAP bestimmt die wichtigsten Treiber, ein LLM übersetzt sie anschließend in " +
       "verständlichen Klartext statt nur eine Zahl auszugeben. Full-Stack-Umsetzung mit " +
       "React/TypeScript-Frontend und FastAPI-Backend — schließt bewusst die React/FastAPI-" +
-      "Full-Stack-Lücke neben sql-agent (Agentic AI) und goz-finetune-vs-rag (LLM-" +
-      "Finetuning). Modell-Metriken (zeitlicher Train/Test-Split): ROC-AUC 0,706, " +
+      "Full-Stack-Lücke neben SQL Copilot (Agentic AI) und dem Medical Coding Extractor " +
+      "(LLM-Finetuning). Modell-Metriken (zeitlicher Train/Test-Split): ROC-AUC 0,706, " +
       "konservativ kalibriert (hohe Precision, niedrigerer Recall).",
     tags: ["React", "TypeScript", "FastAPI", "scikit-learn", "SHAP"],
     stats: [{ value: "0,706", label: "ROC-AUC (zeitl. Split)" }],
-    demoUrl: null,
-    repoUrl: null,
-    status: "coming-soon",
+    demoUrl: "https://ai-analytics-portal-gray.vercel.app/",
+    repoUrl: "https://github.com/maggostang-droid/review-risk-predictor",
+    status: "live",
     cluster: "full-stack"
   },
   {
