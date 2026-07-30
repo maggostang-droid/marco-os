@@ -409,6 +409,9 @@ button.node--center:focus-visible .node-label {
   text-shadow: 0 0 8px rgba(255, 255, 255, .8), 0 0 18px rgba(255, 255, 255, .45);
 }
 
+/* Label unterhalb des Planeten (Standard); Knoten oberhalb des Zentrums
+   bekommen .node--label-up (scene.js) und tragen ihr Label ÜBER dem
+   Planeten, damit es nicht auf der eigenen radialen Kante liegt. */
 .node-label {
   position: absolute;
   top: 100%;
@@ -422,6 +425,11 @@ button.node--center:focus-visible .node-label {
   /* Leichter Halo, damit Labels auch über hellen Sternen/Kanten lesbar
      bleiben — nicht erst im Hover-Zustand. */
   text-shadow: 0 1px 6px rgba(6, 4, 13, .9), 0 0 2px rgba(6, 4, 13, .8);
+}
+.node--label-up .node-label {
+  top: auto;
+  bottom: 100%;
+  margin: 0 0 6px;
 }
 
 .node--center .node-dot {

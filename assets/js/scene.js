@@ -291,6 +291,12 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
     const isMoon = isProject && node.tier === "moon";
     const el = document.createElement(isProject || isCenter ? "button" : "div");
     el.classList.add("node", `node--${node.type}`);
+    // Alle Kanten laufen radial zum Zentrum. Bei Knoten OBERHALB des
+    // Zentrums (y < 0) zeigt "unterhalb des Planeten" — wo das Label
+    // standardmäßig sitzt — genau Richtung Zentrum, also mitten auf die
+    // eigene Verbindungslinie. Das Label wandert dort auf die zentrums-
+    // abgewandte Seite (über den Planeten), wo nie eine eigene Kante liegt.
+    if (isProject && node.y < 0) el.classList.add("node--label-up");
     if (isProject && focusedNodeId && node.id !== focusedNodeId) el.classList.add("is-dimmed");
     el.style.transform = `translate(calc(-50% + ${node.x}px), calc(-50% + ${node.y}px))`;
     el.dataset.nodeId = node.id;
