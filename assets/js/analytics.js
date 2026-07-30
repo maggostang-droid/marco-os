@@ -50,7 +50,11 @@ export async function fetchVisitorCount() {
     // und deutsch formatieren.
     const digits = String(json?.count ?? "").replace(/\D/g, "");
     if (!digits) return null;
-    return Number(digits).toLocaleString("de-DE");
+    const total = Number(digits);
+    // "◉ 0 Besucher" wäre Anti-Wow — solange (noch) nichts gezählt ist
+    // (frischer Account, 4h-Cache des Endpoints), lieber gar keine Zeile.
+    if (total === 0) return null;
+    return total.toLocaleString("de-DE");
   } catch {
     return null;
   } finally {
