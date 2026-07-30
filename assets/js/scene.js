@@ -67,7 +67,14 @@ export function initScene(container, projects) {
 
   function render() {
     const viewportSize = Math.min(container.clientWidth, window.innerHeight);
-    const { nodes, edges, rings } = computeLayout(projects, viewportSize);
+    // width/height zusätzlich zu viewportSize: computeLayout passt damit den
+    // äußersten Ring in die Breite ein und dreht auf Portrait-Viewports die
+    // Ellipsen hochkant (siehe fitParams in graph-layout.js) — vorher liefen
+    // Planeten + Labels auf Smartphones seitlich aus dem Bild.
+    const { nodes, edges, rings } = computeLayout(projects, viewportSize, {
+      width: container.clientWidth,
+      height: container.clientHeight
+    });
     const nodesById = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const focusedProjectId = state.activeProjectId;
     // RESUME_ID and SECOND_BRAIN_CHAT_ID are UI sentinels, not real
@@ -91,7 +98,7 @@ export function initScene(container, projects) {
     // CSS animations from scratch every time, making them visibly stutter.
     if (state.bootComplete) container.classList.add("is-revealed");
 
-    const contentKey = `${focusedProjectId ?? ""}:${viewportSize}`;
+    const contentKey = `${focusedProjectId ?? ""}:${viewportSize}:${container.clientWidth}x${container.clientHeight}`;
     if (contentKey === lastContentKey) return;
     lastContentKey = contentKey;
 

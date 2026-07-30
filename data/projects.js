@@ -17,6 +17,13 @@ export const projects = [
       "Referenzfragen korrekt beantwortet, mit klarem Muster nach Schwierigkeit " +
       "(Grundlagen 5/5, Joins & Aggregation 3/5, Window Functions 0/5).",
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
+    // stats: echte, nachprüfbare Metriken (siehe description) — werden im
+    // Projekt-Fenster als eigene Stat-Zeile gerendert. Optionales Feld.
+    stats: [
+      { value: "8/15", label: "Eval korrekt" },
+      { value: "5/5", label: "Grundlagen" },
+      { value: "0/5", label: "Window Fns" }
+    ],
     demoUrl: "https://sql-copilot-portfolio.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/sql-copilot",
     status: "live",
@@ -62,6 +69,7 @@ export const projects = [
       "Finetuning). Modell-Metriken (zeitlicher Train/Test-Split): ROC-AUC 0,706, " +
       "konservativ kalibriert (hohe Precision, niedrigerer Recall).",
     tags: ["React", "TypeScript", "FastAPI", "scikit-learn", "SHAP"],
+    stats: [{ value: "0,706", label: "ROC-AUC (zeitl. Split)" }],
     demoUrl: null,
     repoUrl: null,
     status: "coming-soon",
@@ -127,6 +135,10 @@ export const projects = [
       "Trainingsdaten sind komplett synthetisch generiert, kein Abgleich mit realen " +
       "Praxisfällen im großen Stil.",
     tags: ["PyTorch", "LoRA", "RAG", "Llama 3.2", "Python"],
+    stats: [
+      { value: "0,59", label: "F1 (RAG: 0,48)" },
+      { value: "0,38", label: "Exact Match (RAG: 0,07)" }
+    ],
     demoUrl: null,
     repoUrl: "https://github.com/maggostang-droid/medical-coding-extractor",
     status: "coming-soon",

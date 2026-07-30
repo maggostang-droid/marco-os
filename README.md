@@ -42,7 +42,8 @@ berechnet — keine manuelle Koordinaten-Pflege nötig.
 
 - `data/projects.js` — Projektdaten (einzige Quelle für Inhalte)
 - `assets/js/graph-layout.js` — reine Layout-Funktion (unit-getestet),
-  inkl. Viewport-abhängiger Radius-Skalierung
+  inkl. Viewport-abhängiger Radius-Skalierung und Fit-to-Viewport für
+  schmale/Portrait-Viewports (Ellipsen hochkant, alles bleibt im Bild)
 - `assets/js/state.js` — zentrales State-Modul (unit-getestet)
 - `assets/js/focus-target.js` — reine Funktion für Fokus-Restore-Logik
   nach Fenster-Öffnen/-Wechsel/-Schließen (unit-getestet)
@@ -56,5 +57,11 @@ berechnet — keine manuelle Koordinaten-Pflege nötig.
 - `assets/js/boot.js` — überspringbare Boot-Sequenz
 - `assets/js/starfield.js` — parallaxender Sternfeld-Hintergrund
   (mausreaktiv, respektiert `prefers-reduced-motion`)
+- `assets/js/menubar.js` — OS-Menüleiste oben (Shortcuts: Lebenslauf,
+  Ask-Marco, Kontakt)
+- `assets/js/hud.js` — Identitäts-Panel (oben links) + Orbit-Legende
+  (unten links) über der Szene
+- `assets/fonts/` — self-gehostete Webfonts (Space Grotesk + JetBrains
+  Mono, via `@fontsource`-Pakete; kein Google-Fonts-CDN → DSGVO-sicher)
 
 Details zu Design-Entscheidungen: [docs/superpowers/specs/2026-07-28-marco-os-design.md](docs/superpowers/specs/2026-07-28-marco-os-design.md)

@@ -68,7 +68,93 @@ function viewportScale(viewportSize) {
   return Math.min(1, Math.max(MIN_VIEWPORT_SCALE, viewportSize / REFERENCE_VIEWPORT));
 }
 
-export function computeLayout(projects, viewportSize = null) {
+// --- Fit-to-viewport (schmale/portrait Viewports, z.B. Smartphones) ---
+// Ohne diese Korrektur liefen der äußerste Ring (full-stack, 2x baseRadius)
+// und seine Labels auf Handys links/rechts aus dem Bild. Statt die ganze
+// Szene uniform zu verkleinern (Labels/Planeten sind CSS-fixiert, nur die
+// *Positionen* schrumpfen — uniform würde alles unlesbar stauchen), passiert
+// zweierlei, wenn `dimensions` ({ width, height }) übergeben wird:
+//  1. rx wird so skaliert, dass der äußerste Ring + Label-Rand in die
+//     Viewport-Breite passt (H_FIT_MARGIN je Seite für halbe Label-Breite).
+//  2. Auf Portrait-Viewports (height > width) werden die Ellipsen über
+//     PORTRAIT_ASPECT_MAX *höher* statt breiter — der Platz ist dort unten,
+//     nicht an den Seiten. ry wird zusätzlich gegen die Höhe geclampt.
+const H_FIT_MARGIN = 64;
+const V_FIT_MARGIN = 90;
+const PORTRAIT_ASPECT_MAX = 1.25;
+// Untergrenze für den Mond-Orbit auf sehr schmalen Viewports: kleiner, und
+// der Mond samt Label klebt im 52px-Dot + Glow + Label des Zentrums.
+const MOON_MIN_RADIUS = 72;
+
+// Portrait-Rotation je Cluster: full-stack liegt im Landscape-Layout mit
+// Offset 0deg voll horizontal — auf einem Portrait-Viewport ist das exakt
+// die knappste Achse. 90deg stellt seine beiden Nodes senkrecht (oben/
+// unten, wo der Platz ist); cloud rückt auf 160deg (links oben), damit es
+// weder mit full-stack (vertikal) noch agentic-ai (Diagonalen) kollidiert.
+const CLUSTER_ANGLE_OFFSET_DEG_PORTRAIT = {
+  "agentic-ai": 45,
+  // 135deg (unten links) hält den einzelnen Cloud-Knoten aus beiden
+  // Stau-Zonen heraus: 160deg lag fast auf der 165deg-Richtung des
+  // agentic-Rings, 200deg auf der 210deg-Richtung des full-stack-Rings —
+  // bei den eng beieinanderliegenden Portrait-Radien kollidierten dort
+  // jeweils die Labels.
+  cloud: 135,
+  "full-stack": 90
+};
+
+// Portrait-rx-Multiplikatoren: die inneren Ringe rücken relativ weiter nach
+// außen (1.25/1.65 statt 0.95/1.45), weil auf schmalen Viewports sonst die
+// Labels des innersten Rings mit dem Zentrum (Sonne + "Marco Stang"-Label +
+// Mond) kollidieren — der äußerste Ring (2) bestimmt weiterhin den Fit.
+const CLUSTER_RX_MULTIPLIER_PORTRAIT = {
+  "agentic-ai": 1.25,
+  cloud: 1.65,
+  "full-stack": 2
+};
+
+// Mond-Winkel im Portrait-Layout: exakt rechts (0deg). Oben ist im
+// Portrait-Layout die Stau-Zone (MCE 285deg, Interview 330deg, Applied ML
+// 210deg) — rechts auf Sonnenhöhe ist der einzige freie Sektor, in dem
+// weder der Mond noch sein Label ("Ask-Marco Assistant", auf Mobile
+// zweizeilig) etwas berührt.
+const MOON_ANGLE_OFFSET_DEG_PORTRAIT = 0;
+
+function fitParams(baseRadius, clustersPresent, hasIdeas, dimensions) {
+  const defaults = {
+    rxScale: 1,
+    aspect: ELLIPSE_ASPECT,
+    ryScale: 1,
+    angleOffsets: CLUSTER_ANGLE_OFFSET_DEG,
+    rxMultipliers: CLUSTER_RX_MULTIPLIER,
+    moonAngleDeg: MOON_ANGLE_OFFSET_DEG
+  };
+  if (!dimensions || !dimensions.width) return defaults;
+
+  const { width, height = 0 } = dimensions;
+  const isPortrait = height > width;
+  const rxMultipliers = isPortrait ? CLUSTER_RX_MULTIPLIER_PORTRAIT : CLUSTER_RX_MULTIPLIER;
+  const maxMultiplier =
+    Math.max(...clustersPresent.map((c) => rxMultipliers[c] ?? 1)) * (hasIdeas ? IDEA_ORBIT_MULTIPLIER : 1);
+  const maxRx = baseRadius * maxMultiplier;
+
+  const rxScale = Math.min(1, Math.max(0, width / 2 - H_FIT_MARGIN) / maxRx);
+  const aspect = isPortrait
+    ? Math.min(PORTRAIT_ASPECT_MAX, (ELLIPSE_ASPECT * height) / width)
+    : ELLIPSE_ASPECT;
+  const maxRy = maxRx * rxScale * aspect;
+  const ryScale = height ? Math.min(1, Math.max(0, height / 2 - V_FIT_MARGIN) / maxRy) : 1;
+
+  return {
+    rxScale,
+    aspect,
+    ryScale,
+    angleOffsets: isPortrait ? CLUSTER_ANGLE_OFFSET_DEG_PORTRAIT : CLUSTER_ANGLE_OFFSET_DEG,
+    rxMultipliers,
+    moonAngleDeg: isPortrait ? MOON_ANGLE_OFFSET_DEG_PORTRAIT : MOON_ANGLE_OFFSET_DEG
+  };
+}
+
+export function computeLayout(projects, viewportSize = null, dimensions = null) {
   const nodes = [{ id: "center", type: "center", x: 0, y: 0 }];
   const edges = [];
   const rings = [];
@@ -78,11 +164,26 @@ export function computeLayout(projects, viewportSize = null) {
   const moonProjects = projects.filter((project) => project.orbitsCenter);
   const ringProjects = projects.filter((project) => !project.orbitsCenter);
 
+  const count = ringProjects.length;
+  const baseRadius = (BASE_RADIUS + Math.max(0, count - 3) * RADIUS_STEP_PER_EXTRA_PROJECT) * scale;
+
+  const clustersPresent = [...new Set(ringProjects.map((p) => p.cluster).filter((c) => CLUSTER_ORDER.includes(c)))];
+  const hasIdeas = ringProjects.some((p) => p.status === "planned");
+  const { rxScale, aspect, ryScale, angleOffsets, rxMultipliers, moonAngleDeg } = fitParams(
+    baseRadius,
+    clustersPresent.length ? clustersPresent : CLUSTER_ORDER,
+    hasIdeas,
+    dimensions
+  );
+
   // Moons orbit Marco directly on their own small radius, evenly spaced if
   // there's ever more than one — entirely separate from the cluster-ring
   // system below, so they never join a ring or a cluster-colored edge.
-  const moonRadius = MOON_RADIUS * scale;
-  const moonAngleOffset = (MOON_ANGLE_OFFSET_DEG * Math.PI) / 180;
+  // rxScale schrumpft den Mond-Orbit auf schmalen Viewports mit (sonst läge
+  // er plötzlich *außerhalb* des geschrumpften innersten Rings), MOON_MIN_RADIUS
+  // verhindert, dass er dabei ins Zentrum kollabiert.
+  const moonRadius = Math.max(MOON_MIN_RADIUS, MOON_RADIUS * scale * rxScale);
+  const moonAngleOffset = (moonAngleDeg * Math.PI) / 180;
   moonProjects.forEach((project, index) => {
     const angle = (2 * Math.PI * index) / moonProjects.length + moonAngleOffset;
     const x = Math.cos(angle) * moonRadius;
@@ -91,9 +192,6 @@ export function computeLayout(projects, viewportSize = null) {
     nodes.push({ id: project.id, type: "project", tier: "moon", x, y });
     edges.push({ from: "center", to: project.id, kind: "moon" });
   });
-
-  const count = ringProjects.length;
-  const baseRadius = (BASE_RADIUS + Math.max(0, count - 3) * RADIUS_STEP_PER_EXTRA_PROJECT) * scale;
 
   const projectsByCluster = new Map();
   for (const project of ringProjects) {
@@ -111,11 +209,11 @@ export function computeLayout(projects, viewportSize = null) {
     const clusterProjects = projectsByCluster.get(cluster);
     if (!clusterProjects || clusterProjects.length === 0) continue;
 
-    const rx = baseRadius * CLUSTER_RX_MULTIPLIER[cluster];
-    const ry = rx * ELLIPSE_ASPECT;
+    const rx = baseRadius * rxMultipliers[cluster] * rxScale;
+    const ry = rx * aspect * ryScale;
     rings.push({ cluster, rx, ry });
 
-    const angleOffset = (CLUSTER_ANGLE_OFFSET_DEG[cluster] * Math.PI) / 180;
+    const angleOffset = (angleOffsets[cluster] * Math.PI) / 180;
     const clusterCount = clusterProjects.length;
 
     clusterProjects.forEach((project, index) => {

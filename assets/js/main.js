@@ -5,6 +5,8 @@ import { initStarfield } from "./starfield.js";
 import { initScene } from "./scene.js";
 import { initWindowManager } from "./window-manager.js";
 import { initTaskbar } from "./taskbar.js";
+import { initMenubar } from "./menubar.js";
+import { initHud } from "./hud.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   initBoot(document.querySelector("#boot-overlay"), projects);
@@ -16,4 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initStarfield(document.querySelector(".graph-viewport"));
   initWindowManager(document.querySelector("#window-layer"), projects, resume);
   initTaskbar(document.querySelector("#taskbar"), projects);
+  initMenubar(document.querySelector("#menubar"), resume);
+  initHud(document.querySelector("#hud"), projects, resume);
 });

@@ -138,3 +138,57 @@ test("omitting viewportSize keeps the original fixed radius", () => {
   assert.ok(Math.abs(node.x - Math.cos(angle) * rx) < 1e-9);
   assert.ok(Math.abs(node.y - Math.sin(angle) * ry) < 1e-9);
 });
+
+// --- Fit-to-viewport (drittes Argument `dimensions`, siehe fitParams) ---
+
+const FIT_TEST_PROJECTS = [
+  { id: "a1", status: "coming-soon", cluster: "agentic-ai", tags: [] },
+  { id: "a2", status: "coming-soon", cluster: "agentic-ai", tags: [] },
+  { id: "c1", status: "coming-soon", cluster: "cloud", tags: [] },
+  { id: "f1", status: "coming-soon", cluster: "full-stack", tags: [] },
+  { id: "f2", status: "coming-soon", cluster: "full-stack", tags: [] },
+  { id: "moon", status: "live", cluster: "agentic-ai", tags: [], orbitsCenter: true }
+];
+
+test("with dimensions, every node fits inside the viewport width (incl. label margin)", () => {
+  const width = 390;
+  const { nodes } = computeLayout(FIT_TEST_PROJECTS, width, { width, height: 760 });
+  for (const node of nodes) {
+    assert.ok(
+      Math.abs(node.x) <= width / 2,
+      `${node.id} at x=${node.x} overflows the ${width}px viewport`
+    );
+  }
+});
+
+test("with dimensions, every node fits inside the viewport height", () => {
+  const width = 390;
+  const height = 760;
+  const { nodes } = computeLayout(FIT_TEST_PROJECTS, width, { width, height });
+  for (const node of nodes) {
+    assert.ok(
+      Math.abs(node.y) <= height / 2,
+      `${node.id} at y=${node.y} overflows the ${height}px viewport height`
+    );
+  }
+});
+
+test("on portrait viewports the moon still orbits inside the innermost ring's rx", () => {
+  const width = 390;
+  const { nodes, rings } = computeLayout(FIT_TEST_PROJECTS, width, { width, height: 760 });
+  const moon = nodes.find((n) => n.id === "moon");
+  const innermostRx = Math.min(...rings.map((r) => r.rx));
+  assert.ok(
+    Math.hypot(moon.x, moon.y) <= innermostRx + 10,
+    `moon at r=${Math.hypot(moon.x, moon.y)} sits outside innermost ring rx=${innermostRx}`
+  );
+});
+
+test("wide viewports are unaffected by the dimensions argument", () => {
+  const wide = computeLayout(FIT_TEST_PROJECTS, 900, { width: 1440, height: 900 });
+  const reference = computeLayout(FIT_TEST_PROJECTS, 900);
+  for (const refNode of reference.nodes) {
+    const node = wide.nodes.find((n) => n.id === refNode.id);
+    assert.ok(Math.abs(node.x - refNode.x) < 1e-9 && Math.abs(node.y - refNode.y) < 1e-9);
+  }
+});

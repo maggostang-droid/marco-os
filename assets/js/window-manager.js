@@ -4,6 +4,16 @@ import { nextFocusTarget } from "./focus-target.js";
 
 const SECOND_BRAIN_CHAT_URL = "https://second-brain-projects.streamlit.app/?embed=true";
 
+// Akzentfarbe je Cluster (identisch zu den --amber/--teal/--violet Tokens in
+// style.css) — als CSS-Custom-Property aufs Fenster gesetzt, damit Primary-
+// Button, Tags und Fensterrahmen die Cluster-Farbe des Projekts tragen und
+// das Fenster sichtbar zu "seinem" Orbit gehört.
+const CLUSTER_ACCENT = {
+  "agentic-ai": "#fbbf24",
+  cloud: "#5eead4",
+  "full-stack": "#a78bfa"
+};
+
 export function initWindowManager(container, projects, resume) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
   let lastRenderedId = null;
@@ -33,6 +43,11 @@ export function initWindowManager(container, projects, resume) {
     const focusTarget = nextFocusTarget(prevRenderedId, activeId, hadFocusInWindow);
 
     container.innerHTML = "";
+    // Steuert den Scrim (abdunkeln + blur der Szene hinter dem Fenster,
+    // siehe .window-layer.has-window in style.css) — die Szene bleibt
+    // klickbar (pointer-events: none auf dem Layer), tritt aber visuell
+    // zurück, damit der Fensterinhalt ungestört lesbar ist.
+    container.classList.toggle("has-window", Boolean(activeId));
     lastRenderedId = activeId;
 
     if (!activeId) {
@@ -83,9 +98,21 @@ function buildProjectWindow(project) {
   const repoHtml = project.repoUrl
     ? `<a class="btn ghost" href="${project.repoUrl}" target="_blank" rel="noopener">Repo öffnen</a>`
     : "";
+  // Echte Metriken (aus data/projects.js, optional) als eigene Stat-Zeile —
+  // ehrliche Zahlen sind das stärkste Material der Projekte und verdienen
+  // visuelles Gewicht, statt im Fließtext der Beschreibung unterzugehen.
+  const statsHtml = Array.isArray(project.stats) && project.stats.length
+    ? `<div class="stats">${project.stats
+        .map(
+          (stat) =>
+            `<div class="stat"><span class="stat-value">${escapeHtml(stat.value)}</span><span class="stat-label">${escapeHtml(stat.label)}</span></div>`
+        )
+        .join("")}</div>`
+    : "";
 
   const win = document.createElement("div");
   win.className = "window";
+  win.style.setProperty("--accent", CLUSTER_ACCENT[project.cluster] ?? "#5eead4");
   win.setAttribute("role", "dialog");
   win.setAttribute("aria-label", project.title);
   win.innerHTML = `
@@ -99,6 +126,7 @@ function buildProjectWindow(project) {
       ${statusBadgeHtml}
       <h3>${escapeHtml(project.title)}</h3>
       <p class="summary">${escapeHtml(project.summary)}</p>
+      ${statsHtml}
       <div class="tags">${project.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
       <button type="button" class="tech-toggle" aria-expanded="false">▸ Technische Details anzeigen</button>
       <div class="description-wrap"><p class="description" aria-hidden="true">${escapeHtml(project.description)}</p></div>
@@ -158,6 +186,8 @@ function buildResumeWindow(resume) {
 
   const win = document.createElement("div");
   win.className = "window window--resume";
+  // Violett = die Farbe des Zentrums/der Person, nicht eines Clusters.
+  win.style.setProperty("--accent", "#a78bfa");
   win.setAttribute("role", "dialog");
   win.setAttribute("aria-label", "Lebenslauf");
   win.innerHTML = `
