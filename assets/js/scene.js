@@ -319,9 +319,9 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
     // jedes Mal andere Werte würfeln und die Animationen sichtbar springen
     // lassen). Negative Delays desynchronisieren die Phasen.
     const driftVars =
-      `--float-dur: ${(6.5 + (nodeIndex % 5) * 0.9).toFixed(1)}s;` +
+      `--float-dur: ${(4.8 + (nodeIndex % 5) * 0.7).toFixed(1)}s;` +
       ` --float-delay: ${(-((nodeIndex * 1.7) % 6)).toFixed(1)}s;` +
-      ` --spin-dur: ${72 + ((nodeIndex * 13) % 66)}s`;
+      ` --spin-dur: ${42 + ((nodeIndex * 11) % 42)}s`;
 
     if (node.type === "center") {
       el.type = "button";

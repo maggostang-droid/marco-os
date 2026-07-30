@@ -515,12 +515,18 @@ button.node--center:focus-visible .node-label {
       planetSpin var(--spin-dur, 90s) linear infinite;
   }
   .scene.is-revealed .node--center .node-dot {
-    animation: planetSpin 180s linear infinite;
+    animation: planetSpin 110s linear infinite;
   }
 }
+/* Leichte 8er-Bahn statt reinem Auf/Ab: x wandert gegenphasig mit, das
+   liest sich organischer. Amplitude (7px) bleibt unter dem Planetenradius,
+   damit die an festen Koordinaten verankerten Kanten nicht sichtbar
+   abreißen. */
 @keyframes nodeFloat {
   0%, 100% { translate: 0 0; }
-  50% { translate: 0 -4px; }
+  25% { translate: 2.5px -4px; }
+  50% { translate: 0 -7px; }
+  75% { translate: -2.5px -4px; }
 }
 @keyframes planetSpin {
   to { rotate: 360deg; }
@@ -1467,10 +1473,19 @@ button.node--center:focus-visible .node-label {
   .window {
     width: 100%;
     border-radius: 12px 12px 0 0;
-    /* Oben ~110px freihalten, damit das HUD-Identitaets-Panel
-       (Dr.-Ing. Marco Stang) auch bei aufgeklappten Technischen Details
-       sichtbar bleibt — das Fenster ist mobil ein Bottom-Sheet. */
-    max-height: calc(100% - 110px);
+    /* Oben Platz freihalten, damit das HUD-Identitaets-Panel (Dr.-Ing.
+       Marco Stang) auch bei aufgeklappten Technischen Details sichtbar
+       bleibt — das Fenster ist mobil ein Bottom-Sheet. 132px = gemessene
+       HUD-Unterkante (~96px im Layer-Koordinatensystem) plus Luft; als
+       Var, damit HUD-Aenderungen nur eine Stelle brauchen. */
+    --mobile-hud-clearance: 132px;
+    max-height: calc(100% - var(--mobile-hud-clearance));
+  }
+  /* Das HUD liegt dank z-index ueber dem Scrim des window-layers und
+     bleibt so auch bei offenem Fenster scharf lesbar — der Bottom-Sheet
+     selbst endet per max-height unterhalb davon. */
+  .hud-layer {
+    z-index: 2;
   }
   /* Zweizeilige Labels auf Mobile: halbe Breite = deutlich weniger
      Kollisionen zwischen benachbarten Ring-Labels auf dem engen Layout. */

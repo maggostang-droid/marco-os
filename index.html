@@ -16,7 +16,11 @@
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <!-- ?v= bei CSS/JS: Cache-Buster, damit Design-Updates nach einem Deploy
+       sofort auch auf Geräten mit gecachter Vorversion ankommen (GitHub
+       Pages cached 10 min, Handy-Browser oft länger). Bei größeren
+       visuellen Änderungen den Wert mit hochzählen. -->
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
   <noscript>Diese Seite benötigt JavaScript, um zu funktionieren.</noscript>
@@ -28,6 +32,6 @@
     <div id="window-layer" class="window-layer"></div>
   </main>
   <footer id="taskbar" class="taskbar"></footer>
-  <script type="module" src="assets/js/main.js"></script>
+  <script type="module" src="assets/js/main.js?v=3"></script>
 </body>
 </html>
