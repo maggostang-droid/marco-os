@@ -8,6 +8,8 @@ import { startTour } from "./tour.js";
 // Shortcuts zu den wichtigsten Zielen (Lebenslauf, Ask-Marco-Chat, Kontakt),
 // keine Dekoration.
 export function initMenubar(container, resume) {
+  let lastRenderKey = null;
+
   render();
   subscribe(render);
 
@@ -15,6 +17,13 @@ export function initMenubar(container, resume) {
     const isResumeOpen = state.activeProjectId === RESUME_ID;
     const isChatOpen = state.activeProjectId === SECOND_BRAIN_CHAT_ID;
     const isTerminalOpen = state.activeProjectId === TERMINAL_ID;
+
+    // Nur neu bauen, wenn sich sichtbarer Zustand geändert hat — notify()
+    // feuert auch bei jedem Zoom-Tick, und ein innerHTML-Rebuild pro
+    // Mausrad-Raste trug spürbar zum Zoom-Ruckeln bei.
+    const renderKey = `${isResumeOpen}|${isChatOpen}|${isTerminalOpen}`;
+    if (renderKey === lastRenderKey) return;
+    lastRenderKey = renderKey;
     // Fokus über den Rebuild retten (gleiches Muster wie taskbar.js):
     // container.innerHTML = "" würde einen fokussierten Menü-Button sonst
     // kommentarlos aus dem Tab-Fluss werfen.

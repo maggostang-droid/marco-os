@@ -18,6 +18,7 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
     "KI-Guide: „Klick mich — hinter mir steckt ein echter Chat“"
   ];
   let tipIndex = 0;
+  let lastRenderKey = null;
 
   renderTaskbar();
   subscribe(renderTaskbar);
@@ -44,6 +45,16 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
         ? projectById[state.activeProjectId]
         : null;
     const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+
+    // Nur neu bauen, wenn sich sichtbarer Inhalt geändert hat — notify()
+    // feuert auch bei jedem Zoom-Tick, und der innerHTML-Rebuild pro
+    // Mausrad-Raste (inkl. Listener-Neuverdrahtung) trug zum Zoom-Ruckeln
+    // bei. Nebeneffekt: Fokus auf den Zoom-Buttons bleibt jetzt von selbst
+    // erhalten, weil die Buttons gar nicht mehr ersetzt werden.
+    const renderKey = `${state.activeProjectId}|${tipIndex}|${time}|${visitorCount}`;
+    if (renderKey === lastRenderKey) return;
+    lastRenderKey = renderKey;
+
     const focusedZoomDirection = container.contains(document.activeElement)
       ? document.activeElement.dataset.zoom
       : null;

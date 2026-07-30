@@ -1239,6 +1239,7 @@ button.node--center:focus-visible .node-label {
   width: 0;
   height: 0;
   pointer-events: none;
+  will-change: transform;
 }
 .twinkle-star {
   position: absolute;
@@ -1257,7 +1258,7 @@ button.node--center:focus-visible .node-label {
     animation: twinkleShimmer var(--tw-dur, 4s) ease-in-out var(--tw-delay, 0s) infinite;
   }
   .twinkle-layer {
-    transition: transform 0.3s ease-out;
+    transition: transform 0.15s ease-out;
   }
 }
 /* Echtes Aufblühen statt bloßem Durchschimmern: im Tal fast unsichtbar
@@ -1291,8 +1292,14 @@ button.node--center:focus-visible .node-label {
 }
 @media (prefers-reduced-motion: no-preference) {
   .star-layer {
-    transition: transform 0.3s ease-out;
+    /* 0.15s wie .graph-viewport — ungleiche Transition-Dauern ließen die
+       Sternschichten beim Zoomen dem Graphen hinterherschwimmen (fühlte
+       sich wie Ruckeln an). */
+    transition: transform 0.15s ease-out;
   }
+}
+.star-layer {
+  will-change: transform;
 }
 
 /* --- Nebula (Start) — wolkige Nebelschwaden hinter dem Sternfeld ---------
@@ -1408,7 +1415,11 @@ button.node--center:focus-visible .node-label {
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
-    transition: transform 0.3s ease-out;
+    /* 0.15s wie .graph-viewport und die Sternlayer — ungleiche Dauern
+       ließen Hintergrund und Graph beim Zoomen gegeneinander schwimmen,
+       was sich wie Ruckeln anfühlte. */
+    transition: transform 0.15s ease-out;
+    will-change: transform;
   }
   .nebula-aurora {
     animation: nebulaAuroraWave 150s ease-in-out infinite alternate;
@@ -1439,6 +1450,7 @@ button.node--center:focus-visible .node-label {
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
+  will-change: transform;
   /* Die frueheren Farb-Washes (Violett 30/30, Teal 85/85) leben jetzt auf
      .nebula-layer: der ist ueberdimensioniert (inset -35%) und endet darum
      beim Zoom-out (MIN_ZOOM 0.6) nicht als sichtbares helles Rechteck an

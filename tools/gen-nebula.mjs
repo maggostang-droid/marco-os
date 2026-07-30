@@ -176,7 +176,11 @@ ${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
-    transition: transform 0.3s ease-out;
+    /* 0.15s wie .graph-viewport und die Sternlayer — ungleiche Dauern
+       ließen Hintergrund und Graph beim Zoomen gegeneinander schwimmen,
+       was sich wie Ruckeln anfühlte. */
+    transition: transform 0.15s ease-out;
+    will-change: transform;
   }
   .nebula-aurora {
     animation: nebulaAuroraWave ${P.aurora.waveDurS}s ease-in-out infinite alternate;
