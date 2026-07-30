@@ -308,10 +308,34 @@ function buildChatWindow() {
       <span class="win-name">app://second-brain — Terminal</span>
       <button type="button" class="win-close" aria-label="Fenster schließen">×</button>
     </div>
-    <div class="win-body">
+    <div class="win-body win-body--chat">
+      <div class="chat-loading">
+        <p class="prompt">marco@portfolio:~$ connect second-brain --chat</p>
+        <p class="chat-loading-line">Verbinde mit second-brain<span class="chat-loading-cursor" aria-hidden="true">▮</span></p>
+        <p class="chat-loading-hint">Der erste Start kann einen Moment dauern — die App wacht ggf. gerade auf.</p>
+      </div>
       <iframe class="chat-frame" src="${SECOND_BRAIN_CHAT_URL}" title="second-brain Chat" loading="lazy"></iframe>
     </div>
   `;
+
+  // Streamlits eigener Lade-/Skeleton-Screen (weißer Flash + Spinner) passt
+  // nicht in die MARCO.OS-Optik — bis das iframe geladen ist, liegt darum
+  // unsere Terminal-Ladeanzeige darüber. Bewusst kurz nach dem load-Event
+  // ausblenden (nicht länger): schläft die Streamlit-App (Community-Cloud-
+  // Cold-Start), zeigt die geladene Seite einen "App aufwecken"-Button, den
+  // der Nutzer sehen und klicken können muss. Fallback-Timer, falls load
+  // (z.B. bei blockiertem Netz) nie feuert.
+  const loadingEl = win.querySelector(".chat-loading");
+  const frame = win.querySelector(".chat-frame");
+  const hideLoading = () => {
+    loadingEl.classList.add("is-hidden");
+    setTimeout(() => loadingEl.remove(), 600);
+  };
+  let hideTimer = setTimeout(hideLoading, 8000);
+  frame.addEventListener("load", () => {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideLoading, 2200);
+  });
 
   return { win, closeBtn: win.querySelector(".win-close") };
 }
