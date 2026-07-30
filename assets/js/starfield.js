@@ -92,6 +92,20 @@ export function initStarfield(container) {
     nebula.appendChild(child);
   }
   container.prepend(nebula);
+
+  // Vordergrund-Schwaden: VOR den Sternen, aber HINTER dem Graphen —
+  // darum vor .graph-content eingefügt statt geprepended. Höchster
+  // Parallax-Shift (näher als die nächste Sternschicht) und kleinster
+  // Zoom-Exponent: die vorderste Ebene bewegt sich am stärksten mit.
+  const foreground = document.createElement("div");
+  foreground.className = "nebula-foreground";
+  const graphContent = container.querySelector(".graph-content");
+  if (graphContent) {
+    container.insertBefore(foreground, graphContent);
+  } else {
+    container.appendChild(foreground);
+  }
+  layers.push({ el: foreground, maxShift: 30, zoomExponent: 0.2, parallaxX: 0, parallaxY: 0 });
   layers.push({ el: nebula, maxShift: NEBULA_MAX_SHIFT, zoomExponent: NEBULA_ZOOM_EXPONENT, parallaxX: 0, parallaxY: 0 });
 
   // Ein gemeinsamer Transform pro Schicht: Maus-Parallax (translate) ×

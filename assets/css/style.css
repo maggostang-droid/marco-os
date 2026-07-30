@@ -1411,15 +1411,38 @@ button.node--center:focus-visible .node-label {
 .nebula-aurora {
   background: linear-gradient(
     100deg,
-    transparent 30%,
-    rgba(94, 234, 212, .14) 44%,
-    rgba(167, 139, 250, .13) 56%,
-    transparent 70%
+    transparent 26%,
+    rgba(94, 234, 212, .18) 42%,
+    rgba(167, 139, 250, .16) 58%,
+    transparent 74%
   );
-  -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
-  mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 34%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 85% 42% at 50% 34%, #000 0%, transparent 75%);
   mix-blend-mode: screen;
-  opacity: 0.75;
+  opacity: 0.8;
+}
+/* Vordergrund-Schwaden: eigenes Element VOR den Sternlayern (Anlage +
+   Parallax/Zoom-Registrierung in starfield.js), Bildmitte per inverser
+   Maske frei. */
+.nebula-foreground {
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 50%, transparent 38%, #000 82%);
+  mask-image: radial-gradient(ellipse 72% 62% at 50% 50%, transparent 38%, #000 82%);
+  opacity: 0.26;
+}
+/* Textur auf dem Pseudo-Element: der Drift (nebulaDriftC) animiert dessen
+   transform, während Parallax/Zoom-Kompensation als Inline-Transform auf
+   dem Element selbst liegen (starfield.js) — so überschreiben sie sich
+   nicht. Gleiches Muster wie bei den Wolken-Familien. */
+.nebula-foreground::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='620'%3E%3Cfilter%20id='n'%20x='-10%'%20y='-10%'%20width='120%'%20height='120%'%20color-interpolation-filters='sRGB'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.003%200.0045'%20numOctaves='4'%20seed='77'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.655%20%200%200%200%200%200.545%20%200%200%200%200%200.980%20%200%200%200%201.3%20-0.62'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='gamma'%20amplitude='1'%20exponent='1.5'%20offset='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect%20width='100%'%20height='100%'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
@@ -1431,6 +1454,13 @@ button.node--center:focus-visible .node-label {
   }
   .nebula-aurora {
     animation: nebulaAuroraWave 80s ease-in-out infinite alternate;
+  }
+  .nebula-foreground {
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+  }
+  .nebula-foreground::before {
+    animation: nebulaDriftC 36s ease-in-out infinite alternate;
   }
 }
 /* Gemeinsamer Atem-/Morph-Zyklus: Gipfel -> Tal -> Gipfel. Schicht B läuft
@@ -1451,6 +1481,10 @@ button.node--center:focus-visible .node-label {
   from { transform: translate3d(-9%, -1.6%, 0) skewX(-3.5deg); }
   50% { transform: translate3d(3%, 2%, 0) skewX(2.5deg); }
   to { transform: translate3d(10%, -1%, 0) skewX(-2deg); }
+}
+@keyframes nebulaDriftC {
+  from { transform: translate3d(-5%, 3%, 0) scale(1); }
+  to { transform: translate3d(5%, -3%, 0) scale(1.08); }
 }
 /* --- Nebula (Ende) ------------------------------------------------------ */
 

@@ -50,12 +50,30 @@ const P = {
     driftDurS: 58,
     mask: "radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%)"
   },
-  // Aurora-Schleier: seidiges Gradient-Band im oberen Himmel, wandert sehr
-  // langsam wellenförmig. Bewusst scheu (effektive Deckkraft ~.1) — einen
-  // Tick zu stark und es kippt ins Kitschige.
+  // Aurora-Schleier: seidiges Gradient-Band im oberen Himmel, wandert
+  // wellenförmig. Masken-Position in KIND-Koordinaten: der Layer spannt
+  // -35%..135% des Viewports (+8% Kind-Overscan) — "34%" der Kindhöhe
+  // entspricht ~18% Viewport-Höhe. Der frühere Wert 16% lag oberhalb des
+  // sichtbaren Bildschirms, die Aurora wellte unsichtbar im Off.
   aurora: {
-    opacity: 0.75,
-    waveDurS: 80
+    opacity: 0.8,
+    waveDurS: 80,
+    mask: "radial-gradient(ellipse 85% 42% at 50% 34%, #000 0%, transparent 75%)"
+  },
+  // Vordergrund-Schwaden: hauchdünne, etwas schnellere Nebelfetzen VOR den
+  // Sternen (eigenes Element, siehe .nebula-foreground in starfield.js) —
+  // inverse Maske hält die Bildmitte (Labels, Planeten) komplett frei.
+  foreground: {
+    rgb: [167, 139, 250],
+    baseFreq: "0.003 0.0045",
+    octaves: 4,
+    seed: 77,
+    alphaScale: 1.3,
+    alphaOffset: -0.62,
+    gamma: 1.5,
+    opacity: 0.26,
+    driftDurS: 36,
+    mask: "radial-gradient(ellipse 72% 62% at 50% 50%, transparent 38%, #000 82%)"
   },
   amber: "radial-gradient(ellipse 22% 17% at 78% 22%, rgba(251, 191, 36, .07), transparent 70%)",
   // Die frueheren .graph-viewport-Washes, in Layer-Koordinaten umgerechnet
@@ -164,15 +182,38 @@ ${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
 .nebula-aurora {
   background: linear-gradient(
     100deg,
-    transparent 30%,
-    rgba(94, 234, 212, .14) 44%,
-    rgba(167, 139, 250, .13) 56%,
-    transparent 70%
+    transparent 26%,
+    rgba(94, 234, 212, .18) 42%,
+    rgba(167, 139, 250, .16) 58%,
+    transparent 74%
   );
-  -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
-  mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
+  -webkit-mask-image: ${P.aurora.mask};
+  mask-image: ${P.aurora.mask};
   mix-blend-mode: screen;
   opacity: ${P.aurora.opacity};
+}
+/* Vordergrund-Schwaden: eigenes Element VOR den Sternlayern (Anlage +
+   Parallax/Zoom-Registrierung in starfield.js), Bildmitte per inverser
+   Maske frei. */
+.nebula-foreground {
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  -webkit-mask-image: ${P.foreground.mask};
+  mask-image: ${P.foreground.mask};
+  opacity: ${P.foreground.opacity};
+}
+/* Textur auf dem Pseudo-Element: der Drift (nebulaDriftC) animiert dessen
+   transform, während Parallax/Zoom-Kompensation als Inline-Transform auf
+   dem Element selbst liegen (starfield.js) — so überschreiben sie sich
+   nicht. Gleiches Muster wie bei den Wolken-Familien. */
+.nebula-foreground::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  background-image: ${nebulaSvgUrl(P.foreground, P.foreground.seed)};
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
@@ -184,6 +225,13 @@ ${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
   }
   .nebula-aurora {
     animation: nebulaAuroraWave ${P.aurora.waveDurS}s ease-in-out infinite alternate;
+  }
+  .nebula-foreground {
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+  }
+  .nebula-foreground::before {
+    animation: nebulaDriftC ${P.foreground.driftDurS}s ease-in-out infinite alternate;
   }
 }
 /* Gemeinsamer Atem-/Morph-Zyklus: Gipfel -> Tal -> Gipfel. Schicht B läuft
@@ -204,6 +252,10 @@ ${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
   from { transform: translate3d(-9%, -1.6%, 0) skewX(-3.5deg); }
   50% { transform: translate3d(3%, 2%, 0) skewX(2.5deg); }
   to { transform: translate3d(10%, -1%, 0) skewX(-2deg); }
+}
+@keyframes nebulaDriftC {
+  from { transform: translate3d(-5%, 3%, 0) scale(1); }
+  to { transform: translate3d(5%, -3%, 0) scale(1.08); }
 }
 /* --- Nebula (Ende) ------------------------------------------------------ */`;
 
