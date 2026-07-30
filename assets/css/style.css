@@ -815,6 +815,45 @@ button.node--center:focus-visible .node-label {
   font-family: var(--font-ui);
   overflow-y: auto;
 }
+/* --- Scrollbars im Portfolio-Look ----------------------------------------
+   Betrifft die beiden internen Scroller (Fenster-Body, Terminal-Ausgabe):
+   schmaler Thumb in Rahmenfarbe auf transparenter Bahn, beim Hover in der
+   Akzentfarbe des Fensters. Chromium/WebKit über die ::-webkit-scrollbar-
+   Pseudos; Firefox (kennt diese nicht) bekommt im @supports-Block darunter
+   die Standard-Properties — beides zusammen setzen ginge schief, weil
+   Chromium ab v121 die Pseudos ignoriert, sobald scrollbar-color gesetzt
+   ist. */
+.win-body::-webkit-scrollbar,
+.term-output::-webkit-scrollbar {
+  width: 9px;
+}
+.win-body::-webkit-scrollbar-track,
+.term-output::-webkit-scrollbar-track {
+  background: transparent;
+}
+.win-body::-webkit-scrollbar-thumb,
+.term-output::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+  /* 2px transparente "Luft" um den Thumb (background-clip), damit er als
+     schmale schwebende Leiste liest statt als angeklebter Balken. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.win-body::-webkit-scrollbar-thumb:hover,
+.term-output::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+  background: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background-clip: padding-box;
+}
+@supports (scrollbar-width: thin) and (not selector(::-webkit-scrollbar)) {
+  .win-body,
+  .term-output {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+}
+
 .prompt {
   color: var(--teal);
   font-size: var(--fs-xs);
