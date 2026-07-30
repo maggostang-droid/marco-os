@@ -581,7 +581,11 @@ button.node--center:focus-visible .node-label {
   pointer-events: auto;
   width: 400px;
   max-width: 100%;
-  max-height: calc(100vh - 48px);
+  /* 100% = Hoehe des window-layers (Desktop-Bereich zwischen Menue- und
+     Taskleiste, abzueglich Layer-Padding) — vorher calc(100vh - 48px),
+     das Menue-/Taskleiste ignorierte: aufgeklappte Fenster liefen unten
+     hinter die Taskleiste. */
+  max-height: 100%;
   background: linear-gradient(180deg, var(--panel), var(--panel-deep));
   /* Rahmen in der Cluster-Akzentfarbe des Fensters (--accent, gesetzt in
      window-manager.js) — color-mix mit statischem Fallback davor. */
@@ -1455,6 +1459,10 @@ button.node--center:focus-visible .node-label {
   .window {
     width: 100%;
     border-radius: 12px 12px 0 0;
+    /* Oben ~110px freihalten, damit das HUD-Identitaets-Panel
+       (Dr.-Ing. Marco Stang) auch bei aufgeklappten Technischen Details
+       sichtbar bleibt — das Fenster ist mobil ein Bottom-Sheet. */
+    max-height: calc(100% - 110px);
   }
   /* Zweizeilige Labels auf Mobile: halbe Breite = deutlich weniger
      Kollisionen zwischen benachbarten Ring-Labels auf dem engen Layout. */
