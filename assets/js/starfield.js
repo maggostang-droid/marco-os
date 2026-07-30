@@ -73,10 +73,24 @@ export function initStarfield(container) {
   // Nach den Sternlayern geprepended → DOM-Index 0 → wird zuerst gemalt,
   // liegt also hinter allen Sternen. Bewusst VOR dem reduced-motion-Return
   // erzeugt: auch ohne Animationen soll die (dann statische) Nebula sichtbar
-  // sein — ihre Drift-Keyframes sind separat in CSS hinter
+  // sein — ihre Drift-/Fade-Keyframes sind separat in CSS hinter
   // prefers-reduced-motion gegated (siehe .nebula-layer in style.css).
+  // Die Kind-Klassen müssen zum von tools/gen-nebula.mjs generierten
+  // CSS-Block passen: je Farbfamilie zwei Morph-Schichten + Aurora.
+  const NEBULA_CHILD_CLASSES = [
+    "nebula-cloud nebula-cloud--violet-a",
+    "nebula-cloud nebula-cloud--violet-b",
+    "nebula-cloud nebula-cloud--teal-a",
+    "nebula-cloud nebula-cloud--teal-b",
+    "nebula-aurora"
+  ];
   const nebula = document.createElement("div");
   nebula.className = "nebula-layer";
+  for (const className of NEBULA_CHILD_CLASSES) {
+    const child = document.createElement("div");
+    child.className = className;
+    nebula.appendChild(child);
+  }
   container.prepend(nebula);
   layers.push({ el: nebula, maxShift: NEBULA_MAX_SHIFT, zoomExponent: NEBULA_ZOOM_EXPONENT, parallaxX: 0, parallaxY: 0 });
 

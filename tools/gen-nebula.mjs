@@ -3,6 +3,13 @@
 // dann aus dem Repo-Root ausführen:  node tools/gen-nebula.mjs
 // Hintergrund: die Wolken sind feTurbulence-SVGs als Data-URLs — von Hand
 // unlesbar/uneditierbar, darum dieser Generator statt Direkt-Edits im CSS.
+//
+// Seit dem Animations-Ausbau (Atmen + Morphing + Aurora) rendern die Wolken
+// in echten Kind-Divs statt in ::before/::after: pro Farbfamilie ZWEI
+// Schichten mit unterschiedlichem Turbulenz-Seed, die sich gegenphasig
+// überblenden — die Wolkenformen scheinen sich dadurch langsam zu
+// verändern statt nur zu verschieben. Die Kinder legt starfield.js an
+// (NEBULA_CHILD_CLASSES dort muss zu den Klassen hier passen).
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -14,23 +21,41 @@ const P = {
     rgb: [167, 139, 250],
     baseFreq: "0.0052 0.0074",
     octaves: 5,
-    seed: 8,
+    seedA: 8,
+    seedB: 41,
     alphaScale: 1.6,
     alphaOffset: -0.54,
     gamma: 1.35,
-    opacity: 0.6,
+    // Gipfel-/Tal-Deckkraft des Atem-/Morph-Zyklus (vorher statisch 0.6).
+    opacityPeak: 0.58,
+    opacityTrough: 0.08,
+    fadeDurS: 52,
+    driftDurS: 74,
     mask: "radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%)"
   },
   teal: {
     rgb: [94, 234, 212],
     baseFreq: "0.0044 0.0066",
     octaves: 5,
-    seed: 27,
+    seedA: 27,
+    seedB: 63,
     alphaScale: 1.5,
     alphaOffset: -0.52,
     gamma: 1.4,
-    opacity: 0.5,
+    opacityPeak: 0.48,
+    opacityTrough: 0.06,
+    // Andere Zykluslängen als violet: die Farbfamilien atmen dadurch
+    // gegeneinander versetzt statt im Gleichtakt.
+    fadeDurS: 64,
+    driftDurS: 88,
     mask: "radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%)"
+  },
+  // Aurora-Schleier: seidiges Gradient-Band im oberen Himmel, wandert sehr
+  // langsam wellenförmig. Bewusst scheu (effektive Deckkraft ~.1) — einen
+  // Tick zu stark und es kippt ins Kitschige.
+  aurora: {
+    opacity: 0.55,
+    waveDurS: 150
   },
   amber: "radial-gradient(ellipse 22% 17% at 78% 22%, rgba(251, 191, 36, .07), transparent 70%)",
   // Die frueheren .graph-viewport-Washes, in Layer-Koordinaten umgerechnet
@@ -41,7 +66,7 @@ const P = {
 };
 // --------------------------------------------------------------------------
 
-function nebulaSvgUrl({ rgb, baseFreq, octaves, seed, alphaScale, alphaOffset, gamma }) {
+function nebulaSvgUrl({ rgb, baseFreq, octaves, alphaScale, alphaOffset, gamma }, seed) {
   const [r, g, b] = rgb.map((v) => (v / 255).toFixed(3));
   const svg =
     `<svg xmlns='http://www.w3.org/2000/svg' width='900' height='620'>` +
@@ -60,19 +85,57 @@ function nebulaSvgUrl({ rgb, baseFreq, octaves, seed, alphaScale, alphaOffset, g
   return `url("data:image/svg+xml,${encoded}")`;
 }
 
+// Eine Wolken-Familie = zwei Schichten (Seed A/B), die per nebulaFade
+// gegenphasig überblenden (B startet mit halbem Zyklus Versatz) und leicht
+// unterschiedlich driften — zusammen liest sich das als morphender Nebel,
+// der zugleich "atmet".
+function cloudFamilyCss(name, cfg, driftA, driftB) {
+  return `.nebula-cloud--${name}-a,
+.nebula-cloud--${name}-b {
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  -webkit-mask-image: ${cfg.mask};
+  mask-image: ${cfg.mask};
+  --fade-peak: ${cfg.opacityPeak};
+  --fade-trough: ${cfg.opacityTrough};
+  opacity: var(--fade-peak);
+}
+.nebula-cloud--${name}-a {
+  background-image: ${nebulaSvgUrl(cfg, cfg.seedA)};
+}
+.nebula-cloud--${name}-b {
+  background-image: ${nebulaSvgUrl(cfg, cfg.seedB)};
+  /* Ohne Animation (reduced-motion) bleibt nur Schicht A sichtbar. */
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nebula-cloud--${name}-a {
+    animation:
+      nebulaFade ${cfg.fadeDurS}s ease-in-out infinite,
+      ${driftA} ${cfg.driftDurS}s ease-in-out infinite alternate;
+  }
+  .nebula-cloud--${name}-b {
+    animation:
+      nebulaFade ${cfg.fadeDurS}s ease-in-out ${-cfg.fadeDurS / 2}s infinite,
+      ${driftB} ${cfg.driftDurS}s ease-in-out ${-cfg.driftDurS / 2}s infinite alternate;
+    opacity: var(--fade-trough);
+  }
+}`;
+}
+
 const block = `/* --- Nebula (Start) — wolkige Nebelschwaden hinter dem Sternfeld ---------
    Vom starfield.js als unterste Ebene in .graph-viewport geprepended und mit
-   der kleinsten Maus-Parallax bewegt. Zwei feTurbulence-Wolkenschichten als
-   Inline-SVG-Data-URLs (Violett oben links, Teal unten rechts) — wie der
-   Grain auf .desktop: keine Bild-Assets, kein CDN, aufloesungsunabhaengig.
-   CSS-Masken begrenzen jede Schicht auf ihre Ecke, damit die Bildmitte
-   (Zentrum, Labels) ruhig bleibt; ein Hauch Amber liegt statisch oben
-   rechts auf dem Layer selbst. Der ultra-langsame Drift (~2,5 min bzw.
-   ~3 min pro Halbzyklus, gegenlaeufig) sitzt auf den Pseudo-Elementen,
-   die Parallax-Translation auf dem Layer-Div — so ueberschreiben sich
-   Keyframe-Transform und Inline-Transform aus starfield.js nicht.
-   Drift nur hinter prefers-reduced-motion. NICHT von Hand editieren:
-   Block wird von tools/gen-nebula.mjs generiert (Tuning-Werte dort). */
+   der kleinsten Maus-Parallax bewegt. Pro Farbfamilie (Violett oben links,
+   Teal unten rechts) ZWEI feTurbulence-Schichten mit verschiedenem Seed als
+   Kind-Divs (angelegt von starfield.js, NEBULA_CHILD_CLASSES): sie blenden
+   gegenphasig ineinander (nebulaFade) und driften leicht unterschiedlich —
+   die Wolkenformen morphen und "atmen", statt sich nur zu verschieben.
+   Dazu ein seidiger Aurora-Schleier im oberen Himmel (nebulaAuroraWave)
+   und ein statischer Hauch Amber. Alle Animationen nur transform/opacity
+   (compositor-freundlich) und hinter prefers-reduced-motion — ohne
+   Animation bleibt je Familie Schicht A statisch sichtbar.
+   NICHT von Hand editieren: Block wird von tools/gen-nebula.mjs generiert
+   (Tuning-Werte dort). */
 .nebula-layer {
   position: absolute;
   /* -35% statt z.B. -22%: die Taskbar erlaubt Zoom-out bis 0.6 (MIN_ZOOM in
@@ -86,45 +149,57 @@ const block = `/* --- Nebula (Start) — wolkige Nebelschwaden hinter dem Sternf
     ${P.washViolet},
     ${P.washTeal};
 }
-.nebula-layer::before,
-.nebula-layer::after {
+.nebula-layer > div {
   content: "";
   position: absolute;
   inset: -8%;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  pointer-events: none;
 }
-.nebula-layer::before {
-  background-image: ${nebulaSvgUrl(P.violet)};
-  opacity: ${P.violet.opacity};
-  -webkit-mask-image: ${P.violet.mask};
-  mask-image: ${P.violet.mask};
-}
-.nebula-layer::after {
-  background-image: ${nebulaSvgUrl(P.teal)};
-  opacity: ${P.teal.opacity};
+${cloudFamilyCss("violet", P.violet, "nebulaDriftA", "nebulaDriftB")}
+${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
+.nebula-cloud--teal-a,
+.nebula-cloud--teal-b {
   mix-blend-mode: screen;
-  -webkit-mask-image: ${P.teal.mask};
-  mask-image: ${P.teal.mask};
+}
+.nebula-aurora {
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(94, 234, 212, .14) 44%,
+    rgba(167, 139, 250, .13) 56%,
+    transparent 70%
+  );
+  -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
+  mix-blend-mode: screen;
+  opacity: ${P.aurora.opacity};
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
     transition: transform 0.3s ease-out;
   }
-  .nebula-layer::before {
-    animation: nebulaDriftA 150s ease-in-out infinite alternate;
+  .nebula-aurora {
+    animation: nebulaAuroraWave ${P.aurora.waveDurS}s ease-in-out infinite alternate;
   }
-  .nebula-layer::after {
-    animation: nebulaDriftB 190s ease-in-out infinite alternate;
-  }
+}
+/* Gemeinsamer Atem-/Morph-Zyklus: Gipfel -> Tal -> Gipfel. Schicht B läuft
+   mit halbem Zyklus Versatz (animation-delay), dadurch die Überblendung. */
+@keyframes nebulaFade {
+  0%, 100% { opacity: var(--fade-peak, .6); }
+  50% { opacity: var(--fade-trough, .1); }
 }
 @keyframes nebulaDriftA {
-  from { transform: translate3d(-1.4%, -1%, 0) scale(1); }
-  to { transform: translate3d(1.4%, 1%, 0) scale(1.06); }
+  from { transform: translate3d(-4%, -2.6%, 0) scale(1); }
+  to { transform: translate3d(4%, 2.6%, 0) scale(1.07); }
 }
 @keyframes nebulaDriftB {
-  from { transform: translate3d(1.2%, 0.8%, 0) scale(1.05); }
-  to { transform: translate3d(-1.2%, -0.8%, 0) scale(1); }
+  from { transform: translate3d(3.4%, 2.2%, 0) scale(1.06); }
+  to { transform: translate3d(-3.4%, -2.2%, 0) scale(1); }
+}
+@keyframes nebulaAuroraWave {
+  from { transform: translate3d(-5%, -1%, 0) skewX(-2deg); }
+  50% { transform: translate3d(2%, 1.2%, 0) skewX(1.5deg); }
+  to { transform: translate3d(6%, -0.6%, 0) skewX(-1deg); }
 }
 /* --- Nebula (Ende) ------------------------------------------------------ */`;
 
