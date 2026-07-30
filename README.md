@@ -26,8 +26,9 @@ npm test
 
 Führt alle Dateien in `tests/` über Node's eingebauten Test-Runner aus
 (keine Abhängigkeiten nötig): `graph-layout.test.js`, `state.test.js`
-(inkl. Zoom-Clamping), `projects.test.js`, `html-utils.test.js` und
-`focus-target.test.js`. `scene.js`/`window-manager.js`/`taskbar.js`/
+(inkl. Zoom-Clamping), `projects.test.js`, `html-utils.test.js`,
+`focus-target.test.js`, `resume.test.js` und `terminal-commands.test.js`
+(Terminal-Parser, Tour-Schrittdaten, GitHub-Datumsformatierung). `scene.js`/`window-manager.js`/`taskbar.js`/
 `starfield.js` sind DOM-lastig und bleiben wie bisher manuell im Browser
 verifiziert (375px/1280px+).
 
@@ -57,8 +58,17 @@ berechnet — keine manuelle Koordinaten-Pflege nötig.
 - `assets/js/boot.js` — überspringbare Boot-Sequenz
 - `assets/js/starfield.js` — parallaxender Sternfeld-Hintergrund
   (mausreaktiv, respektiert `prefers-reduced-motion`)
-- `assets/js/menubar.js` — OS-Menüleiste oben (Shortcuts: Lebenslauf,
-  Ask-Marco, Kontakt)
+- `assets/js/menubar.js` — OS-Menüleiste oben (Tour, Lebenslauf,
+  Ask-Marco, Terminal, Kontakt)
+- `assets/js/terminal-commands.js` — Befehls-Parser des Terminals
+  (pure Function, unit-getestet); Fenster-Wiring in window-manager.js,
+  öffnen per Menüleiste, Taste T oder `#terminal`
+- `assets/js/tour.js` — geführte Tour durch drei Highlight-Projekte,
+  endet beim Lebenslauf/Kontakt (Menüleiste, `tour`-Befehl oder `#tour`)
+- `assets/js/router.js` — Deep-Links per URL-Hash (`#sql-agent`,
+  `#lebenslauf`, `#ask-marco`, `#terminal`, `#tour`)
+- `assets/js/github-activity.js` — echte "letzter Commit …"-Zeile aus der
+  öffentlichen GitHub-API (sessionStorage-Cache, stiller Fallback)
 - `assets/js/hud.js` — Identitäts-Panel (oben links) + Orbit-Legende
   (unten links) über der Szene
 - `assets/fonts/` — self-gehostete Webfonts (Space Grotesk + JetBrains

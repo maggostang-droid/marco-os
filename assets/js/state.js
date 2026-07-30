@@ -14,6 +14,10 @@ export const SECOND_BRAIN_CHAT_ID = "__second-brain-chat__";
 // real data/projects.js entry either, so it needs its own collision-proof id.
 export const RESUME_ID = "__resume__";
 
+// Sentinel für das interaktive Terminal-Fenster (Paket 1, Spec 2026-07-30).
+// Gleiches Kollisionsschutz-Muster wie oben.
+export const TERMINAL_ID = "__terminal__";
+
 export const state = {
   bootComplete: false,
   activeProjectId: null,
@@ -84,5 +88,9 @@ export function resolveFocusedNodeId(activeProjectId) {
   if (!activeProjectId) return null;
   if (activeProjectId === RESUME_ID) return "center";
   if (activeProjectId === SECOND_BRAIN_CHAT_ID) return "second-brain";
+  // Das Terminal gehört zu keinem Graph-Knoten: kein Fokus-Zoom, kein
+  // Dimmen — scene.js behandelt "Fenster offen, aber kein Knoten" über
+  // den null-Rückgabewert.
+  if (activeProjectId === TERMINAL_ID) return null;
   return activeProjectId;
 }

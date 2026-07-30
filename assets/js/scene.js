@@ -85,8 +85,11 @@ export function initScene(container, projects) {
     // un-dims the moon, not the center.
     const focusedNodeId = resolveFocusedNodeId(focusedProjectId);
 
-    const effectiveZoom = state.zoomLevel * (focusedProjectId ? FOCUS_ZOOM_BONUS : 1);
+    // Zoom-Bonus nur, wenn der Fokus auf einen echten Graph-Knoten zeigt —
+    // das Terminal (TERMINAL_ID -> resolveFocusedNodeId null) öffnet sonst
+    // mit einem ziellosen 2.6x-Zoom auf die Mitte.
     const focusedNode = focusedNodeId ? nodesById[focusedNodeId] : null;
+    const effectiveZoom = state.zoomLevel * (focusedNode ? FOCUS_ZOOM_BONUS : 1);
     const translateX = focusedNode ? -focusedNode.x * effectiveZoom : 0;
     const translateY = focusedNode ? -focusedNode.y * effectiveZoom : 0;
     viewport.style.transform = `translate(${translateX}px, ${translateY}px) scale(${effectiveZoom})`;
@@ -285,7 +288,7 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
   let batchIndex = 0;
   let lastCluster = null;
 
-  nodes.forEach((node) => {
+  nodes.forEach((node, nodeIndex) => {
     const isProject = node.type === "project";
     const isCenter = node.type === "center";
     const isMoon = isProject && node.tier === "moon";
@@ -310,13 +313,22 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
     const effectiveBatch = isMoon ? 0 : batchIndex;
     const dotDelay = `${effectiveBatch * NODE_STAGGER_MS}ms`;
     const labelDelay = `${effectiveBatch * NODE_STAGGER_MS + LABEL_EXTRA_MS}ms`;
+    // Lebendiges System (siehe Spec 2026-07-30-wow-features): Schwebe- und
+    // Rotations-Parameter pro Node deterministisch aus dem Render-Index
+    // (kein Math.random — Rebuilds, z.B. beim Fokussieren, würden sonst
+    // jedes Mal andere Werte würfeln und die Animationen sichtbar springen
+    // lassen). Negative Delays desynchronisieren die Phasen.
+    const driftVars =
+      `--float-dur: ${(6.5 + (nodeIndex % 5) * 0.9).toFixed(1)}s;` +
+      ` --float-delay: ${(-((nodeIndex * 1.7) % 6)).toFixed(1)}s;` +
+      ` --spin-dur: ${72 + ((nodeIndex * 13) % 66)}s`;
 
     if (node.type === "center") {
       el.type = "button";
       el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", String(state.activeProjectId === RESUME_ID));
       el.setAttribute("aria-label", "Marco Stang — Lebenslauf öffnen");
-      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
+      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}; ${driftVars}"></span><h1 class="node-label" style="transition-delay: ${labelDelay}">Marco Stang</h1>`;
       el.addEventListener("click", () => focusProject(RESUME_ID));
     } else {
       if (node.tier === "moon") {
@@ -341,7 +353,7 @@ function buildNodeLayer(nodes, projects, focusedNodeId) {
       // directly here.
       const clickTargetId = node.id === "second-brain" ? SECOND_BRAIN_CHAT_ID : node.id;
       el.setAttribute("aria-expanded", String(node.id === focusedNodeId));
-      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}"></span><span class="node-label" style="transition-delay: ${labelDelay}">${escapeHtml(project.title)}</span>`;
+      el.innerHTML = `<span class="node-dot" style="transition-delay: ${dotDelay}; ${driftVars}"></span><span class="node-label" style="transition-delay: ${labelDelay}">${escapeHtml(project.title)}</span>`;
       el.addEventListener("click", () => focusProject(clickTargetId));
     }
 

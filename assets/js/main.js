@@ -7,6 +7,10 @@ import { initWindowManager } from "./window-manager.js";
 import { initTaskbar } from "./taskbar.js";
 import { initMenubar } from "./menubar.js";
 import { initHud } from "./hud.js";
+import { initGithubActivity } from "./github-activity.js";
+import { initRouter, registerSpecialHash } from "./router.js";
+import { state, focusProject, TERMINAL_ID } from "./state.js";
+import { startTour } from "./tour.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   initBoot(document.querySelector("#boot-overlay"), projects);
@@ -20,4 +24,30 @@ document.addEventListener("DOMContentLoaded", () => {
   initTaskbar(document.querySelector("#taskbar"), projects);
   initMenubar(document.querySelector("#menubar"), resume);
   initHud(document.querySelector("#hud"), projects, resume);
+  initGithubActivity(projects);
+  registerSpecialHash("terminal", TERMINAL_ID);
+  initRouter(projects, {
+    // #tour öffnet kein Fenster, sondern startet die geführte Tour.
+    onHashAction: (hash) => {
+      if (hash.replace(/^#/, "").trim() === "tour") {
+        startTour();
+        return true;
+      }
+      return false;
+    }
+  });
+
+  // Terminal-Shortcut: T (oder ` auf Layouts, wo das keine Dead-Key-Taste
+  // ist — auf deutschen Tastaturen liefert ` nur "Dead", darum primär T).
+  // Nur ohne Modifier und nur, wenn gerade kein Eingabefeld fokussiert ist.
+  document.addEventListener("keydown", (event) => {
+    if (!state.bootComplete) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const active = document.activeElement;
+    if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) return;
+    if (event.key === "t" || event.key === "T" || event.key === "`") {
+      event.preventDefault();
+      focusProject(TERMINAL_ID);
+    }
+  });
 });

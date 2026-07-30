@@ -1,6 +1,8 @@
-import { subscribe, state, closeWindow, SECOND_BRAIN_CHAT_ID, RESUME_ID, resolveFocusedNodeId } from "./state.js";
+import { subscribe, state, closeWindow, focusProject, SECOND_BRAIN_CHAT_ID, RESUME_ID, TERMINAL_ID, resolveFocusedNodeId } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 import { nextFocusTarget } from "./focus-target.js";
+import { getGithubActivity, onGithubActivity, formatRelativeDe } from "./github-activity.js";
+import { executeCommand, completeInput } from "./terminal-commands.js";
 
 const SECOND_BRAIN_CHAT_URL = "https://second-brain-projects.streamlit.app/?embed=true";
 
@@ -20,6 +22,13 @@ export function initWindowManager(container, projects, resume) {
 
   render();
   subscribe(render);
+  // Trifft GitHub-Aktivität ein, während ein Projektfenster bereits offen
+  // ist, wird nur der [data-gh-slot] gepatcht — kein Rebuild (der würde
+  // Fokus/Scroll des Fensters zurücksetzen, siehe early-return in render).
+  onGithubActivity(() => {
+    const slot = container.querySelector("[data-gh-slot]");
+    if (slot) fillActivitySlot(slot);
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && state.activeProjectId) {
@@ -64,20 +73,27 @@ export function initWindowManager(container, projects, resume) {
 
     const isChat = activeId === SECOND_BRAIN_CHAT_ID;
     const isResume = activeId === RESUME_ID;
+    const isTerminal = activeId === TERMINAL_ID;
     const { win, closeBtn } = isChat
       ? buildChatWindow()
       : isResume
         ? buildResumeWindow(resume)
-        : buildProjectWindow(projectById[activeId]);
+        : isTerminal
+          ? buildTerminalWindow()
+          : buildProjectWindow(projectById[activeId]);
 
     closeBtn.addEventListener("click", closeWindow);
     if (isResume) wireResumeWindowInteractions(win);
-    if (!isChat && !isResume) wireProjectWindowInteractions(win);
+    if (isTerminal) wireTerminalInteractions(win, projects, resume);
+    if (!isChat && !isResume && !isTerminal) wireProjectWindowInteractions(win);
 
     container.appendChild(win);
 
     if (focusTarget === "open-window") {
-      closeBtn.focus({ preventScroll: true });
+      // Im Terminal gehört der Fokus in die Eingabezeile, nicht auf den
+      // Schließen-Button — tippen ist der ganze Zweck des Fensters.
+      const target = isTerminal ? win.querySelector(".term-input") : closeBtn;
+      target.focus({ preventScroll: true });
     }
   }
 }
@@ -123,6 +139,7 @@ function buildProjectWindow(project) {
     </div>
     <div class="win-body">
       <p class="prompt">marco@portfolio:~$ open ${escapeHtml(project.id)} --info</p>
+      <p class="gh-activity" data-gh-slot="${escapeHtml(project.id)}" hidden></p>
       ${statusBadgeHtml}
       <h3>${escapeHtml(project.title)}</h3>
       <p class="summary">${escapeHtml(project.summary)}</p>
@@ -134,7 +151,20 @@ function buildProjectWindow(project) {
     </div>
   `;
 
+  const slot = win.querySelector("[data-gh-slot]");
+  if (slot) fillActivitySlot(slot);
+
   return { win, closeBtn: win.querySelector(".win-close") };
+}
+
+// Füllt die "letzter Commit …"-Zeile aus dem github-activity-Modul.
+// Ohne Daten bleibt die Zeile hidden — der stille Fehlerpfad des Features.
+function fillActivitySlot(slot) {
+  const activity = getGithubActivity(slot.dataset.ghSlot);
+  const relative = activity ? formatRelativeDe(activity.pushedAt) : null;
+  if (!relative) return;
+  slot.textContent = `● letzter Commit ${relative}`;
+  slot.hidden = false;
 }
 
 function wireProjectWindowInteractions(win) {
@@ -147,6 +177,123 @@ function wireProjectWindowInteractions(win) {
     descriptionEl.setAttribute("aria-hidden", String(!expanding));
     techToggle.setAttribute("aria-expanded", String(expanding));
     techToggle.textContent = expanding ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen";
+  });
+}
+
+function buildTerminalWindow() {
+  const win = document.createElement("div");
+  win.className = "window window--terminal";
+  win.setAttribute("role", "dialog");
+  win.setAttribute("aria-label", "Terminal");
+  win.innerHTML = `
+    <div class="win-title">
+      <span class="dot dot--1"></span><span class="dot dot--2"></span><span class="dot dot--3"></span>
+      <span class="win-name">marco-sh — Terminal</span>
+      <button type="button" class="win-close" aria-label="Fenster schließen">×</button>
+    </div>
+    <div class="win-body win-body--terminal">
+      <div class="term-output" aria-live="polite">
+        <div class="term-line term-line--muted">MARCO.OS Terminal — 'help' zeigt alle Befehle.</div>
+      </div>
+      <form class="term-form">
+        <span class="term-prompt">marco@portfolio:~$</span>
+        <input class="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal-Eingabe">
+      </form>
+    </div>
+  `;
+
+  return { win, closeBtn: win.querySelector(".win-close") };
+}
+
+function wireTerminalInteractions(win, projects, resume) {
+  const output = win.querySelector(".term-output");
+  const form = win.querySelector(".term-form");
+  const input = win.querySelector(".term-input");
+  const history = [];
+  let historyIndex = -1;
+
+  const appendLine = (text, kind) => {
+    const el = document.createElement("div");
+    el.className = kind ? `term-line term-line--${kind}` : "term-line";
+    el.textContent = text;
+    output.appendChild(el);
+  };
+
+  const runAction = (action) => {
+    if (!action) return;
+    switch (action.type) {
+      case "open":
+        focusProject(action.id);
+        break;
+      case "open-resume":
+        focusProject(RESUME_ID);
+        break;
+      case "open-url":
+        window.open(action.url, "_blank", "noopener");
+        break;
+      case "clear":
+        output.innerHTML = "";
+        break;
+      case "exit":
+        // Kurz stehen lassen, damit die Abschiedszeile lesbar ist.
+        setTimeout(closeWindow, 350);
+        break;
+      case "tour":
+        // Dynamischer Import statt statischem: tour.js fokussiert Fenster
+        // über state.js — der statische Kreis window-manager -> tour ->
+        // state wäre harmlos, aber so lädt der Tour-Code nur bei Bedarf.
+        import("./tour.js").then((m) => m.startTour());
+        break;
+    }
+  };
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const value = input.value;
+    input.value = "";
+    if (value.trim()) {
+      history.push(value);
+    }
+    historyIndex = history.length;
+    appendLine(`marco@portfolio:~$ ${value}`, "cmd");
+    const { lines, action } = executeCommand(value, { projects, resume });
+    lines.forEach((l) => appendLine(l.text, l.kind));
+    runAction(action);
+    output.scrollTop = output.scrollHeight;
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      const { matches, replaceWith } = completeInput(input.value, { projects });
+      if (replaceWith) {
+        input.value = replaceWith;
+      } else if (matches.length > 1) {
+        appendLine(matches.join("   "), "muted");
+        output.scrollTop = output.scrollHeight;
+      }
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (historyIndex > 0) {
+        historyIndex -= 1;
+        input.value = history[historyIndex];
+      }
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (historyIndex < history.length - 1) {
+        historyIndex += 1;
+        input.value = history[historyIndex];
+      } else {
+        historyIndex = history.length;
+        input.value = "";
+      }
+    }
+  });
+
+  // Klick irgendwo in den Terminal-Body fokussiert die Eingabe — wie in
+  // einem echten Terminal (aber Textauswahl nicht kaputt machen).
+  win.querySelector(".win-body--terminal").addEventListener("click", () => {
+    if (!window.getSelection()?.toString()) input.focus();
   });
 }
 

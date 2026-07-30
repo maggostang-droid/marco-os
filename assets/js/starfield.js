@@ -1,5 +1,12 @@
+import { subscribe, state } from "./state.js";
+
 const FIELD_WIDTH = 2200;
 const FIELD_HEIGHT = 1400;
+
+// Sternschnuppen: Abstand zufällig in diesem Fenster, damit sie als
+// seltener Delight-Moment lesen und nicht als Dauer-Animation.
+const SHOOTING_STAR_MIN_GAP_MS = 8000;
+const SHOOTING_STAR_MAX_GAP_MS = 22000;
 
 // Mostly the original pale white, with occasional tinted stars picked from
 // the UI accent palette (violet/teal/amber) so the field reads as colorful
@@ -41,6 +48,51 @@ export function initStarfield(container) {
       el.style.transform = `translate(${x}px, ${y}px)`;
     });
   });
+
+  initShootingStars(container);
+}
+
+// Gelegentliche Sternschnuppe: ein Streak-Div mit einmaliger CSS-Animation
+// (Entfernen bei animationend), gestartet erst nach der Boot-Sequenz und
+// nie in versteckten Tabs. Läuft im selben zoom/pan-Container wie die
+// Sternlayer, wirkt also als Teil des Himmels, nicht als UI-Overlay.
+function initShootingStars(container) {
+  let scheduled = false;
+
+  const scheduleNext = () => {
+    const gap =
+      SHOOTING_STAR_MIN_GAP_MS + Math.random() * (SHOOTING_STAR_MAX_GAP_MS - SHOOTING_STAR_MIN_GAP_MS);
+    setTimeout(spawn, gap);
+  };
+
+  const spawn = () => {
+    if (document.hidden) {
+      scheduleNext();
+      return;
+    }
+    const star = document.createElement("div");
+    star.className = "shooting-star";
+    // Start irgendwo im oberen/mittleren Bereich, Flugrichtung schräg nach
+    // unten rechts (Winkel via CSS-Var, damit die Keyframes generisch bleiben).
+    const startX = Math.random() * 70 + 5; // 5–75 % Breite
+    const startY = Math.random() * 45 + 5; // 5–50 % Höhe
+    const angle = 20 + Math.random() * 25; // 20–45 Grad
+    star.style.left = `${startX}%`;
+    star.style.top = `${startY}%`;
+    star.style.setProperty("--star-angle", `${angle}deg`);
+    star.addEventListener("animationend", () => star.remove());
+    container.appendChild(star);
+    scheduleNext();
+  };
+
+  const startWhenRevealed = () => {
+    if (scheduled || !state.bootComplete) return;
+    scheduled = true;
+    scheduleNext();
+  };
+
+  startWhenRevealed();
+  subscribe(startWhenRevealed);
 }
 
 function randomStarShadow(count, opacity) {
