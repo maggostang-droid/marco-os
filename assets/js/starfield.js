@@ -32,7 +32,7 @@ const NEBULA_ZOOM_EXPONENT = 0.9;
 // Funkel-Schicht: wenige individuelle Sterne mit eigenem Schimmern —
 // bewusst sparsam (die dichte Kulisse liefern weiter die box-shadow-Layer,
 // 405 Sterne in 3 DOM-Elementen; 15 animierte Divs sind billig, 405 nicht).
-const TWINKLE_COUNT = 15;
+const TWINKLE_COUNT = 20;
 const TWINKLE_MAX_SHIFT = 16;
 const TWINKLE_ZOOM_EXPONENT = 0.5;
 // Gelegentliches Aufflackern eines einzelnen Funkel-Sterns ("Pulsar").
@@ -47,9 +47,9 @@ const SHOOTING_STAR_MAX_GAP_MS = 22000;
 
 // Cursor-Konstellationen: unsichtbare Ankerpunkte, die sich in Maus-Nähe
 // kurz zu einem flüchtigen Netz verbinden — Echo der Portfolio-Metapher.
-const CONSTELLATION_ANCHORS = 64;
-const CONSTELLATION_CURSOR_RADIUS = 170;
-const CONSTELLATION_LINK_DIST = 120;
+const CONSTELLATION_ANCHORS = 72;
+const CONSTELLATION_CURSOR_RADIUS = 190;
+const CONSTELLATION_LINK_DIST = 130;
 const CONSTELLATION_IDLE_MS = 1800;
 
 export function initStarfield(container) {
@@ -128,7 +128,7 @@ function buildTwinkleLayer(prefersReducedMotion) {
     star.className = "twinkle-star";
     const x = Math.floor(Math.random() * FIELD_WIDTH) - FIELD_WIDTH / 2;
     const y = Math.floor(Math.random() * FIELD_HEIGHT) - FIELD_HEIGHT / 2;
-    const size = 2 + Math.random() * 2.5;
+    const size = 3 + Math.random() * 2.5;
     star.style.width = `${size.toFixed(1)}px`;
     star.style.height = `${size.toFixed(1)}px`;
     star.style.translate = `${x}px ${y}px`;
@@ -263,8 +263,8 @@ function initConstellations(container) {
       }
       for (const point of near) {
         ctx.beginPath();
-        ctx.arc(point.ax, point.ay, 1.3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(94, 234, 212, ${(0.7 * point.proximity * energy).toFixed(3)})`;
+        ctx.arc(point.ax, point.ay, 1.7, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(94, 234, 212, ${(0.85 * point.proximity * energy).toFixed(3)})`;
         ctx.fill();
       }
       for (let i = 0; i < near.length; i += 1) {
@@ -273,12 +273,12 @@ function initConstellations(container) {
           const b = near[j];
           const d = Math.hypot(a.ax - b.ax, a.ay - b.ay);
           if (d > CONSTELLATION_LINK_DIST) continue;
-          const alpha = 0.45 * (1 - d / CONSTELLATION_LINK_DIST) * Math.min(a.proximity, b.proximity) * energy;
+          const alpha = 0.65 * (1 - d / CONSTELLATION_LINK_DIST) * Math.min(a.proximity, b.proximity) * energy;
           ctx.beginPath();
           ctx.moveTo(a.ax, a.ay);
           ctx.lineTo(b.ax, b.ay);
           ctx.strokeStyle = `rgba(231, 228, 245, ${alpha.toFixed(3)})`;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         }
       }

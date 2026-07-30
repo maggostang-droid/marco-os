@@ -1243,10 +1243,13 @@ button.node--center:focus-visible .node-label {
 .twinkle-star {
   position: absolute;
   border-radius: 50%;
-  background: rgba(var(--tw-rgb, 231, 228, 245), .9);
-  box-shadow: 0 0 6px rgba(var(--tw-rgb, 231, 228, 245), .7);
+  background: rgba(var(--tw-rgb, 231, 228, 245), .95);
+  box-shadow:
+    0 0 8px rgba(var(--tw-rgb, 231, 228, 245), .85),
+    0 0 20px rgba(var(--tw-rgb, 231, 228, 245), .35);
   /* Flare nutzt die standalone Properties scale/filter und kollidiert damit
-     nicht mit der opacity-Keyframe-Animation des Grundschimmerns. */
+     nicht mit der transform/opacity-Keyframe-Animation des Grundschimmerns
+     (standalone scale multipliziert sich mit transform: scale). */
   transition: scale .45s ease, filter .45s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -1257,13 +1260,24 @@ button.node--center:focus-visible .node-label {
     transition: transform 0.3s ease-out;
   }
 }
+/* Echtes Aufblühen statt bloßem Durchschimmern: im Tal fast unsichtbar
+   und klein, am Gipfel hell und auf das 1.6-fache aufgeblüht — der
+   Größen-/Glow-Sprung macht das Funkeln zwischen den 405 statischen
+   Sternen erst bemerkbar. transform ist frei (Position läuft über die
+   standalone translate-Property). */
 @keyframes twinkleShimmer {
-  0%, 100% { opacity: .25; }
-  50% { opacity: 1; }
+  0%, 100% {
+    opacity: .1;
+    transform: scale(.65);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.6);
+  }
 }
 .twinkle-star.is-flaring {
   scale: 2.3;
-  filter: brightness(2.2) drop-shadow(0 0 12px rgba(255, 255, 255, .9));
+  filter: brightness(2.4) drop-shadow(0 0 14px rgba(255, 255, 255, .95));
 }
 
 /* Cursor-Konstellationen: Canvas-Overlay über der Szene (Zeichnung in
