@@ -653,18 +653,59 @@ button.node--center:focus-visible .node-label {
 .window--chat .win-body {
   padding: 0;
 }
-.win-body--chat {
+/* Doppelklasse statt .win-body--chat allein: das allgemeine .win-body
+   (flex: 1, overflow-y: auto) steht später im Stylesheet und würde bei
+   gleicher Spezifität gewinnen — dann kollabiert die feste Höhe im
+   Flex-Layout des Fensters und der iframe fällt auf seine ~150px-
+   Default-Höhe zurück. */
+.win-body.win-body--chat {
   position: relative;
+  flex: 0 0 auto;
+  height: 480px;
+  overflow: hidden;
 }
 .chat-frame {
   display: block;
   width: 100%;
-  height: 480px;
+  /* Der iframe ist um --chat-footer-crop höher als der sichtbare
+     Ausschnitt: Community Cloud hängt eingebetteten Apps unten einen
+     weißen "Built with Streamlit / Fullscreen"-Balken an, der sich
+     offiziell nicht abschalten lässt — er wird hier schlicht aus dem
+     Fenster geschoben. Als Ausgleich nennt .chat-attribution das Hosting
+     sichtbar und ersetzt den Fullscreen-Link. Ändert Streamlit die
+     Balkenhöhe, diesen Wert anpassen. */
+  --chat-footer-crop: 46px;
+  height: calc(100% + var(--chat-footer-crop));
   border: 0;
   /* Dunkler Grund statt Browser-Weiß, solange das iframe-Dokument noch
      nichts gezeichnet hat — verhindert den weißen Flash beim Öffnen. */
   background: var(--panel-deep);
   color-scheme: dark;
+}
+/* Eigene Attribution-Zeile unterhalb des Chat-Ausschnitts — ersetzt den
+   abgeschnittenen Streamlit-Balken in Portfolio-Optik. */
+.chat-attribution {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--panel-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--dim);
+}
+.chat-attribution a {
+  color: var(--teal);
+  text-decoration: none;
+}
+.chat-attribution a:hover {
+  text-decoration: underline;
+}
+.chat-attribution a:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
 }
 /* Terminal-Ladeanzeige über dem iframe, bis Streamlit geladen hat
    (Logik in window-manager.js buildChatWindow). */

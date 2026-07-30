@@ -4,7 +4,8 @@ import { nextFocusTarget } from "./focus-target.js";
 import { getGithubActivity, onGithubActivity, formatRelativeDe } from "./github-activity.js";
 import { executeCommand, completeInput } from "./terminal-commands.js";
 
-const SECOND_BRAIN_CHAT_URL = "https://second-brain-projects.streamlit.app/?embed=true";
+const SECOND_BRAIN_CHAT_APP_URL = "https://second-brain-projects.streamlit.app/";
+const SECOND_BRAIN_CHAT_URL = `${SECOND_BRAIN_CHAT_APP_URL}?embed=true`;
 
 // Akzentfarbe je Cluster (identisch zu den --amber/--teal/--violet Tokens in
 // style.css) — als CSS-Custom-Property aufs Fenster gesetzt, damit Primary-
@@ -315,6 +316,10 @@ function buildChatWindow() {
         <p class="chat-loading-hint">Der erste Start kann einen Moment dauern — die App wacht ggf. gerade auf.</p>
       </div>
       <iframe class="chat-frame" src="${SECOND_BRAIN_CHAT_URL}" title="second-brain Chat" loading="lazy"></iframe>
+    </div>
+    <div class="chat-attribution">
+      <span>läuft auf Streamlit Community Cloud</span>
+      <a href="${SECOND_BRAIN_CHAT_APP_URL}" target="_blank" rel="noopener">Im eigenen Tab öffnen ↗</a>
     </div>
   `;
 
