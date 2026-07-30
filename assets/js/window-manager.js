@@ -3,6 +3,7 @@ import { escapeHtml } from "./html-utils.js";
 import { nextFocusTarget } from "./focus-target.js";
 import { getGithubActivity, onGithubActivity, formatRelativeDe } from "./github-activity.js";
 import { executeCommand, completeInput } from "./terminal-commands.js";
+import { trackEvent } from "./analytics.js";
 
 const SECOND_BRAIN_CHAT_APP_URL = "https://second-brain-projects.streamlit.app/";
 const SECOND_BRAIN_CHAT_URL = `${SECOND_BRAIN_CHAT_APP_URL}?embed=true`;
@@ -86,7 +87,7 @@ export function initWindowManager(container, projects, resume) {
     closeBtn.addEventListener("click", closeWindow);
     if (isResume) wireResumeWindowInteractions(win);
     if (isTerminal) wireTerminalInteractions(win, projects, resume);
-    if (!isChat && !isResume && !isTerminal) wireProjectWindowInteractions(win);
+    if (!isChat && !isResume && !isTerminal) wireProjectWindowInteractions(win, projectById[activeId]);
 
     container.appendChild(win);
 
@@ -168,7 +169,12 @@ function fillActivitySlot(slot) {
   slot.hidden = false;
 }
 
-function wireProjectWindowInteractions(win) {
+function wireProjectWindowInteractions(win, project) {
+  // Demo-Start als GoatCounter-Event (nur Dashboard, keine öffentliche
+  // Anzeige). Der Klick öffnet parallel ganz normal den neuen Tab —
+  // trackEvent blockiert nichts und darf scheitern.
+  win.querySelector(".btn.primary[href]")?.addEventListener("click", () => trackEvent(`demo-${project.id}`));
+
   const techToggle = win.querySelector(".tech-toggle");
   const descriptionWrap = win.querySelector(".description-wrap");
   const descriptionEl = win.querySelector(".description");
@@ -230,6 +236,7 @@ function wireTerminalInteractions(win, projects, resume) {
         focusProject(RESUME_ID);
         break;
       case "open-url":
+        if (action.track) trackEvent(action.track);
         window.open(action.url, "_blank", "noopener");
         break;
       case "clear":
@@ -322,6 +329,8 @@ function buildChatWindow() {
       <a href="${SECOND_BRAIN_CHAT_APP_URL}" target="_blank" rel="noopener">Im eigenen Tab öffnen ↗</a>
     </div>
   `;
+
+  win.querySelector(".chat-attribution a").addEventListener("click", () => trackEvent("demo-second-brain"));
 
   // Streamlits eigener Lade-/Skeleton-Screen (weißer Flash + Spinner) passt
   // nicht in die MARCO.OS-Optik — bis das iframe geladen ist, liegt darum

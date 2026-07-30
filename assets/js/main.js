@@ -8,6 +8,7 @@ import { initTaskbar } from "./taskbar.js";
 import { initMenubar } from "./menubar.js";
 import { initHud } from "./hud.js";
 import { initGithubActivity } from "./github-activity.js";
+import { initAnalytics } from "./analytics.js";
 import { initRouter, registerSpecialHash } from "./router.js";
 import { state, focusProject, TERMINAL_ID } from "./state.js";
 import { startTour } from "./tour.js";
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMenubar(document.querySelector("#menubar"), resume);
   initHud(document.querySelector("#hud"), projects, resume);
   initGithubActivity(projects);
+  initAnalytics();
   registerSpecialHash("terminal", TERMINAL_ID);
   initRouter(projects, {
     // #tour öffnet kein Fenster, sondern startet die geführte Tour.

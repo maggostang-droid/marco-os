@@ -97,7 +97,9 @@ export function executeCommand(rawInput, { projects, resume }) {
       }
       return {
         lines: [line(`Starte Live-Demo von ${project.title} im neuen Tab …`, "ok")],
-        action: { type: "open-url", url: project.demoUrl }
+        // track: Event-Name fürs Analytics-Modul — der Parser bleibt pure,
+        // window-manager.js führt das Tracking beim Ausführen der Action aus.
+        action: { type: "open-url", url: project.demoUrl, track: `demo-${project.id}` }
       };
     }
 

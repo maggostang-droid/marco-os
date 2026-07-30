@@ -1142,6 +1142,11 @@ button.node--center:focus-visible .node-label {
 .tb-guide:focus-visible {
   outline: 2px solid var(--teal);
 }
+.tb-visitors {
+  color: var(--meta);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .tb-clock {
   font-variant-numeric: tabular-nums;
 }

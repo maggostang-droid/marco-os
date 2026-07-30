@@ -52,6 +52,11 @@ test("demo returns open-url only for projects with a live demoUrl", () => {
   assert.equal(executeCommand(`demo ${dead.id}`, ctx).action, undefined);
 });
 
+test("demo action carries an analytics track name", () => {
+  const live = projects.find((p) => p.demoUrl);
+  assert.equal(executeCommand(`demo ${live.id}`, ctx).action.track, `demo-${live.id}`);
+});
+
 test("cat lebenslauf.txt prints name and headline", () => {
   const text = executeCommand("cat lebenslauf.txt", ctx).lines.map((l) => l.text).join("\n");
   assert.ok(text.includes(resume.name));

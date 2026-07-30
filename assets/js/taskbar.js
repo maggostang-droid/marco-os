@@ -1,7 +1,16 @@
 import { subscribe, state, zoomIn, zoomOut, focusProject, SECOND_BRAIN_CHAT_ID, RESUME_ID, TERMINAL_ID } from "./state.js";
+import { fetchVisitorCount } from "./analytics.js";
 
 export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) {
   const projectById = Object.fromEntries(projects.map((p) => [p.id, p]));
+  // Besucherzahl (GoatCounter-Counter-Endpoint) einmal beim Start holen;
+  // bis dahin — und bei jedem Fehler — zeigt die Taskbar schlicht nichts an.
+  let visitorCount = null;
+  fetchVisitorCount().then((count) => {
+    if (!count) return;
+    visitorCount = count;
+    renderTaskbar();
+  });
   const TIPS = [
     `KI-Guide: „Klick auf ${projects[0]?.id ?? "einen Knoten"}, um Details zu sehen“`,
     "KI-Guide: „Neue Projekte erscheinen automatisch als neue Knoten“",
@@ -44,6 +53,7 @@ export function initTaskbar(container, projects, { tipIntervalMs = 6000 } = {}) 
       ${isChatOpen ? `<span class="tb-app">second-brain.exe</span>` : isResumeOpen ? `<span class="tb-app">lebenslauf.exe</span>` : isTerminalOpen ? `<span class="tb-app">terminal.exe</span>` : project ? `<span class="tb-app">${project.id}.exe</span>` : ""}
       <span class="tb-spacer"></span>
       <button type="button" class="tb-guide" aria-label="Ask-Marco-Chat öffnen">${TIPS[tipIndex]}</button>
+      ${visitorCount ? `<span class="tb-visitors" title="Besucher insgesamt (GoatCounter, cookielos)">◉ ${visitorCount} Besucher</span>` : ""}
       <div class="tb-zoom">
         <button type="button" class="tb-zoom-btn" data-zoom="out" aria-label="Rauszoomen">−</button>
         <button type="button" class="tb-zoom-btn" data-zoom="in" aria-label="Reinzoomen">+</button>
