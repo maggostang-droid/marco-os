@@ -32,28 +32,30 @@ function buildInfoLines(projects) {
 
 const GENERIC_LINES = [
   "[ OK ] neural-link.service gestartet",
-  "[ OK ] netzwerk-graph geladen",
-  "[ OK ] projekt-index initialisiert"
+  "[ OK ] netzwerk-graph geladen"
 ];
 
-const MAX_PROJECT_LINES = 6;
 const PROMPT_LINE = "[ .. ] warte auf Nutzereingabe_";
 
-const TYPE_INTERVAL_MS = 10;
-const LINE_PAUSE_MS = 80;
-const INSTANT_LINE_PAUSE_MS = 45;
-const FINISH_PAUSE_MS = 500;
+// Timing gestrafft (Feedback: Boot dauerte ~5,5s — zu lang für Recruiter).
+// Statt einer [ OK ]-Zeile pro Projekt gibt es eine Sammelzeile; zusammen
+// mit schnellerem Typewriter und kürzeren Pausen landet der Boot bei ~1,5s,
+// bleibt aber jederzeit per Klick/Taste überspringbar (Hinweis unten im
+// Overlay, siehe .boot-skip-hint).
+const TYPE_INTERVAL_MS = 4;
+const LINE_PAUSE_MS = 40;
+const INSTANT_LINE_PAUSE_MS = 25;
+const FINISH_PAUSE_MS = 300;
 
 // Zeilen sind {text, className?, instant?} — Logo/Info rendern instant
 // (eine Zeile pro Tick), die [ OK ]-Zeilen behalten den Typewriter.
 function buildBootLines(projects) {
   const logo = LOGO_LINES.map((text) => ({ text, className: "boot-line boot-line--logo", instant: true }));
   const info = buildInfoLines(projects).map((text) => ({ text, className: "boot-line boot-line--info", instant: true }));
-  const projectLines = projects
-    .slice(0, MAX_PROJECT_LINES)
-    .map((project) => ({ text: `[ OK ] Projekt geladen: ${project.title}` }));
+  const liveCount = projects.filter((p) => p.status === "live").length;
+  const projectSummary = { text: `[ OK ] ${projects.length} Projekte geladen · ${liveCount} Live-Demos bereit` };
   const generic = GENERIC_LINES.map((text) => ({ text }));
-  return [...logo, ...info, ...generic, ...projectLines, { text: PROMPT_LINE }];
+  return [...logo, ...info, ...generic, projectSummary, { text: PROMPT_LINE }];
 }
 
 export function initBoot(overlay, projects) {
@@ -62,6 +64,14 @@ export function initBoot(overlay, projects) {
 
   overlay.innerHTML = "";
   overlay.setAttribute("aria-hidden", "true");
+
+  // Sichtbarer Skip-Hinweis von der ersten Millisekunde an — der Boot war
+  // schon immer überspringbar, aber niemand wusste es, bevor die letzte
+  // Zeile ("warte auf Nutzereingabe_") erschien.
+  const skipHint = document.createElement("div");
+  skipHint.className = "boot-skip-hint";
+  skipHint.textContent = "▸ Klick oder Taste überspringt";
+  overlay.appendChild(skipHint);
 
   // Let the initial opaque background paint first, then trigger the
   // background-color transition to transparent (see .boot-overlay.is-fading

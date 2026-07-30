@@ -1192,6 +1192,14 @@ button.node--center:focus-visible .node-label {
   line-height: 1.55;
   white-space: pre;
 }
+.boot-skip-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 24px;
+  font-size: var(--fs-2xs);
+  color: var(--dim);
+  opacity: .85;
+}
 
 /* Sternschnuppe: Streak mit hellem Kopf vorn (Flugrichtung +x, per
    rotate um --star-angle gekippt; die translateX-Keyframes laufen dadurch
@@ -1340,8 +1348,8 @@ button.node--center:focus-visible .node-label {
   background-size: 100% 100%;
   -webkit-mask-image: radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%);
   mask-image: radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%);
-  --fade-peak: 0.58;
-  --fade-trough: 0.08;
+  --fade-peak: 0.62;
+  --fade-trough: 0.05;
   opacity: var(--fade-peak);
 }
 .nebula-cloud--violet-a {
@@ -1355,13 +1363,13 @@ button.node--center:focus-visible .node-label {
 @media (prefers-reduced-motion: no-preference) {
   .nebula-cloud--violet-a {
     animation:
-      nebulaFade 52s ease-in-out infinite,
-      nebulaDriftA 74s ease-in-out infinite alternate;
+      nebulaFade 34s ease-in-out infinite,
+      nebulaDriftA 46s ease-in-out infinite alternate;
   }
   .nebula-cloud--violet-b {
     animation:
-      nebulaFade 52s ease-in-out -26s infinite,
-      nebulaDriftB 74s ease-in-out -37s infinite alternate;
+      nebulaFade 34s ease-in-out -17s infinite,
+      nebulaDriftB 46s ease-in-out -23s infinite alternate;
     opacity: var(--fade-trough);
   }
 }
@@ -1371,8 +1379,8 @@ button.node--center:focus-visible .node-label {
   background-size: 100% 100%;
   -webkit-mask-image: radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%);
   mask-image: radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%);
-  --fade-peak: 0.48;
-  --fade-trough: 0.06;
+  --fade-peak: 0.52;
+  --fade-trough: 0.04;
   opacity: var(--fade-peak);
 }
 .nebula-cloud--teal-a {
@@ -1386,13 +1394,13 @@ button.node--center:focus-visible .node-label {
 @media (prefers-reduced-motion: no-preference) {
   .nebula-cloud--teal-a {
     animation:
-      nebulaFade 64s ease-in-out infinite,
-      nebulaDriftB 88s ease-in-out infinite alternate;
+      nebulaFade 44s ease-in-out infinite,
+      nebulaDriftB 58s ease-in-out infinite alternate;
   }
   .nebula-cloud--teal-b {
     animation:
-      nebulaFade 64s ease-in-out -32s infinite,
-      nebulaDriftA 88s ease-in-out -44s infinite alternate;
+      nebulaFade 44s ease-in-out -22s infinite,
+      nebulaDriftA 58s ease-in-out -29s infinite alternate;
     opacity: var(--fade-trough);
   }
 }
@@ -1411,7 +1419,7 @@ button.node--center:focus-visible .node-label {
   -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
   mask-image: radial-gradient(ellipse 85% 42% at 50% 16%, #000 0%, transparent 75%);
   mix-blend-mode: screen;
-  opacity: 0.55;
+  opacity: 0.75;
 }
 @media (prefers-reduced-motion: no-preference) {
   .nebula-layer {
@@ -1422,7 +1430,7 @@ button.node--center:focus-visible .node-label {
     will-change: transform;
   }
   .nebula-aurora {
-    animation: nebulaAuroraWave 150s ease-in-out infinite alternate;
+    animation: nebulaAuroraWave 80s ease-in-out infinite alternate;
   }
 }
 /* Gemeinsamer Atem-/Morph-Zyklus: Gipfel -> Tal -> Gipfel. Schicht B läuft
@@ -1432,17 +1440,17 @@ button.node--center:focus-visible .node-label {
   50% { opacity: var(--fade-trough, .1); }
 }
 @keyframes nebulaDriftA {
-  from { transform: translate3d(-4%, -2.6%, 0) scale(1); }
-  to { transform: translate3d(4%, 2.6%, 0) scale(1.07); }
+  from { transform: translate3d(-6.5%, -4%, 0) scale(1); }
+  to { transform: translate3d(6.5%, 4%, 0) scale(1.11); }
 }
 @keyframes nebulaDriftB {
-  from { transform: translate3d(3.4%, 2.2%, 0) scale(1.06); }
-  to { transform: translate3d(-3.4%, -2.2%, 0) scale(1); }
+  from { transform: translate3d(5.5%, 3.4%, 0) scale(1.09); }
+  to { transform: translate3d(-5.5%, -3.4%, 0) scale(1); }
 }
 @keyframes nebulaAuroraWave {
-  from { transform: translate3d(-5%, -1%, 0) skewX(-2deg); }
-  50% { transform: translate3d(2%, 1.2%, 0) skewX(1.5deg); }
-  to { transform: translate3d(6%, -0.6%, 0) skewX(-1deg); }
+  from { transform: translate3d(-9%, -1.6%, 0) skewX(-3.5deg); }
+  50% { transform: translate3d(3%, 2%, 0) skewX(2.5deg); }
+  to { transform: translate3d(10%, -1%, 0) skewX(-2deg); }
 }
 /* --- Nebula (Ende) ------------------------------------------------------ */
 

@@ -27,10 +27,10 @@ const P = {
     alphaOffset: -0.54,
     gamma: 1.35,
     // Gipfel-/Tal-Deckkraft des Atem-/Morph-Zyklus (vorher statisch 0.6).
-    opacityPeak: 0.58,
-    opacityTrough: 0.08,
-    fadeDurS: 52,
-    driftDurS: 74,
+    opacityPeak: 0.62,
+    opacityTrough: 0.05,
+    fadeDurS: 34,
+    driftDurS: 46,
     mask: "radial-gradient(ellipse 67% 59% at 31% 33%, #000 0%, transparent 78%)"
   },
   teal: {
@@ -42,20 +42,20 @@ const P = {
     alphaScale: 1.5,
     alphaOffset: -0.52,
     gamma: 1.4,
-    opacityPeak: 0.48,
-    opacityTrough: 0.06,
+    opacityPeak: 0.52,
+    opacityTrough: 0.04,
     // Andere Zykluslängen als violet: die Farbfamilien atmen dadurch
     // gegeneinander versetzt statt im Gleichtakt.
-    fadeDurS: 64,
-    driftDurS: 88,
+    fadeDurS: 44,
+    driftDurS: 58,
     mask: "radial-gradient(ellipse 69% 60% at 74% 72%, #000 0%, transparent 80%)"
   },
   // Aurora-Schleier: seidiges Gradient-Band im oberen Himmel, wandert sehr
   // langsam wellenförmig. Bewusst scheu (effektive Deckkraft ~.1) — einen
   // Tick zu stark und es kippt ins Kitschige.
   aurora: {
-    opacity: 0.55,
-    waveDurS: 150
+    opacity: 0.75,
+    waveDurS: 80
   },
   amber: "radial-gradient(ellipse 22% 17% at 78% 22%, rgba(251, 191, 36, .07), transparent 70%)",
   // Die frueheren .graph-viewport-Washes, in Layer-Koordinaten umgerechnet
@@ -193,17 +193,17 @@ ${cloudFamilyCss("teal", P.teal, "nebulaDriftB", "nebulaDriftA")}
   50% { opacity: var(--fade-trough, .1); }
 }
 @keyframes nebulaDriftA {
-  from { transform: translate3d(-4%, -2.6%, 0) scale(1); }
-  to { transform: translate3d(4%, 2.6%, 0) scale(1.07); }
+  from { transform: translate3d(-6.5%, -4%, 0) scale(1); }
+  to { transform: translate3d(6.5%, 4%, 0) scale(1.11); }
 }
 @keyframes nebulaDriftB {
-  from { transform: translate3d(3.4%, 2.2%, 0) scale(1.06); }
-  to { transform: translate3d(-3.4%, -2.2%, 0) scale(1); }
+  from { transform: translate3d(5.5%, 3.4%, 0) scale(1.09); }
+  to { transform: translate3d(-5.5%, -3.4%, 0) scale(1); }
 }
 @keyframes nebulaAuroraWave {
-  from { transform: translate3d(-5%, -1%, 0) skewX(-2deg); }
-  50% { transform: translate3d(2%, 1.2%, 0) skewX(1.5deg); }
-  to { transform: translate3d(6%, -0.6%, 0) skewX(-1deg); }
+  from { transform: translate3d(-9%, -1.6%, 0) skewX(-3.5deg); }
+  50% { transform: translate3d(3%, 2%, 0) skewX(2.5deg); }
+  to { transform: translate3d(10%, -1%, 0) skewX(-2deg); }
 }
 /* --- Nebula (Ende) ------------------------------------------------------ */`;
 
