@@ -2,7 +2,9 @@ import { computeLayout } from "./graph-layout.js";
 import { subscribe, state, focusProject, closeWindow, zoomIn, zoomOut, SECOND_BRAIN_CHAT_ID, RESUME_ID, resolveFocusedNodeId } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
 
-const FOCUS_ZOOM_BONUS = 2.6;
+// Exportiert, weil starfield.js denselben effektiven Zoom für die
+// gegenläufige Tiefen-Kompensation der Sternschichten braucht.
+export const FOCUS_ZOOM_BONUS = 2.6;
 
 // Reveal timing: four distinct phases (planets -> lines -> runner lights,
 // center planet leads phase 1) with an explicit pause between each phase.

@@ -1229,6 +1229,52 @@ button.node--center:focus-visible .node-label {
   width: 5px;
   height: 5px;
 }
+
+/* Funkel-Schicht: wenige individuell schimmernde Sterne über den statischen
+   box-shadow-Layern (Aufbau in buildTwinkleLayer, starfield.js). */
+.twinkle-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.twinkle-star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(var(--tw-rgb, 231, 228, 245), .9);
+  box-shadow: 0 0 6px rgba(var(--tw-rgb, 231, 228, 245), .7);
+  /* Flare nutzt die standalone Properties scale/filter und kollidiert damit
+     nicht mit der opacity-Keyframe-Animation des Grundschimmerns. */
+  transition: scale .45s ease, filter .45s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .twinkle-star {
+    animation: twinkleShimmer var(--tw-dur, 4s) ease-in-out var(--tw-delay, 0s) infinite;
+  }
+  .twinkle-layer {
+    transition: transform 0.3s ease-out;
+  }
+}
+@keyframes twinkleShimmer {
+  0%, 100% { opacity: .25; }
+  50% { opacity: 1; }
+}
+.twinkle-star.is-flaring {
+  scale: 2.3;
+  filter: brightness(2.2) drop-shadow(0 0 12px rgba(255, 255, 255, .9));
+}
+
+/* Cursor-Konstellationen: Canvas-Overlay über der Szene (Zeichnung in
+   initConstellations, starfield.js) — rein dekorativ, nie klickbar. */
+.constellation-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: no-preference) {
   .star-layer {
     transition: transform 0.3s ease-out;
