@@ -679,7 +679,15 @@ button.node--center:focus-visible .node-label {
      sichtbar und ersetzt den Fullscreen-Link. Ändert Streamlit die
      Balkenhöhe, diesen Wert anpassen. */
   --chat-footer-crop: 46px;
-  height: calc(100% + var(--chat-footer-crop));
+  /* Zusätzlich ein Rundum-Bleed: das Wrapper-Dokument des Embeds behält
+     einen weißen Hintergrund, der als 1–3px-Saum um die dunkle App
+     durchscheint. Der iframe ragt darum auf allen Seiten 4px über den
+     per overflow:hidden geclippten Ausschnitt hinaus. */
+  --chat-edge-bleed: 4px;
+  width: calc(100% + 2 * var(--chat-edge-bleed));
+  margin-left: calc(-1 * var(--chat-edge-bleed));
+  margin-top: calc(-1 * var(--chat-edge-bleed));
+  height: calc(100% + var(--chat-footer-crop) + 2 * var(--chat-edge-bleed));
   border: 0;
   /* Dunkler Grund statt Browser-Weiß, solange das iframe-Dokument noch
      nichts gezeichnet hat — verhindert den weißen Flash beim Öffnen. */
