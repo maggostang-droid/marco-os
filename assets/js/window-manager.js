@@ -7,6 +7,23 @@ import { trackEvent } from "./analytics.js";
 
 const SECOND_BRAIN_CHAT_APP_URL = "https://second-brain-projects.streamlit.app/";
 const SECOND_BRAIN_CHAT_URL = `${SECOND_BRAIN_CHAT_APP_URL}?embed=true`;
+// Der Embed ist eine iframe-Kette: ?embed=true liefert nur die Community-
+// Cloud-Hülle, die echte App hängt darunter auf /~/+/. Deren Health-Endpunkt
+// antwortet mit 2 Bytes und ist damit der billigste Weg, den App-Container
+// anzustupsen bzw. zu prüfen, ob er überhaupt schon läuft.
+const SECOND_BRAIN_HEALTH_URL = `${SECOND_BRAIN_CHAT_APP_URL}~/+/_stcore/health`;
+
+// Streamlit Community Cloud friert Apps im Free Tier nach Inaktivität ein.
+// Der erste Besucher danach zahlt einen Kaltstart von 30s bis über eine
+// Minute und sieht im Embed derweil nur Streamlits englischen "taking longer
+// than normal"-Schirm — genau der Punkt, an dem die Demo verloren geht.
+// no-cors, weil die Antwort egal ist: es zählt nur, dass die Anfrage den
+// Container startet. Warm löst der Promise in unter einer Sekunde auf, kalt
+// hält der Proxy ihn offen, solange der Container hochfährt — beides nutzen
+// wir unten als Signal.
+function pingChatApp() {
+  return fetch(SECOND_BRAIN_HEALTH_URL, { mode: "no-cors", cache: "no-store" });
+}
 
 // Akzentfarbe je Cluster (identisch zu den --amber/--teal/--violet Tokens in
 // style.css) — als CSS-Custom-Property aufs Fenster gesetzt, damit Primary-
@@ -24,6 +41,9 @@ export function initWindowManager(container, projects, resume) {
 
   render();
   subscribe(render);
+  // Den Chat-Container schon aufwecken, während der Besucher noch den Graphen
+  // anschaut — klickt er später den Ask-Marco-Mond, ist die App meist warm.
+  pingChatApp().catch(() => {});
   // Trifft GitHub-Aktivität ein, während ein Projektfenster bereits offen
   // ist, wird nur der [data-gh-slot] gepatcht — kein Rebuild (der würde
   // Fokus/Scroll des Fensters zurücksetzen, siehe early-return in render).
@@ -323,6 +343,14 @@ function buildChatWindow() {
         <p class="chat-loading-hint">Der erste Start kann einen Moment dauern — die App wacht ggf. gerade auf.</p>
       </div>
       <iframe class="chat-frame" src="${SECOND_BRAIN_CHAT_URL}" title="second-brain Chat" loading="lazy"></iframe>
+      <div class="chat-stall" hidden>
+        <p class="chat-stall-title">Die Demo wacht gerade auf.</p>
+        <p class="chat-stall-text">Sie läuft auf Streamlit Community Cloud und wird nach längerer Pause eingefroren. Der Kaltstart dauert bis zu einer Minute.</p>
+        <div class="chat-stall-actions">
+          <a class="btn primary" href="${SECOND_BRAIN_CHAT_APP_URL}" target="_blank" rel="noopener">In neuem Tab öffnen ↗</a>
+          <button type="button" class="btn ghost chat-stall-reload">Neu laden</button>
+        </div>
+      </div>
     </div>
     <div class="chat-attribution">
       <span>läuft auf Streamlit Community Cloud</span>
@@ -350,6 +378,35 @@ function buildChatWindow() {
     clearTimeout(hideTimer);
     hideTimer = setTimeout(hideLoading, 2200);
   });
+
+  // Kaltstart-Auffangnetz. Das iframe-load-Event taugt hier nicht als Signal:
+  // es feuert schon, sobald die Community-Cloud-Hülle da ist — die App
+  // darunter kann danach noch minutenlang booten. Stattdessen fragen wir den
+  // Container selbst und blenden die Erklärung nur ein, wenn er nach
+  // STALL_AFTER_MS immer noch nicht geantwortet hat. Läuft die App (Normal-
+  // und Prewarm-Fall), sieht der Besucher davon nie etwas.
+  const STALL_AFTER_MS = 20000;
+  const stallEl = win.querySelector(".chat-stall");
+  let appIsUp = false;
+  let stallTimer = null;
+  const armStallHint = () => {
+    appIsUp = false;
+    pingChatApp().then(() => { appIsUp = true; }).catch(() => {});
+    clearTimeout(stallTimer);
+    stallTimer = setTimeout(() => {
+      if (!appIsUp && win.isConnected) stallEl.hidden = false;
+    }, STALL_AFTER_MS);
+  };
+  armStallHint();
+
+  stallEl.querySelector(".chat-stall-reload").addEventListener("click", () => {
+    stallEl.hidden = true;
+    // Neuzuweisung statt contentWindow.location.reload(): das iframe ist
+    // cross-origin, an sein window kommen wir nicht heran.
+    frame.src = SECOND_BRAIN_CHAT_URL;
+    armStallHint();
+  });
+  stallEl.querySelector("a").addEventListener("click", () => trackEvent("demo-second-brain"));
 
   return { win, closeBtn: win.querySelector(".win-close") };
 }

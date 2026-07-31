@@ -679,6 +679,12 @@ button.node--center:focus-visible .node-label {
   overflow: hidden;
 }
 .chat-frame {
+  /* Absolut statt im Fluss: so loest die Prozenthoehe unten gegen den
+     Container-Block auf, statt eine "definite" Hoehe am Elternteil zu
+     verlangen. Nur dadurch darf .win-body--chat mobil ein schrumpfender
+     Flex-Item sein, ohne dass der iframe auf seine ~150px-Defaulthoehe
+     zusammenfaellt. */
+  position: absolute;
   display: block;
   width: 100%;
   /* Der iframe ist um --chat-footer-crop höher als der sichtbare
@@ -695,8 +701,8 @@ button.node--center:focus-visible .node-label {
      per overflow:hidden geclippten Ausschnitt hinaus. */
   --chat-edge-bleed: 4px;
   width: calc(100% + 2 * var(--chat-edge-bleed));
-  margin-left: calc(-1 * var(--chat-edge-bleed));
-  margin-top: calc(-1 * var(--chat-edge-bleed));
+  left: calc(-1 * var(--chat-edge-bleed));
+  top: calc(-1 * var(--chat-edge-bleed));
   height: calc(100% + var(--chat-footer-crop) + 2 * var(--chat-edge-bleed));
   border: 0;
   /* Dunkler Grund statt Browser-Weiß, solange das iframe-Dokument noch
@@ -773,6 +779,46 @@ button.node--center:focus-visible .node-label {
   font-family: var(--font-mono);
   color: var(--dim);
   margin: 4px 0 0;
+}
+/* Kaltstart-Auffangnetz — erscheint erst, wenn der App-Container nach ~20s
+   noch nicht antwortet (Logik in window-manager.js buildChatWindow).
+   Bewusst nur am unteren Rand statt als Vollflächen-Overlay: kommt die App
+   doch noch hoch, ist sie darüber sofort sichtbar und benutzbar. */
+.chat-stall {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  padding: 15px 18px 17px;
+  background: var(--panel-deep);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -14px 28px rgba(0, 0, 0, .45);
+}
+.chat-stall[hidden] {
+  display: none;
+}
+.chat-stall-title {
+  margin: 0 0 5px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-bright);
+}
+.chat-stall-text {
+  margin: 0 0 11px;
+  font-family: var(--font-ui);
+  font-size: var(--fs-2xs);
+  line-height: 1.5;
+  color: var(--dim);
+}
+.chat-stall-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* Steht der Hinweis, wiederholt der Link in der Attribution-Zeile nur den
+   Primaerbutton direkt darueber — zwei identische CTAs uebereinander. Der
+   Hosting-Hinweis links bleibt, der Link verschwindet. */
+.win-body--chat:has(.chat-stall:not([hidden])) + .chat-attribution a {
+  visibility: hidden;
 }
 
 .win-title {
@@ -1302,6 +1348,15 @@ button.node--center:focus-visible .node-label {
   height: 100%;
   pointer-events: none;
 }
+/* Gesichts-Sternbild beim Hover über die Sonne (face-constellation.js) —
+   gleiches screen-space Overlay-Muster wie .constellation-canvas. */
+.face-constellation-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: no-preference) {
   .star-layer {
     /* 0.15s wie .graph-viewport — ungleiche Transition-Dauern ließen die
@@ -1730,6 +1785,31 @@ button.node--center:focus-visible .node-label {
     max-width: 92px;
     text-align: center;
     line-height: 1.25;
+  }
+  /* Der Chat-Body ist auf Desktop fix 480px hoch. Mobil deckelt .window
+     seine Gesamthoehe (max-height oben) — Titelleiste + 480px + Attribution
+     sprengen das, der Fensterboden rutscht unter den Bildschirmrand und
+     nimmt die Attribution samt der Auswege im Kaltstart-Hinweis mit.
+     Statt die Hoehe mit Magic Numbers nachzurechnen, darf der Body hier
+     im Flex-Layout des Fensters schrumpfen: er bekommt so eine definite
+     Hoehe aus dem max-height des Fensters, an der die Prozenthoehe von
+     .chat-frame weiterhin aufloest (der Kollaps-Fall im Kommentar an
+     .win-body--chat trat bei height:auto ohne flex-basis auf). */
+  /* Das Chat-Fenster nimmt mobil die volle erlaubte Hoehe statt sich nach
+     seinem Inhalt zu richten — sonst gaebe es im Fenster keinen freien
+     Platz, in den der Body unten hineinwachsen koennte, und der Chat
+     schrumpfte auf ein paar Dutzend Pixel. */
+  .window--chat {
+    height: calc(100% - var(--mobile-hud-clearance));
+  }
+  .win-body.win-body--chat {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+  /* Auf schmalen Schirmen frisst der Hinweis sonst den halben Chat. */
+  .chat-stall {
+    padding: 12px 14px 14px;
   }
   .tb-guide {
     display: none;

@@ -2,6 +2,7 @@ import { projects } from "../../data/projects.js";
 import { resume } from "../../data/resume.js";
 import { initBoot } from "./boot.js";
 import { initStarfield } from "./starfield.js";
+import { initFaceConstellation } from "./face-constellation.js";
 import { initScene } from "./scene.js";
 import { initWindowManager } from "./window-manager.js";
 import { initTaskbar } from "./taskbar.js";
@@ -21,6 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // initScene) to exist so the starfield zooms/pans together with the graph.
   initScene(document.querySelector("#scene"), projects);
   initStarfield(document.querySelector(".graph-viewport"));
+  // Nach initStarfield: das Gesichts-Sternbild-Canvas soll über dem
+  // Cursor-Konstellations-Canvas liegen (beide screen-space in #scene).
+  initFaceConstellation(document.querySelector("#scene"));
   initWindowManager(document.querySelector("#window-layer"), projects, resume);
   initTaskbar(document.querySelector("#taskbar"), projects);
   initMenubar(document.querySelector("#menubar"), resume);
