@@ -443,7 +443,7 @@ button.node--center:focus-visible .node-label {
   background-image: url("../img/planets/sun-center.png");
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 0 3px rgba(6, 4, 13, .92);
+  box-shadow: 0 0 0 2px rgba(6, 4, 13, .92);
 }
 
 .node--project .node-dot {
@@ -458,21 +458,21 @@ button.node--center:focus-visible .node-label {
   background-image: url("../img/planets/planet-amber.png");
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 0 2.5px rgba(6, 4, 13, .92);
+  box-shadow: 0 0 0 1.5px rgba(6, 4, 13, .92);
 }
 .node--project.node--color-teal .node-dot {
   background-color: var(--teal);
   background-image: url("../img/planets/planet-teal.png");
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 0 2.5px rgba(6, 4, 13, .92);
+  box-shadow: 0 0 0 1.5px rgba(6, 4, 13, .92);
 }
 .node--project.node--color-violet .node-dot {
   background-color: var(--violet);
   background-image: url("../img/planets/planet-violet.png");
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 0 2.5px rgba(6, 4, 13, .92);
+  box-shadow: 0 0 0 1.5px rgba(6, 4, 13, .92);
 }
 .node--project.node--idea .node-dot {
   width: 22px;
@@ -492,7 +492,7 @@ button.node--center:focus-visible .node-label {
   background-image: url("../img/planets/moon.png");
   background-size: cover;
   background-position: center;
-  box-shadow: 0 0 0 2px rgba(6, 4, 13, .92);
+  box-shadow: 0 0 0 1px rgba(6, 4, 13, .92);
 }
 
 .node--project.is-dimmed {
