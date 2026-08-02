@@ -1,0 +1,42 @@
+# Haelt die Free-Tier-Demos werktags wach.
+#
+# Warum: Streamlit Community Cloud und der Render-Free-Tier legen Apps nach
+# Inaktivitaet schlafen. Der erste Aufruf danach kostet einen Besucher bis zu
+# einer Minute Wartezeit, und genau diese Minute hat ein Recruiter nicht.
+#
+# Ehrliche Einschraenkung: Ein HTTP-GET weckt eine schlafende Streamlit-App
+# nicht garantiert auf (teils antwortet nur die Zwischenseite). Der Workflow
+# verhindert vor allem, dass die Apps waehrend der Kernzeit ueberhaupt erst
+# einschlafen. Ausserhalb des Zeitfensters bleibt ein Kaltstart moeglich,
+# deshalb steht der Hinweis weiterhin in READMEs und Demo-Fusszeilen.
+
+name: keep-warm
+
+on:
+  schedule:
+    # Alle 20 Minuten, werktags 06:00 bis 18:40 UTC (also etwa 08:00 bis 20:40
+    # deutscher Sommerzeit). Bewusst kein 24/7-Ping: das waere Verschwendung
+    # und wuerde die Free-Tier-Fairness strapazieren.
+    - cron: "*/20 6-18 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Demos anpingen
+        run: |
+          urls=(
+            "https://sql-copilot-portfolio.streamlit.app/"
+            "https://ai-act-validation-toolkit.streamlit.app/"
+            "https://cloud-native-pipeline.streamlit.app/"
+            "https://second-brain-projects.streamlit.app/"
+            "https://medical-coding-extractor.streamlit.app/"
+            "https://ai-analytics-portal-gray.vercel.app/"
+          )
+          # Der Job soll nicht rot werden, wenn eine Demo gerade nicht antwortet:
+          # das ist ein Hinweis, kein Fehler dieses Repos. Deshalb nur protokollieren.
+          for url in "${urls[@]}"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 45 -L "$url" || echo "000")
+            echo "$code  $url"
+          done
