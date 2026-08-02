@@ -132,16 +132,22 @@ export const projects = [
       "freie Generierung), danach auf schlicht zu wenige Gradientenschritte. Nach der " +
       "Korrektur schlägt das Finetune die RAG-Baseline auf F1 (0,59 vs. 0,48) und deutlich " +
       "auf Exact Match (0,38 vs. 0,07); die RAG-Baseline behält den höheren Recall. " +
-      "Trainingsdaten sind komplett synthetisch generiert, kein Abgleich mit realen " +
-      "Praxisfällen im großen Stil.",
+      "Ein dritter Ansatz — beide Pfade als Graph verdrahtet, mit deterministischem " +
+      "Verifier — wurde auf denselben 81 Testnotizen gemessen und verworfen: Die " +
+      "Merge-Regel reproduziert algebraisch exakt das Finetune; der echte Hebel wäre " +
+      "ein Checker-Knoten (Obergrenze 0,80 statt 0,38). Messung und Diagnose-Skript " +
+      "stehen im Repo. Trainingsdaten sind komplett synthetisch generiert, kein " +
+      "Abgleich mit realen Praxisfällen im großen Stil. Die Live-Demo zeigt die " +
+      "echten, vorberechneten Ausgaben aller 81 Testnotizen; nach längerer " +
+      "Inaktivität zahlt der erste Aufruf einen kurzen Kaltstart.",
     tags: ["PyTorch", "LoRA", "RAG", "Llama 3.2", "Python"],
     stats: [
       { value: "0,59", label: "F1 (RAG: 0,48)" },
       { value: "0,38", label: "Exact Match (RAG: 0,07)" }
     ],
-    demoUrl: null,
+    demoUrl: "https://medical-coding-extractor.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/medical-coding-extractor",
-    status: "coming-soon",
+    status: "live",
     cluster: "agentic-ai"
   },
   {
