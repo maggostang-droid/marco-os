@@ -135,9 +135,9 @@ font = "sans serif"
 Keine Google-Fonts einbinden (DSGVO, siehe Portfolio-Entscheidung). Streamlit bringt mit
 `sans serif` und `monospace` genug mit; Code-Blöcke werden ohnehin monospace gesetzt.
 
-**Ausnahme Ask-Marco Assistant:** Diese App ist im Portfolio in ein Terminal-Fenster
-eingebettet und behält deshalb `font = "monospace"`. Die Farben sind identisch zu den
-übrigen Demos.
+**Immer `font = "sans serif"`, auch bei terminalnahen Demos.** Mit `monospace` zeichnet
+Streamlit die Seitenüberschrift nicht: Der Platz bleibt reserviert, der Text fehlt. Der
+Terminal-Charakter entsteht ohnehin über die Kopfzeile und die Code-Blöcke.
 
 Für Nicht-Streamlit-Demos (React beim Review Risk Predictor, statisches HTML beim Interview
 Cockpit) gelten dieselben Farbtoken als CSS-Variablen, und derselbe Pflichtaufbau in der
