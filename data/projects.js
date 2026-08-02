@@ -132,11 +132,14 @@ export const projects = [
       "freie Generierung), danach auf schlicht zu wenige Gradientenschritte. Nach der " +
       "Korrektur schlägt das Finetune die RAG-Baseline auf F1 (0,59 vs. 0,48) und deutlich " +
       "auf Exact Match (0,38 vs. 0,07); die RAG-Baseline behält den höheren Recall. " +
-      "Ein dritter Ansatz — beide Pfade als Graph verdrahtet, mit deterministischem " +
-      "Verifier — wurde auf denselben 81 Testnotizen gemessen und verworfen: Die " +
-      "Merge-Regel reproduziert algebraisch exakt das Finetune; der echte Hebel wäre " +
-      "ein Checker-Knoten (Obergrenze 0,80 statt 0,38). Messung und Diagnose-Skript " +
-      "stehen im Repo. Trainingsdaten sind komplett synthetisch generiert, kein " +
+      "Ein dritter Ansatz verdrahtet beide Pfade als Graph — und zwar zweimal: Die " +
+      "erste Fassung mit Aggregator scheiterte messbar (die Merge-Regel reproduziert " +
+      "algebraisch exakt das Finetune, bei 95 % Prüfquote). Eine Obergrenzen-Rechnung " +
+      "zeigte, warum: Der Hebel liegt im Auswählen, nicht im Verrechnen. Die zweite " +
+      "Fassung mit Checker-Knoten schöpft 86 % dieses Spielraums aus und verschiebt " +
+      "das Problem vom Selektor zum Kandidatenpool. Messung, Diagnose-Skript und " +
+      "beide Fassungen stehen im Repo. " +
+      "Trainingsdaten sind komplett synthetisch generiert, kein " +
       "Abgleich mit realen Praxisfällen im großen Stil. Die Live-Demo zeigt die " +
       "echten, vorberechneten Ausgaben aller 81 Testnotizen; nach längerer " +
       "Inaktivität zahlt der erste Aufruf einen kurzen Kaltstart.",
