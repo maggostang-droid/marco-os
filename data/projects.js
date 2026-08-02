@@ -31,23 +31,30 @@ export const projects = [
   },
   {
     id: "ai-act-validation-toolkit",
-    title: "AI Risk Classifier",
+    title: "AI Act Evidence Toolkit",
     summary:
-      "Ordnet eine beschriebene KI-Anwendung automatisch einer EU-AI-Act-Risikoklasse zu " +
-      "und erklärt die Einstufung in normaler Sprache — inklusive fertiger " +
-      "Compliance-Checkliste für Hochrisiko-Fälle.",
+      "Stuft eine KI-Anwendung nach dem EU AI Act ein — und beantwortet die Frage, an " +
+      "der jedes andere Compliance-Tool aufhört: womit belegst du die daraus folgenden " +
+      "Pflichten technisch?",
     description:
-      "Ordnet einen beschriebenen KI-Use-Case per deterministischem Regelbaum einer " +
-      "EU-AI-Act-Risikoklasse (Annex III) zu — ein LLM formuliert nur die Begründung in " +
-      "Klartext, beeinflusst die Klassifizierung selbst aber nicht. Für den Automotive-" +
-      "Use-Case führt das Tool einen echten metamorphen Test (Temperatur-Monotonie-" +
-      "Relation) gegen ein simuliertes Komfortsystem aus, statt eine Testmethodik nur zu " +
-      "behaupten — eine anwendbare Miniatur-Version von Marcos Promotionsthema (Dr.-Ing., " +
+      "Ordnet einen KI-Use-Case per deterministischem Regelbaum einer EU-AI-Act-" +
+      "Risikoklasse (Annex III) zu — ein LLM formuliert nur die Begründung, beeinflusst " +
+      "die Einstufung selbst aber nicht. Aus der Klasse leitet das Tool die konkreten " +
+      "Artikelpflichten ab und führt für die technisch belegbaren einen metamorphen Test " +
+      "gegen drei simulierte Systeme aus: eine Namensinvarianz-Relation deckt " +
+      "beispielsweise auf, dass ein Bewerber-Scoring den Score senkt, sobald nur der " +
+      "Vorname getauscht wird (Art. 10, Bias-Prüfung). Absichtlich eingebaute Fehler " +
+      "lassen sich live injizieren, eine Kill-Matrix misst, wie viele davon die " +
+      "Relationsmenge tatsächlich fängt. Das generierte Governance-Artefakt hakt nur ab, " +
+      "was auch belegt wurde, und benennt die restlichen Pflichten offen als " +
+      "Prozesspflichten. Anwendbare Miniatur von Marcos Promotionsthema (Dr.-Ing., " +
       "KIT/ITIV: Validierung von KI-Systemen durch Verknüpfung von Szenarien und " +
-      "metamorphes Testen). Für Hochrisiko-Fälle generiert es zusätzlich ein Governance-" +
-      "Artefakt (Risk Assessment + Konformitätscheckliste nach Art. 9–15) als Markdown-" +
-      "Download.",
+      "metamorphes Testen).",
     tags: ["Python", "LangChain", "Streamlit", "pytest"],
+    stats: [
+      { value: "2/7", label: "Pflichten technisch belegt" },
+      { value: "11/14", label: "Mutanten getötet" }
+    ],
     demoUrl: "https://ai-act-validation-toolkit.streamlit.app/",
     repoUrl: "https://github.com/maggostang-droid/ai-risk-classifier",
     status: "live",
