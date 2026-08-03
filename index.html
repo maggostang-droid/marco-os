@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
 <meta charset="utf-8">
-<title>MARCO.OS v3 · Portfolio von Dr.-Ing. Marco Stang</title>
+<title>MARCO.OS · Portfolio von Dr.-Ing. Marco Stang</title>
 <link rel="icon" href="assets/img/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./assets/js/dc-support.js"></script>
@@ -403,7 +403,13 @@ class Component extends DCLogic {
       const map = { lebenslauf: D.RESUME_ID, "ask-marco": D.CHAT_ID, terminal: D.TERM_ID };
       if (h === "tour") this._pendingTour = true;
       else if (map[h]) this._pending = map[h];
-      else if (D.PROJECTS.some((p) => p.id === h)) this._pending = h;
+      // Der Mond fuehrt beim Klick immer in den Chat, nie ins Projektfenster.
+      // #second-brain muss dasselbe tun, sonst gaebe es einen Zustand, den man
+      // nur ueber die Adresszeile erreicht und ueber die Oberflaeche nie.
+      else {
+        const p = D.PROJECTS.find((x) => x.id === h);
+        if (p) this._pending = p.moon ? D.CHAT_ID : p.id;
+      }
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduced) { this.setState({ booting: false, bootStep: D.BOOT.length }); this.applyPending(); return; }
       this._boot = setInterval(() => {
@@ -599,6 +605,16 @@ class Component extends DCLogic {
       while (this._wheel <= -40) { this.zoomIn(); this._wheel += 40; }
       while (this._wheel >= 40) { this.zoomOut(); this._wheel -= 40; }
     }, { passive: false });
+    // Klick ins Leere schliesst das Fenster -- dasselbe Verhalten wie in
+    // scene.js der Legacy-Seite. Knoten und Links sind <button>/<a> im
+    // Inneren, die duerfen nicht mitschliessen, sonst waere jeder Klick auf
+    // einen Planeten sofort wieder ein Schliessen.
+    el.addEventListener("click", (e) => {
+      if (e.target.closest("button, a")) return;
+      if (!this.state.active) return;
+      this.stopTour();
+      this.close();
+    });
     requestAnimationFrame(this.measure);
   };
   // Zoom läuft NICHT über setState: jede Mausrad-Raste hätte sonst die ganze
