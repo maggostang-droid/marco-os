@@ -7,20 +7,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Since 2026-08-03 the served start page (`index.html`) is the **v3 redesign** —
 an externally authored drop-in that renders from `assets/js/dc-support.js`, a
 generated mini-React runtime marked "do not edit", driven by
-`assets/js/portfolio-data-v3.js` and `assets/js/sky-v3.js`. It is entirely
-self-contained: it reads *none* of `data/` and *none* of the `assets/js/*`
-modules described under "Architecture" below.
+`assets/js/portfolio-data-v3.js` and `assets/js/sky-v3.js`.
 
 The previous front end is untouched at **`index-legacy.html`** and still works
 at that URL. Everything in "Architecture" below describes *that* file, not the
 current start page. `npm test` also tests the legacy modules only — v3 has no
 test coverage.
 
-So: before editing, decide which of the two you mean. Content changes in
-`data/projects.js` do **not** show up on the live site anymore; v3 carries its
-own copy of the project data in `assets/js/portfolio-data-v3.js`. That
-duplication is deliberate for now — it keeps the swap revertible with a single
-`git revert` — but it means project edits have to be made twice.
+**`data/projects.js` is the single source of project data for both.** v3 reads
+it through `portfolio-data-v3.js`, which only re-maps `orbitsCenter` to its own
+field name `moon` and adds v3-specific presentation (cluster colors, planet
+images, boot lines, tour, terminal parser). Edit project copy in
+`data/projects.js` and it lands on the live page — its text and ordering are
+the v3 ones, so changing order moves planets on the live site.
+
+Still duplicated, not yet unified: the résumé (`data/resume.js` vs `RESUME` in
+`portfolio-data-v3.js`) and the tour/boot lines. Analytics is shared —
+v3 imports `assets/js/analytics.js` exactly like the legacy page, so visits and
+demo-start events are counted once, from one place.
+
+So: before editing, decide which of the two front ends you mean.
 
 ## What this is
 

@@ -222,7 +222,7 @@ button{font:inherit}
             </sc-if>
 
             <sc-if value="{{ hasDemo }}" hint-placeholder-val="{{ true }}">
-              <a href="{{ activeDemoRaw }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding:14px 16px;border-radius:13px;border:1px solid rgba(79,214,196,.3);background:rgba(79,214,196,.07);text-decoration:none;transition:.2s" style-hover="background:rgba(79,214,196,.13);border-color:rgba(79,214,196,.55)">
+              <a href="{{ activeDemoRaw }}" onClick="{{ trackDemo }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding:14px 16px;border-radius:13px;border:1px solid rgba(79,214,196,.3);background:rgba(79,214,196,.07);text-decoration:none;transition:.2s" style-hover="background:rgba(79,214,196,.13);border-color:rgba(79,214,196,.55)">
                 <span style="width:34px;height:34px;flex:none;border-radius:50%;border:1px solid rgba(79,214,196,.5);display:flex;align-items:center;justify-content:center;color:#4fd6c4;font-size:12px;box-shadow:0 0 22px rgba(79,214,196,.16)">▶</span>
                 <span style="display:flex;flex-direction:column;gap:4px">
                   <span style="font:600 13px/1 'Space Grotesk',sans-serif;color:#e7e4f5">Live-Demo öffnen</span>
@@ -338,18 +338,23 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    // Absolut aufloesen: der dc-Runtime wertet diesen Block im Kontext von
+    // assets/js/dc-support.js aus, ein relatives "./assets/js/..." wuerde
+    // sonst zu /assets/js/assets/js/... werden.
+    const modUrl = (n) => new URL("assets/js/" + n, document.baseURI).href;
     this.tick();
     this._clock = setInterval(() => this.tick(), 30000);
     this._tips = setInterval(() => this.setState((s) => ({ tipIndex: (s.tipIndex + 1) % 4 })), 6000);
-    // Besucherzahl vom öffentlichen GoatCounter-Endpoint (cookielos);
-    // Fehlerpfad bleibt still — dann zeigt die Taskbar schlicht nichts.
-    fetch("https://maggringer.goatcounter.com/counter/TOTAL.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        const digits = String(j?.count ?? "").replace(/\D/g, "");
-        if (digits && Number(digits) > 0) this.setState({ visitors: Number(digits).toLocaleString("de-DE") });
-      })
-      .catch(() => {});
+    // GoatCounter (cookielos) aus assets/js/analytics.js — demselben Modul, das
+    // index-legacy.html benutzt. initAnalytics() laedt das Zaehl-Script; ohne
+    // diesen Aufruf wuerde die Seite die Gesamtzahl zwar ANZEIGEN, aber selbst
+    // keinen einzigen Besuch mehr melden. Fehlerpfade bleiben still, dann zeigt
+    // die Taskbar schlicht keine Zahl.
+    import(modUrl("analytics.js")).then((a) => {
+      this._track = a.trackEvent;
+      a.initAnalytics();
+      a.fetchVisitorCount().then((v) => { if (v) this.setState({ visitors: v }); });
+    }).catch(() => {});
     this._onKey = (e) => {
       if (this.state.booting) { this.skip(); return; }
       if (e.key === "Escape") { this.stopTour(); this.close(); return; }
@@ -368,10 +373,6 @@ class Component extends DCLogic {
     window.addEventListener("resize", this.measure);
     this.measureLabels();
     this._mlTimer = setInterval(this.measureLabels, 250);
-    // Absolut aufloesen: der dc-Runtime wertet diesen Block im Kontext von
-    // assets/js/dc-support.js aus, ein relatives "./assets/js/..." wuerde
-    // sonst zu /assets/js/assets/js/... werden.
-    const modUrl = (n) => new URL("assets/js/" + n, document.baseURI).href;
     import(modUrl("portfolio-data-v3.js")).then((D) => {
       this.setState({ D });
       this.fetchActivity(D);
@@ -410,6 +411,12 @@ class Component extends DCLogic {
     this.setState({ bootFade: true, bootStep: (this.state.D?.BOOT.length ?? 16) });
     setTimeout(() => { this.setState({ booting: false }); this.applyPending(); }, 430);
   };
+  // this._track wird gesetzt, sobald analytics.js geladen ist — bis dahin und
+  // bei blockiertem Script bleibt der Aufruf folgenlos. Zaehlen ist
+  // nice-to-have und darf einen Demo-Klick niemals aufhalten.
+  trackDemo(id) {
+    if (id) { try { this._track?.(`demo-${id}`); } catch {} }
+  }
   fetchActivity(D) {
     D.PROJECTS.forEach((p) => {
       const m = /github\.com\/([^/]+\/[^/]+?)(?:\.git|\/)?$/.exec(p.repoUrl || "");
@@ -676,7 +683,10 @@ class Component extends DCLogic {
     this.setState((s) => ({ term: [...s.term, { text: `marco@portfolio:~$ ${value}`, kind: "cmd" }, ...lines] }));
     if (!action) return;
     if (action.type === "open") this.open(action.id);
-    else if (action.type === "url") window.open(action.url, "_blank", "noopener");
+    else if (action.type === "url") {
+      if (action.kind === "demo") this.trackDemo(action.id);
+      window.open(action.url, "_blank", "noopener");
+    }
     else if (action.type === "tour") this.startTour();
     else if (action.type === "exit") setTimeout(this.close, 350);
   };
@@ -895,6 +905,10 @@ class Component extends DCLogic {
       hasStats: !!(activeP && activeP.stats && !isChat),
       activeTags: isResume ? [] : activeP ? activeP.tags : [],
       activeDemoRaw: demoUrl || "", activeHost: demoUrl ? demoUrl.replace(/^https?:\/\//, "").split("/")[0] : "",
+      // Demo-Start als GoatCounter-Event, wie wireProjectWindowInteractions()
+      // in window-manager.js. Nur Marcos Dashboard, nichts davon wird auf der
+      // Seite angezeigt. Der Link oeffnet parallel ganz normal seinen Tab.
+      trackDemo: () => this.trackDemo(activeP ? activeP.id : null),
       activeRepo: activeP ? activeP.repoUrl : "",
       hasDemo: !!demoUrl,
       hasCommit: !!commit, commitText: commit || "",
