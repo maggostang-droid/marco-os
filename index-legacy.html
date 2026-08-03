@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KI- und Data-Projekte von Marco Stang — interaktiv erkunden in einem futuristischen Desktop-Interface.">
+  <title>MARCO.OS — KI-Portfolio von Marco Stang</title>
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <meta name="theme-color" content="#0a0716">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MARCO.OS — KI-Portfolio von Dr.-Ing. Marco Stang">
+  <meta property="og:description" content="KI- und Data-Projekte interaktiv erkunden — echte Live-Demos, ehrliche Metriken, präsentiert als futuristisches Desktop-Interface.">
+  <meta property="og:url" content="https://maggostang-droid.github.io/marco-os/">
+  <meta property="og:image" content="https://maggostang-droid.github.io/marco-os/assets/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- ?v= bei CSS/JS: Cache-Buster, damit Design-Updates nach einem Deploy
+       sofort auch auf Geräten mit gecachter Vorversion ankommen (GitHub
+       Pages cached 10 min, Handy-Browser oft länger). Bei größeren
+       visuellen Änderungen den Wert mit hochzählen. -->
+  <link rel="stylesheet" href="assets/css/style.css?v=19">
+</head>
+<body>
+  <noscript>Diese Seite benötigt JavaScript, um zu funktionieren.</noscript>
+  <header id="menubar" class="menubar"></header>
+  <main class="desktop">
+    <div id="boot-overlay" class="boot-overlay"></div>
+    <div id="scene" class="scene"></div>
+    <div id="hud" class="hud-layer"></div>
+    <div id="window-layer" class="window-layer"></div>
+  </main>
+  <footer id="taskbar" class="taskbar"></footer>
+  <script type="module" src="assets/js/main.js?v=19"></script>
+</body>
+</html>

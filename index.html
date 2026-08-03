@@ -1,37 +1,913 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="KI- und Data-Projekte von Marco Stang — interaktiv erkunden in einem futuristischen Desktop-Interface.">
-  <title>MARCO.OS — KI-Portfolio von Marco Stang</title>
-  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-  <meta name="theme-color" content="#0a0716">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="MARCO.OS — KI-Portfolio von Dr.-Ing. Marco Stang">
-  <meta property="og:description" content="KI- und Data-Projekte interaktiv erkunden — echte Live-Demos, ehrliche Metriken, präsentiert als futuristisches Desktop-Interface.">
-  <meta property="og:url" content="https://maggostang-droid.github.io/marco-os/">
-  <meta property="og:image" content="https://maggostang-droid.github.io/marco-os/assets/img/og-image.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="de_DE">
-  <meta name="twitter:card" content="summary_large_image">
-  <!-- ?v= bei CSS/JS: Cache-Buster, damit Design-Updates nach einem Deploy
-       sofort auch auf Geräten mit gecachter Vorversion ankommen (GitHub
-       Pages cached 10 min, Handy-Browser oft länger). Bei größeren
-       visuellen Änderungen den Wert mit hochzählen. -->
-  <link rel="stylesheet" href="assets/css/style.css?v=19">
+<meta charset="utf-8">
+<title>MARCO.OS v3 · Portfolio von Dr.-Ing. Marco Stang</title>
+<link rel="icon" href="assets/img/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./assets/js/dc-support.js"></script>
 </head>
 <body>
-  <noscript>Diese Seite benötigt JavaScript, um zu funktionieren.</noscript>
-  <header id="menubar" class="menubar"></header>
-  <main class="desktop">
-    <div id="boot-overlay" class="boot-overlay"></div>
-    <div id="scene" class="scene"></div>
-    <div id="hud" class="hud-layer"></div>
-    <div id="window-layer" class="window-layer"></div>
-  </main>
-  <footer id="taskbar" class="taskbar"></footer>
-  <script type="module" src="assets/js/main.js?v=19"></script>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="app">
+<style>
+@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/space-grotesk-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url("assets/fonts/space-grotesk-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/space-grotesk-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/space-grotesk-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url("assets/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2")}
+html,body{margin:0;padding:0;height:100%;background:#05040b;overflow:hidden}
+*{box-sizing:border-box}
+a{color:#4fd6c4;text-decoration:none}
+a:hover{color:#8ce8dc}
+button{font:inherit}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a2340;border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#4a4470;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+@supports (scrollbar-width: thin) and (not selector(::-webkit-scrollbar)){*{scrollbar-width:thin;scrollbar-color:#2a2340 transparent}}
+@keyframes floaty{from{transform:translateY(calc(var(--amp,6) * -1px))}to{transform:translateY(calc(var(--amp,6) * 1px))}}
+@keyframes dash{to{stroke-dashoffset:-320}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes panelIn{from{opacity:0;transform:translateX(28px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes tourIn{from{opacity:0;transform:translate(-50%,18px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.9;transform:scale(1.35)}}
+@keyframes sheen{from{transform:translateX(-120%)}to{transform:translateX(220%)}}
+</style>
+</helmet>
+<div style="position:relative;width:100%;height:100vh;overflow:hidden;background:#05040b;font-family:'Space Grotesk',system-ui,sans-serif;color:#e7e4f5">
+
+  <canvas ref="{{ setSky }}" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
+  <div style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);opacity:.5"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 240px 70px rgba(3,2,8,.8)"></div>
+
+  <header style="position:absolute;top:0;left:0;right:0;height:38px;display:flex;align-items:center;gap:16px;padding:0 16px;z-index:50;background:linear-gradient(to bottom, rgba(14,10,28,.9), rgba(12,9,24,.66));border-bottom:1px solid rgba(150,130,220,.16);backdrop-filter:blur(14px)">
+    <span style="font:600 12px/1 'JetBrains Mono',monospace;letter-spacing:.14em;color:#e9e5ff;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:#f2b45c;box-shadow:0 0 10px #f2b45c;display:inline-block"></span>MARCO.OS</span>
+    <nav style="display:flex;align-items:center;gap:2px">
+      <button type="button" onClick="{{ startTour }}" style="background:none;border:0;color:#f2b45c;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(242,180,92,.16)">▶ Tour</button>
+      <button type="button" onClick="{{ openResume }}" style="background:none;border:0;color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Lebenslauf</button>
+      <button type="button" onClick="{{ openChat }}" style="background:none;border:0;color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Ask-Marco</button>
+      <button type="button" onClick="{{ openTerminal }}" style="background:none;border:0;color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Terminal</button>
+      <a href="mailto:stang.marco@t-online.de" style="color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Kontakt</a>
+    </nav>
+    <span style="flex:1"></span>
+    <div style="display:flex;align-items:center;gap:0;padding:3px;border:1px solid rgba(150,130,220,.2);border-radius:8px;background:rgba(8,6,18,.6)">
+      <button type="button" onClick="{{ setOrbit }}" style="{{ tabOrbit }}">Orbit</button>
+      <button type="button" onClick="{{ setKarte }}" style="{{ tabKarte }}">Systemkarte</button>
+    </div>
+    <span style="display:flex;align-items:center;gap:7px;font:400 11px/1 'JetBrains Mono',monospace;color:#8a86a8"><span style="width:6px;height:6px;border-radius:50%;background:#4fd6c4;box-shadow:0 0 8px #4fd6c4;animation:pulse 2.6s ease-in-out infinite"></span>alle Systeme online</span>
+  </header>
+
+  <div ref="{{ setScene }}" style="position:absolute;top:38px;left:0;right:0;bottom:32px;overflow:hidden">
+    <div ref="{{ setStage }}" style="{{ sceneTransform }}">
+      <svg viewBox="{{ viewBox }}" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible">
+        <sc-for list="{{ rings }}" as="r" hint-placeholder-count="3">
+          <ellipse cx="{{ r.cx }}" cy="{{ r.cy }}" rx="{{ r.rx }}" ry="{{ r.ry }}" fill="none" stroke="{{ r.color }}" stroke-width="1" stroke-dasharray="2 9" opacity="{{ r.opacity }}"></ellipse>
+        </sc-for>
+        <sc-for list="{{ edges }}" as="e" hint-placeholder-count="8">
+          <path d="{{ e.d }}" fill="none" stroke="{{ e.color }}" stroke-width="1.1"></path>
+        </sc-for>
+        <sc-for list="{{ edges }}" as="e" hint-placeholder-count="8">
+          <path d="{{ e.d }}" fill="none" stroke="{{ e.flowColor }}" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="1 46" opacity="{{ e.flowOpacity }}" style="animation:dash 5.5s linear infinite;animation-delay:{{ e.delay }}"></path>
+        </sc-for>
+        <sc-for list="{{ leaders }}" as="ld" hint-placeholder-count="4">
+          <line x1="{{ ld.x1 }}" y1="{{ ld.y1 }}" x2="{{ ld.x2 }}" y2="{{ ld.y2 }}" stroke="{{ ld.color }}" stroke-width="1" stroke-linecap="round" opacity="0.75"></line>
+        </sc-for>
+      </svg>
+
+      <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="9">
+        <button type="button" onClick="{{ n.onClick }}" onMouseEnter="{{ n.onEnter }}" onMouseLeave="{{ n.onLeave }}" aria-label="{{ n.aria }}" style="position:absolute;left:{{ n.left }}px;top:{{ n.top }}px;transform:translate(-50%,-50%);background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:{{ n.dir }};align-items:center;gap:9px;opacity:{{ n.opacity }};transition:opacity .5s ease;z-index:{{ n.z }}">
+          <span style="--amp:{{ n.amp }};animation:floaty {{ n.dur }} ease-in-out infinite alternate;animation-delay:{{ n.delay }};display:block;position:relative">
+            <span data-leader="{{ n.ringColor }}" style="display:block;width:{{ n.size }}px;height:{{ n.size }}px;border-radius:50%;background:{{ n.fill }};box-shadow:{{ n.glow }};transition:transform .35s cubic-bezier(.34,1.4,.5,1), box-shadow .35s ease;transform:scale({{ n.scale }})"></span>
+            <span style="position:absolute;inset:-10px;border-radius:50%;border:1px solid {{ n.ringColor }};opacity:{{ n.ringOpacity }};transition:opacity .3s"></span>
+          </span>
+          <span style="font:{{ n.labelFont }};letter-spacing:.02em;color:{{ n.labelColor }};white-space:nowrap;padding:3px 8px;border-radius:7px;background:rgba(6,5,14,.62);border:1px solid {{ n.ringColor }};box-shadow:0 2px 14px rgba(3,2,10,.55);transform:translate({{ n.dx }}px,{{ n.dy }}px);transition:color .25s,background .25s">{{ n.title }}</span>
+        </button>
+      </sc-for>
+
+      <sc-if value="{{ tip }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:{{ tipLeft }}px;top:{{ tipTop }}px;transform:translate(-50%,0);width:250px;padding:12px 14px;border-radius:12px;background:rgba(12,9,26,.94);border:1px solid rgba(160,140,230,.28);box-shadow:0 22px 60px rgba(0,0,0,.7);backdrop-filter:blur(10px);pointer-events:none;z-index:30;animation:rise .22s ease both">
+          <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:{{ tipAccent }};margin-bottom:7px">{{ tipCluster }}</div>
+          <div style="font:400 12.5px/1.5 'Space Grotesk',sans-serif;color:#c9c5e8;text-wrap:pretty">{{ tipText }}</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div data-reserved="hud" style="position:absolute;top:22px;left:24px;pointer-events:none;opacity:{{ hudOpacity }};transition:opacity .9s ease .2s">
+      <div style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#6f6a92;margin-bottom:14px">// portfolio-system v3.0</div>
+      <div style="font:600 30px/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em;color:#f3f1ff">Dr.-Ing. Marco Stang</div>
+      <div style="font:400 15px/1.4 'Space Grotesk',sans-serif;color:#a9a3d2;margin-top:6px">KI-Spezialist &amp; Data Scientist</div>
+      <div style="display:flex;gap:16px;margin-top:18px;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92">
+        <span>{{ statProjects }}</span><span>{{ statDemos }}</span><span>10+ Jahre ML</span>
+      </div>
+    </div>
+
+    <div data-reserved="legend" style="position:absolute;bottom:20px;left:24px;display:flex;flex-direction:column;gap:9px;opacity:{{ hudOpacity }};transition:opacity .9s ease .4s;pointer-events:none">
+      <div style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#5e5a80">// orbits</div>
+      <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#f2b45c;box-shadow:0 0 10px rgba(242,180,92,.8)"></span>Agentic AI</div>
+      <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#4fd6c4;box-shadow:0 0 10px rgba(79,214,196,.8)"></span>Cloud &amp; Infrastruktur</div>
+      <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#b48cf5;box-shadow:0 0 10px rgba(180,140,245,.8)"></span>Full-Stack &amp; ML-Engineering</div>
+    </div>
+
+    <div style="position:absolute;bottom:22px;right:26px;opacity:{{ hintOpacity }};transition:opacity .6s;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92;display:flex;align-items:center;gap:9px;pointer-events:none">
+      <span style="width:16px;height:16px;border-radius:50%;border:1px solid #6f6a92;display:inline-flex;align-items:center;justify-content:center;font-size:9px">↖</span>Knoten anklicken, Mausrad zoomt, Sonne hovern
+    </div>
+  </div>
+
+  <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;bottom:56px;transform:translateX(-50%);z-index:55;width:min(620px,84vw);padding:18px 20px;border-radius:14px;background:rgba(13,10,28,.96);border:1px solid rgba(242,180,92,.3);box-shadow:0 30px 80px rgba(0,0,0,.65);backdrop-filter:blur(16px);animation:tourIn .35s cubic-bezier(.22,1,.3,1) both">
+      <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#f2b45c;margin-bottom:9px">{{ tourKicker }}</div>
+      <div style="font:400 14px/1.55 'Space Grotesk',sans-serif;color:#e0dcf5;text-wrap:pretty">{{ tourCaption }}</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:16px">
+        <div style="display:flex;gap:6px">
+          <sc-for list="{{ tourDots }}" as="d" hint-placeholder-count="4">
+            <span style="width:6px;height:6px;border-radius:50%;background:{{ d.color }};transition:.25s"></span>
+          </sc-for>
+        </div>
+        <span style="flex:1"></span>
+        <button type="button" onClick="{{ tourNext }}" style="padding:9px 16px;border-radius:8px;border:0;background:#f2b45c;color:#120d05;font:600 12px/1 'Space Grotesk',sans-serif;cursor:pointer;transition:.18s" style-hover="filter:brightness(1.1)">{{ tourNextLabel }}</button>
+        <button type="button" onClick="{{ tourStop }}" aria-label="Tour abbrechen" style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(160,140,230,.25);background:none;color:#a9a3d2;cursor:pointer;transition:.18s" style-hover="color:#fff;border-color:rgba(242,180,92,.5)">✕</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ active }}" hint-placeholder-val="{{ false }}">
+    <aside style="position:absolute;top:38px;right:0;bottom:32px;width:min(560px,46vw);z-index:45;display:flex;flex-direction:column;background:linear-gradient(160deg, rgba(18,13,36,.97), rgba(10,8,20,.97));border-left:1px solid rgba(160,140,230,.22);box-shadow:-40px 0 90px rgba(0,0,0,.6);backdrop-filter:blur(20px);animation:panelIn .38s cubic-bezier(.22,1,.3,1) both">
+      <div style="position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid rgba(160,140,230,.16);background:rgba(255,255,255,.02)">
+        <span style="display:flex;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:{{ activeAccent }}"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:rgba(160,140,230,.35)"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:rgba(160,140,230,.35)"></span>
+        </span>
+        <span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#8a86a8;letter-spacing:.06em">{{ activeFile }}</span>
+        <span style="flex:1"></span>
+        <button type="button" onClick="{{ close }}" aria-label="Fenster schließen" style="background:none;border:1px solid rgba(160,140,230,.22);color:#a9a3d2;width:26px;height:26px;border-radius:7px;cursor:pointer;line-height:1;transition:.18s" style-hover="background:rgba(242,180,92,.16);color:#fff;border-color:rgba(242,180,92,.5)">✕</button>
+        <span style="position:absolute;top:0;left:0;height:1px;width:40%;background:linear-gradient(90deg,transparent,{{ activeAccent }},transparent);animation:sheen 3.4s ease-in-out infinite"></span>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+        <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+            <div style="padding:16px 20px 14px;border-bottom:1px solid rgba(160,140,230,.14)">
+              <div style="font:500 11px/1 'JetBrains Mono',monospace;color:#4fd6c4;margin-bottom:9px">marco@portfolio:~$ connect second-brain --chat</div>
+              <div style="font:400 12.5px/1.5 'Space Grotesk',sans-serif;color:#8a86a8;text-wrap:pretty">Kennt alle Projekte dieses Portfolios. Der erste Start kann dauern, denn die App läuft auf Streamlit Community Cloud und wacht ggf. gerade auf.</div>
+            </div>
+            <div style="position:relative;flex:1;overflow:hidden;background:#0b0916">
+              <iframe ref="{{ setChatFrame }}" src="https://second-brain-projects.streamlit.app/?embed=true" title="Ask-Marco Chat" style="position:absolute;display:block;left:-4px;top:-4px;width:calc(100% + 8px);height:calc(100% + 54px);border:0;background:#0b0916;color-scheme:dark"></iframe>
+              <div style="position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:20px 22px;background:linear-gradient(180deg, rgba(15,12,28,.98), rgba(11,9,22,.98));pointer-events:none;opacity:{{ chatLoadingOpacity }};transition:opacity .5s ease">
+                <div style="font:500 11px/1.7 'JetBrains Mono',monospace;color:#4fd6c4">marco@portfolio:~$ connect second-brain --chat</div>
+                <div style="font:400 12.5px/1.7 'JetBrains Mono',monospace;color:#eae7fb">Verbinde mit second-brain<span style="color:#4fd6c4;margin-left:2px;animation:blink 1s steps(1) infinite">▮</span></div>
+                <div style="margin-top:4px;font:400 10.5px/1.6 'JetBrains Mono',monospace;color:#6f6a92">Der erste Start dauert einen Moment, die App wacht gerade auf.</div>
+              </div>
+              <sc-if value="{{ chatStalled }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 32px;text-align:center;background:rgba(8,6,18,.94);backdrop-filter:blur(6px)">
+                  <div style="font:600 16px/1.3 'Space Grotesk',sans-serif;color:#f6f4ff">Die Demo wacht gerade auf.</div>
+                  <div style="font:400 13px/1.6 'Space Grotesk',sans-serif;color:#8a86a8;max-width:380px;text-wrap:pretty">Sie läuft auf der Streamlit Community Cloud und wird nach längerer Pause eingefroren. Gib ihr bis zu eine Minute, dann ist sie da.</div>
+                  <div style="display:flex;gap:10px;margin-top:6px">
+                    <a href="https://second-brain-projects.streamlit.app/" target="_blank" style="padding:10px 16px;border-radius:9px;background:#4fd6c4;color:#06110f;font:600 12.5px/1 'Space Grotesk',sans-serif">In neuem Tab öffnen ↗</a>
+                    <button type="button" onClick="{{ reloadChat }}" style="padding:10px 16px;border-radius:9px;border:1px solid rgba(160,140,230,.28);background:none;color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;cursor:pointer">Neu laden</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid rgba(160,140,230,.14);font:400 10.5px/1 'JetBrains Mono',monospace;color:#6f6a92">
+              läuft auf Streamlit Community Cloud<span style="flex:1"></span>
+              <a href="https://second-brain-projects.streamlit.app/" target="_blank">Im eigenen Tab öffnen ↗</a>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTerminal }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ focusTerm }}" style="flex:1;display:flex;flex-direction:column;overflow:hidden;cursor:text;background:rgba(4,3,10,.5)">
+            <div style="flex:1;overflow-y:auto;padding:18px 20px;font:400 12.5px/1.7 'JetBrains Mono',monospace">
+              <sc-for list="{{ termLines }}" as="l" hint-placeholder-count="2">
+                <div style="white-space:pre-wrap;color:{{ l.color }}">{{ l.text }}</div>
+              </sc-for>
+            </div>
+            <form onSubmit="{{ termSubmit }}" style="display:flex;align-items:center;gap:9px;padding:12px 20px;border-top:1px solid rgba(160,140,230,.14)">
+              <span style="font:500 12.5px/1 'JetBrains Mono',monospace;color:#4fd6c4;white-space:nowrap">marco@portfolio:~$</span>
+              <input ref="{{ setTermInput }}" onKeyDown="{{ termKey }}" autoComplete="off" spellCheck="false" aria-label="Terminal-Eingabe" style="flex:1;background:none;border:0;outline:none;color:#e7e4f5;font:400 12.5px/1.5 'JetBrains Mono',monospace">
+            </form>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isDoc }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;overflow-y:auto;padding:26px 28px 30px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+              <span style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:{{ activeAccent }}">{{ activeCluster }}</span>
+              <span style="width:3px;height:3px;border-radius:50%;background:#4a4668"></span>
+              <span style="font:500 10px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f6a92">{{ activeStatus }}</span>
+              <sc-if value="{{ hasCommit }}" hint-placeholder-val="{{ false }}">
+                <span style="font:400 10px/1 'JetBrains Mono',monospace;color:#4fd6c4">● letzter Commit {{ commitText }}</span>
+              </sc-if>
+            </div>
+            <h2 style="margin:0 0 12px;font:600 30px/1.12 'Space Grotesk',sans-serif;letter-spacing:-.03em;color:#f6f4ff;text-wrap:pretty">{{ activeTitle }}</h2>
+            <p style="margin:0 0 22px;font:400 15.5px/1.55 'Space Grotesk',sans-serif;color:#c9c5e8;text-wrap:pretty">{{ activeSummary }}</p>
+
+            <sc-if value="{{ hasStats }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+                <sc-for list="{{ activeStats }}" as="s" hint-placeholder-count="3">
+                  <div style="flex:1 1 118px;padding:13px 14px;border-radius:11px;background:rgba(255,255,255,.035);border:1px solid rgba(160,140,230,.16)">
+                    <div style="font:700 21px/1 'JetBrains Mono',monospace;color:#f6f4ff;letter-spacing:-.02em">{{ s.value }}</div>
+                    <div style="margin-top:7px;font:400 10.5px/1.3 'Space Grotesk',sans-serif;color:#8a86a8">{{ s.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasDemo }}" hint-placeholder-val="{{ true }}">
+              <a href="{{ activeDemoRaw }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding:14px 16px;border-radius:13px;border:1px solid rgba(79,214,196,.3);background:rgba(79,214,196,.07);text-decoration:none;transition:.2s" style-hover="background:rgba(79,214,196,.13);border-color:rgba(79,214,196,.55)">
+                <span style="width:34px;height:34px;flex:none;border-radius:50%;border:1px solid rgba(79,214,196,.5);display:flex;align-items:center;justify-content:center;color:#4fd6c4;font-size:12px;box-shadow:0 0 22px rgba(79,214,196,.16)">▶</span>
+                <span style="display:flex;flex-direction:column;gap:4px">
+                  <span style="font:600 13px/1 'Space Grotesk',sans-serif;color:#e7e4f5">Live-Demo öffnen</span>
+                  <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#6f6a92">{{ activeHost }} · neuer Tab</span>
+                </span>
+                <span style="flex:1"></span>
+                <span style="color:#4fd6c4;font-size:14px">↗</span>
+              </a>
+            </sc-if>
+
+            <sc-if value="{{ isProject }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <button type="button" onClick="{{ toggleTech }}" style="background:none;border:0;padding:0 0 10px;cursor:pointer;font:500 12px/1 'JetBrains Mono',monospace;color:{{ activeAccent }}">{{ techLabel }}</button>
+                <p style="margin:0 0 22px;max-height:{{ techHeight }};overflow:hidden;opacity:{{ techOpacity }};transition:max-height .45s cubic-bezier(.22,1,.3,1), opacity .3s;font:400 13.5px/1.68 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">{{ activeDescription }}</p>
+              </div>
+            </sc-if>
+
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:26px">
+              <sc-for list="{{ activeTags }}" as="t" hint-placeholder-count="5">
+                <span style="padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(160,140,230,.14);font:400 11px/1.4 'JetBrains Mono',monospace;color:#a9a3d2">{{ t }}</span>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <sc-if value="{{ isProject }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ activeRepo }}" target="_blank" style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">Quellcode ↗</a>
+              </sc-if>
+              <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
+                <a href="mailto:stang.marco@t-online.de" style="padding:11px 18px;border-radius:9px;background:#b48cf5;color:#120d24;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:.2s" style-hover="filter:brightness(1.1);transform:translateY(-1px)">Kontakt aufnehmen</a>
+              </sc-if>
+              <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
+                <a href="https://www.linkedin.com/in/marco-stang" target="_blank" style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">LinkedIn ↗</a>
+              </sc-if>
+              <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
+                <a href="assets/docs/lebenslauf-marco-stang.pdf" download style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">Lebenslauf (PDF)</a>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:30px;padding-top:24px;border-top:1px solid rgba(160,140,230,.16)">
+                <div style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.18em;color:#5e5a80;margin-bottom:16px">// stationen</div>
+                <sc-for list="{{ stations }}" as="st" hint-placeholder-count="2">
+                  <div style="display:grid;grid-template-columns:104px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid rgba(160,140,230,.09)">
+                    <div style="font:400 11px/1.5 'JetBrains Mono',monospace;color:#6f6a92">{{ st.period }}</div>
+                    <div>
+                      <div style="font:600 14px/1.3 'Space Grotesk',sans-serif;color:#f3f1ff">{{ st.role }}</div>
+                      <div style="font:400 12.5px/1.4 'Space Grotesk',sans-serif;color:#8a86a8;margin-top:3px">{{ st.org }}</div>
+                      <div style="font:400 12.5px/1.6 'Space Grotesk',sans-serif;color:#a9a3d2;margin-top:8px;text-wrap:pretty">{{ st.detail }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+                <button type="button" onClick="{{ toggleHistory }}" style="background:none;border:0;padding:14px 0 6px;cursor:pointer;font:500 12px/1 'JetBrains Mono',monospace;color:#b48cf5">{{ historyLabel }}</button>
+                <div style="max-height:{{ historyHeight }};overflow:hidden;opacity:{{ historyOpacity }};transition:max-height .45s cubic-bezier(.22,1,.3,1), opacity .3s">
+                  <sc-for list="{{ extendedHistory }}" as="h" hint-placeholder-count="5">
+                    <div style="padding:7px 0;font:400 12.5px/1.6 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">› {{ h }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:20px">
+                  <sc-for list="{{ skills }}" as="sk" hint-placeholder-count="10">
+                    <span style="padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(160,140,230,.14);font:400 11px/1.4 'JetBrains Mono',monospace;color:#a9a3d2">{{ sk }}</span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+      </div>
+    </aside>
+  </sc-if>
+
+  <footer style="position:absolute;left:0;right:0;bottom:0;height:32px;z-index:50;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(to top, rgba(14,10,28,.92), rgba(12,9,24,.66));border-top:1px solid rgba(150,130,220,.16);font:400 11px/1 'JetBrains Mono',monospace;color:#8a86a8">
+    <span style="color:#c9c5e8">◆ MARCO.OS</span>
+    <span style="{{ taskChipStyle }}">{{ activeFile }}</span>
+    <span style="flex:1"></span>
+    <button type="button" onClick="{{ openChat }}" style="background:none;border:1px solid rgba(150,130,220,.2);border-radius:7px;color:#a9a3d2;font:400 11px/1 'JetBrains Mono',monospace;padding:6px 11px;cursor:pointer;transition:.18s" style-hover="border-color:rgba(79,214,196,.5);color:#4fd6c4">{{ guideTip }}</button>
+    <span style="{{ visitorStyle }}">◉ {{ visitors }} Besucher</span>
+    <div style="display:flex;gap:4px">
+      <button type="button" onClick="{{ zoomOut }}" aria-label="Rauszoomen" style="width:24px;height:22px;border-radius:6px;border:1px solid rgba(150,130,220,.2);background:none;color:#a9a3d2;cursor:pointer;line-height:1;transition:.18s" style-hover="border-color:rgba(180,140,245,.5);color:#fff">−</button>
+      <button type="button" onClick="{{ zoomIn }}" aria-label="Reinzoomen" style="width:24px;height:22px;border-radius:6px;border:1px solid rgba(150,130,220,.2);background:none;color:#a9a3d2;cursor:pointer;line-height:1;transition:.18s" style-hover="border-color:rgba(180,140,245,.5);color:#fff">+</button>
+    </div>
+    <span>{{ clock }}</span>
+  </footer>
+
+  <sc-if value="{{ booting }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ skipBoot }}" style="position:absolute;inset:0;z-index:60;background:#05040b;display:flex;flex-direction:column;justify-content:center;padding:0 12vw;cursor:pointer;font:400 13px/1.75 'JetBrains Mono',monospace;color:#4fd6c4;transition:opacity .5s ease;opacity:{{ bootOpacity }}">
+      <sc-for list="{{ bootLines }}" as="l" hint-placeholder-count="12">
+        <div style="white-space:pre;color:{{ l.color }};opacity:{{ l.opacity }};transition:opacity .25s">{{ l.text }}</div>
+      </sc-for>
+      <div style="margin-top:26px;font-size:11px;color:#5e5a80">▸ Klick oder Taste überspringt</div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:860}}">
+const TERM_COLOR = { cmd: "#e7e4f5", ok: "#4fd6c4", error: "#f2846c", muted: "#6f6a92" };
+const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; };
+const hashId = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000; return h; };
+function relDe(iso) {
+  const then = new Date(iso); if (isNaN(then.getTime())) return null;
+  const days = Math.floor((Date.now() - then) / 86400000);
+  if (days <= 0) return "heute"; if (days === 1) return "gestern";
+  if (days < 45) return `vor ${days} Tagen`;
+  return `vor ${Math.round(days / 30)} Monaten`;
+}
+
+class Component extends DCLogic {
+  state = {
+    D: null, booting: true, bootStep: 0, bootFade: false, active: null, hover: null,
+    variant: "orbit", w: 1280, h: 700, clock: "", zoom: 1, tech: false,
+    hist: false, tour: -1, term: [{ text: "MARCO.OS Terminal. Tippe 'help' und du siehst alle Befehle.", kind: "muted" }], gh: {},
+    tipIndex: 0, visitors: null, chatStalled: false
+  };
+
+  componentDidMount() {
+    this.tick();
+    this._clock = setInterval(() => this.tick(), 30000);
+    this._tips = setInterval(() => this.setState((s) => ({ tipIndex: (s.tipIndex + 1) % 4 })), 6000);
+    // Besucherzahl vom öffentlichen GoatCounter-Endpoint (cookielos);
+    // Fehlerpfad bleibt still — dann zeigt die Taskbar schlicht nichts.
+    fetch("https://maggringer.goatcounter.com/counter/TOTAL.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const digits = String(j?.count ?? "").replace(/\D/g, "");
+        if (digits && Number(digits) > 0) this.setState({ visitors: Number(digits).toLocaleString("de-DE") });
+      })
+      .catch(() => {});
+    this._onKey = (e) => {
+      if (this.state.booting) { this.skip(); return; }
+      if (e.key === "Escape") { this.stopTour(); this.close(); return; }
+      // Terminal-Shortcut wie in main.js: T (bzw. `), ohne Modifier und
+      // nur, wenn gerade kein Eingabefeld fokussiert ist.
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      if (e.key === "t" || e.key === "T" || e.key === "`") {
+        e.preventDefault();
+        this.stopTour();
+        this.open(this.state.D?.TERM_ID);
+      }
+    };
+    window.addEventListener("keydown", this._onKey);
+    window.addEventListener("resize", this.measure);
+    this.measureLabels();
+    this._mlTimer = setInterval(this.measureLabels, 250);
+    // Absolut aufloesen: der dc-Runtime wertet diesen Block im Kontext von
+    // assets/js/dc-support.js aus, ein relatives "./assets/js/..." wuerde
+    // sonst zu /assets/js/assets/js/... werden.
+    const modUrl = (n) => new URL("assets/js/" + n, document.baseURI).href;
+    import(modUrl("portfolio-data-v3.js")).then((D) => {
+      this.setState({ D });
+      this.fetchActivity(D);
+      const h = (window.location.hash || "").replace(/^#/, "");
+      const map = { lebenslauf: D.RESUME_ID, "ask-marco": D.CHAT_ID, terminal: D.TERM_ID };
+      if (h === "tour") this._pendingTour = true;
+      else if (map[h]) this._pending = map[h];
+      else if (D.PROJECTS.some((p) => p.id === h)) this._pending = h;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) { this.setState({ booting: false, bootStep: D.BOOT.length }); this.applyPending(); return; }
+      this._boot = setInterval(() => {
+        const next = this.state.bootStep + 1;
+        if (next >= D.BOOT.length) { clearInterval(this._boot); setTimeout(this.skip, 380); }
+        this.setState({ bootStep: next });
+      }, 82);
+    });
+    import(modUrl("sky-v3.js")).then((m) => { this._sky = m.createSky; this.mountSky(); });
+  }
+  componentWillUnmount() {
+    clearInterval(this._boot); clearInterval(this._clock); clearInterval(this._tips);
+    clearTimeout(this._tourTimer); clearTimeout(this._stallTimer);
+    this._dead = true; clearInterval(this._mlTimer);
+    window.removeEventListener("keydown", this._onKey);
+    window.removeEventListener("resize", this.measure);
+    this._ro?.disconnect();
+    this._stopSky?.();
+  }
+  tick() { this.setState({ clock: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) }); }
+  applyPending() {
+    if (this._pendingTour) { this._pendingTour = false; this.startTour(); return; }
+    if (this._pending) { const id = this._pending; this._pending = null; this.open(id); }
+  }
+  skip = () => {
+    if (!this.state.booting) return;
+    clearInterval(this._boot);
+    this.setState({ bootFade: true, bootStep: (this.state.D?.BOOT.length ?? 16) });
+    setTimeout(() => { this.setState({ booting: false }); this.applyPending(); }, 430);
+  };
+  fetchActivity(D) {
+    D.PROJECTS.forEach((p) => {
+      const m = /github\.com\/([^/]+\/[^/]+?)(?:\.git|\/)?$/.exec(p.repoUrl || "");
+      if (!m) return;
+      fetch(`https://api.github.com/repos/${m[1]}`, { headers: { Accept: "application/vnd.github+json" } })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => { if (j && j.pushed_at) this.setState((s) => ({ gh: { ...s.gh, [p.id]: j.pushed_at } })); })
+        .catch(() => {});
+    });
+  }
+  mountSky() {
+    if (!this._sky || !this._canvas || this._stopSky) return;
+    this._stopSky = this._sky(this._canvas, () => ({
+      zoom: this._zoom,
+      focused: !!this.state.active && this.state.active !== this.state.D?.TERM_ID,
+      booted: !this.state.booting,
+      windowOpen: !!this.state.active,
+      faceVisible: this.state.hover === "center" && !this.state.active && this._zoom <= 1.4
+    }));
+  }
+  setSky = (el) => { if (el && el !== this._canvas) { this._canvas = el; this.mountSky(); } };
+  measure = () => {
+    const el = this._scene; if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (Math.abs(r.width - this.state.w) > 2 || Math.abs(r.height - this.state.h) > 2) this.setState({ w: r.width, h: r.height });
+  };
+  setStage = (el) => { this._stage = el; };
+  // Führungslinien aus den ECHTEN Label-/Planeten-Rechtecken (getBoundingClientRect)
+  // statt aus geschätzten Textbreiten — Endpunkt exakt an der Chip-Kante.
+  // Bewusst per Intervall, NICHT per requestAnimationFrame: in einem nicht
+  // sichtbaren Iframe (Hintergrund-Tab, Screenshot-Pipeline) feuert rAF nie —
+  // Bühnengröße und Label-Versätze blieben dann auf den Startwerten stehen.
+  // Der Signatur-Check macht den Lauf billig.
+  measureLabels = () => {
+    try { this.measureLabelsBody(); } catch (e) { /* Layout-Messung darf nie die App kippen */ }
+  };
+  measureLabelsBody() {
+    // Bühnengröße in derselben Schleife nachmessen: im frisch geladenen
+    // Iframe hat der Container beim ersten Frame noch nicht seine endgültige
+    // Größe, und ohne späteren Resize blieben sonst die Startwerte stehen
+    // (Kanten/Labels rechneten dann gegen 1280×700).
+    this.measure();
+    // Fallback auf das erste Kind des Szenen-Containers: das ist die Bühne
+    // (Transform-Wrapper) — unabhängig davon, ob der ref-Callback gefeuert hat.
+    const stage = this._stage || this._scene?.firstElementChild || null;
+    if (!stage) return;
+    this._stage = stage;
+    // Bewusst OHNE hover: der gehoverte Planet skaliert auf 1.14, eine
+    // Neuberechnung würde die Labels beim Überfahren springen lassen.
+    // booting ist Teil der Signatur, damit nach dem Boot-Overlay einmal neu
+    // gemessen wird; gespeichert wird sie erst nach einem ERFOLGREICHEN
+    // Durchlauf (sonst bleibt ein Fehlversuch für immer „erledigt").
+    const sig = `${this.state.w}x${this.state.h}|${this.state.variant}|${this.state.active}|${!!this.state.D}|${this.state.booting}`;
+    if (sig === this._leaderSig) return;
+    {
+      const box = stage.getBoundingClientRect();
+      const scale = box.width / (stage.offsetWidth || box.width) || 1;
+      const to = (r) => ({
+        l: (r.left - box.left) / scale, t: (r.top - box.top) / scale,
+        w: r.width / scale, h: r.height / scale
+      });
+      // Gemessene Geometrie statt geschätzter Textbreiten.
+      const items = [];
+      stage.querySelectorAll("button[aria-label]").forEach((btn) => {
+        const dotEl = btn.querySelector(":scope > span > span");
+        const labEl = btn.querySelector(":scope > span:last-child");
+        if (!dotEl || !labEl) return;
+        const d = to(dotEl.getBoundingClientRect()), l = to(labEl.getBoundingClientRect());
+        items.push({
+          cx: d.l + d.w / 2, cy: d.t + d.h / 2, rad: d.w / 2,
+          lw: l.w, lh: l.h,
+          up: getComputedStyle(btn).flexDirection === "column-reverse",
+          color: dotEl.dataset.leader || "rgba(255,255,255,.4)"
+        });
+      });
+      if (!items.length || items.some((it) => !it.lw || !it.rad)) return;
+      this._leaderSig = sig;
+
+      const occupied = items.map((it) => ({ l: it.cx - it.rad - 4, r: it.cx + it.rad + 4, t: it.cy - it.rad - 4, b: it.cy + it.rad + 4 }));
+      // HUD und Orbit-Legende sind ebenfalls belegte Flächen.
+      document.querySelectorAll("[data-reserved]").forEach((el) => {
+        const r = to(el.getBoundingClientRect());
+        occupied.push({ l: r.l, r: r.l + r.w, t: r.t, b: r.t + r.h });
+      });
+      const stageW = stage.offsetWidth || box.width, stageH = stage.offsetHeight || box.height;
+      const hits = (b) => occupied.filter((p) => b.l < p.r + 8 && b.r > p.l - 8 && b.t < p.b + 8 && b.b > p.t - 8).length;
+      const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0], [0.72, 0.72], [-0.72, 0.72], [0.72, -0.72], [-0.72, -0.72]];
+      const offsets = [], leaderByIdx = new Map(), boxByIdx = new Map();
+      const cxAll = items[0].cx, cyAll = items[0].cy;
+      const order = items
+        .map((it, i) => ({ it, i, d: Math.hypot(it.cx - cxAll, it.cy - cyAll) }))
+        .sort((x, y) => x.d - y.d);
+      // Zwei Durchläufe: im zweiten kennt jedes Label die endgültigen
+      // Positionen aller anderen und kann noch ausweichen.
+      for (const pass of [0, 1]) {
+        for (const { it, i } of order) {
+          if (boxByIdx.has(i)) {
+            const at = occupied.indexOf(boxByIdx.get(i));
+            if (at >= 0) occupied.splice(at, 1);
+          }
+          const natY = it.up ? it.cy - it.rad - 9 - it.lh : it.cy + it.rad + 9;
+          const cands = [[it.cx, natY]];
+          // Das Zentrums-Label („Marco Stang") bleibt immer an der Sonne —
+          // es ist der Anker der ganzen Szene.
+          if (it !== items[0]) for (const gap of [10, 26]) {
+            for (const [gx, gy] of dirs) {
+              cands.push([
+                it.cx + gx * (it.rad + gap + (Math.abs(gx) > 0.3 ? it.lw / 2 : 0)),
+                it.cy + gy * (it.rad + gap + (Math.abs(gy) > 0.3 ? it.lh / 2 : 0)) - it.lh / 2
+              ]);
+            }
+          }
+          let best = null;
+          for (const [lx, ly] of cands) {
+            const bx = { l: lx - it.lw / 2, r: lx + it.lw / 2, t: ly, b: ly + it.lh };
+            const dist = (ox, oy) => Math.hypot(Math.max(bx.l - ox, 0, ox - bx.r), Math.max(bx.t - oy, 0, oy - bx.b));
+            const own = dist(it.cx, it.cy);
+            const other = Math.min(...items.filter((o) => o !== it).map((o) => dist(o.cx, o.cy)));
+            // Außerhalb der Bühne ist keine Option (Labels liefen in der
+            // Systemkarte sonst links/rechts aus dem Bild).
+            const out = bx.l < 8 || bx.r > stageW - 8 || bx.t < 6 || bx.b > stageH - 6 ? 1 : 0;
+            const score = out * 400 + hits(bx) * 100 + Math.max(0, own - other) * 6 + own * 0.2;
+            if (!best || score < best.score) best = { score, bx, lx, ly };
+            if (score < 1) break;
+          }
+          occupied.push(best.bx);
+          boxByIdx.set(i, best.bx);
+          offsets[i] = { dx: Math.round(best.lx - it.cx), dy: Math.round(best.ly - natY) };
+          const vx = best.lx - it.cx, vy = best.ly + it.lh / 2 - it.cy, len = Math.hypot(vx, vy) || 1;
+          const ux = vx / len, uy = vy / len;
+          const startR = it.rad + 3;
+          const tx = Math.abs(ux) > 1e-4 ? (it.lw / 2) / Math.abs(ux) : Infinity;
+          const ty = Math.abs(uy) > 1e-4 ? (it.lh / 2) / Math.abs(uy) : Infinity;
+          const endR = len - Math.min(tx, ty) - 4;
+          leaderByIdx.set(i, endR - startR >= 8
+            ? { x1: it.cx + ux * startR, y1: it.cy + uy * startR, x2: it.cx + ux * endR, y2: it.cy + uy * endR, color: it.color }
+            : null);
+        }
+      }
+      const leaders = [...leaderByIdx.values()].filter(Boolean);
+      const json = JSON.stringify({ offsets, leaders });
+      if (json !== this._leaderJson) { this._leaderJson = json; this.setState({ leaders, offsets }); }
+    }
+  };
+  setScene = (el) => {
+    if (!el || el === this._scene) return;
+    this._scene = el;
+    // ResizeObserver statt nur window.resize + einem rAF: im frisch
+    // geladenen Iframe hat der Container beim ersten Frame noch nicht seine
+    // endgültige Größe, und ohne späteren Resize blieben sonst die
+    // Startwerte (1280×700) stehen — Kanten und Labels saßen dann falsch.
+    this._ro = new ResizeObserver(() => this.measure());
+    this._ro.observe(el);
+    el.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      this._wheel = (this._wheel || 0) + e.deltaY;
+      while (this._wheel <= -40) { this.zoomIn(); this._wheel += 40; }
+      while (this._wheel >= 40) { this.zoomOut(); this._wheel -= 40; }
+    }, { passive: false });
+    requestAnimationFrame(this.measure);
+  };
+  // Zoom läuft NICHT über setState: jede Mausrad-Raste hätte sonst die ganze
+  // Szene neu gerendert (9 Knoten + Kanten + Ringe) — das war das Ruckeln.
+  // Der Transform wird direkt auf die Bühne geschrieben, React erfährt den
+  // Wert erst beim nächsten regulären Render (stageTransform liest _zoom).
+  _zoom = 1;
+  applyZoom() {
+    if (this._stage) this._stage.style.transform = this.stageTransform();
+    this._sky && null;
+  }
+  stageTransform() {
+    const D = this.state.D, act = this.state.active;
+    const focused = !!act && act !== D?.TERM_ID;
+    const shift = act && act !== D?.TERM_ID ? -Math.min(230, this.state.w * 0.16) : 0;
+    return `translateX(${shift}px) scale(${(focused ? this._zoom * 1.25 : this._zoom).toFixed(3)})`;
+  }
+  zoomIn = () => { this._zoom = Math.min(1.8, Math.round((this._zoom + 0.04) * 100) / 100); this.applyZoom(); };
+  zoomOut = () => { this._zoom = Math.max(0.6, Math.round((this._zoom - 0.04) * 100) / 100); this.applyZoom(); };
+
+  syncHash(id) {
+    const D = this.state.D; if (!D) return;
+    const map = { [D.RESUME_ID]: "lebenslauf", [D.CHAT_ID]: "ask-marco", [D.TERM_ID]: "terminal" };
+    const h = id ? (map[id] || id) : "";
+    try { history.replaceState(null, "", h ? `#${h}` : window.location.pathname + window.location.search); } catch (e) {}
+  }
+  open = (id) => {
+    this.setState({ active: id, tech: false, hist: false });
+    this.syncHash(id);
+    clearTimeout(this._stallTimer);
+    if (id === this.state.D?.CHAT_ID) {
+      // Kaltstart-Auffangnetz (wie window-manager.js): Streamlit Community
+      // Cloud friert Apps ein — meldet sich nach 20 s nichts, erklären wir
+      // das statt den Besucher raten zu lassen.
+      this.setState({ chatStalled: false });
+      this._stallTimer = setTimeout(() => {
+        if (this.state.active === this.state.D?.CHAT_ID && !this._chatLoaded) this.setState({ chatStalled: true });
+      }, 20000);
+    }
+  };
+  setChatFrame = (el) => {
+    if (!el || el === this._chatFrame) return;
+    this._chatFrame = el;
+    this._chatLoaded = false;
+    this.armChatLoading();
+    el.addEventListener("load", () => {
+      this._chatLoaded = true;
+      // Kurz nach dem load-Event ausblenden (nicht sofort): schläft die App,
+      // zeigt die geladene Seite einen „App aufwecken"-Button, den der
+      // Nutzer sehen muss.
+      clearTimeout(this._chatHide);
+      this._chatHide = setTimeout(() => this.setState({ chatLoading: false }), 2200);
+    });
+  };
+  // Fallback, falls load nie feuert (blockiertes Netz).
+  armChatLoading() {
+    this.setState({ chatLoading: true });
+    clearTimeout(this._chatHide);
+    this._chatHide = setTimeout(() => this.setState({ chatLoading: false }), 8000);
+  }
+  reloadChat = () => {
+    this.setState({ chatStalled: false });
+    this.armChatLoading();
+    if (this._chatFrame) this._chatFrame.src = this._chatFrame.src;
+  };
+  close = () => { this.setState({ active: null }); this.syncHash(null); };
+
+
+  startTour = () => { this.setState({ tour: -1 }); this.goTour(0); };
+  goTour = (i) => {
+    const D = this.state.D; if (!D) return;
+    clearTimeout(this._tourTimer);
+    if (i >= D.TOUR.length) { this.stopTour(); return; }
+    const step = D.TOUR[i];
+    this.setState({ tour: i });
+    this.open(step.id);
+    if (!step.last) this._tourTimer = setTimeout(() => this.goTour(i + 1), 9000);
+  };
+  stopTour = () => { clearTimeout(this._tourTimer); if (this.state.tour >= 0) this.setState({ tour: -1 }); };
+
+  setTermInput = (el) => { if (el && el !== this._term) { this._term = el; setTimeout(() => el.focus(), 60); } };
+  focusTerm = () => { if (!window.getSelection()?.toString()) this._term?.focus(); };
+  termKey = (e) => {
+    const D = this.state.D, el = this._term; if (!D) return;
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const { matches, replaceWith } = D.completeInput(el.value);
+      if (replaceWith) el.value = replaceWith;
+      else if (matches.length > 1) this.setState((s) => ({ term: [...s.term, { text: matches.join("   "), kind: "muted" }] }));
+    } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const h = this._hist || [];
+      if (this._hi === undefined) this._hi = h.length;
+      if (e.key === "ArrowUp" && this._hi > 0) { this._hi -= 1; el.value = h[this._hi]; }
+      else if (e.key === "ArrowDown") { if (this._hi < h.length - 1) { this._hi += 1; el.value = h[this._hi]; } else { this._hi = h.length; el.value = ""; } }
+    }
+  };
+  termSubmit = (e) => {
+    e.preventDefault();
+    const D = this.state.D, el = this._term, value = el.value;
+    el.value = "";
+    if (value.trim()) { this._hist = [...(this._hist || []), value]; this._hi = this._hist.length; }
+    const { lines, action } = D.executeCommand(value);
+    if (action && action.type === "clear") { this.setState({ term: [] }); return; }
+    this.setState((s) => ({ term: [...s.term, { text: `marco@portfolio:~$ ${value}`, kind: "cmd" }, ...lines] }));
+    if (!action) return;
+    if (action.type === "open") this.open(action.id);
+    else if (action.type === "url") window.open(action.url, "_blank", "noopener");
+    else if (action.type === "tour") this.startTour();
+    else if (action.type === "exit") setTimeout(this.close, 350);
+  };
+
+  layout(D) {
+    const { w, h, variant } = this.state;
+    const cx = w / 2, cy = h / 2;
+    const nodes = [], edges = [], rings = [];
+    const byCluster = {};
+    D.ORDER.forEach((c) => { byCluster[c] = D.PROJECTS.filter((p) => p.cluster === c && !p.moon); });
+    const moons = D.PROJECTS.filter((p) => p.moon);
+
+    if (variant === "karte") {
+      const colX = [0.40, 0.62, 0.84].map((f) => w * f);
+      nodes.push({ p: null, x: w * 0.17, y: cy });
+      D.ORDER.forEach((c, ci) => byCluster[c].forEach((p, i, list) => {
+        nodes.push({ p, x: colX[ci], y: cy + (i - (list.length - 1) / 2) * Math.min(126, (h - 170) / Math.max(list.length, 1)) });
+      }));
+      moons.forEach((p, i) => nodes.push({ p, x: w * 0.17 + 112, y: cy + 100 + i * 70, moon: true }));
+    } else if (variant === "nebula") {
+      const base = Math.min(w * 0.40, h * 0.62);
+      nodes.push({ p: null, x: cx, y: cy });
+      D.ORDER.forEach((c, ci) => byCluster[c].forEach((p, i, list) => {
+        const seed = hashId(p.id);
+        const a = (-90 + ci * 118) * Math.PI / 180 + ((i - (list.length - 1) / 2) / Math.max(list.length, 1.6)) * 1.5 + ((seed % 17) - 8) / 90;
+        const r = base * (0.52 + ((seed % 43) / 43) * 0.5);
+        nodes.push({ p, x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.78 });
+      }));
+      moons.forEach((p, i) => {
+        const a = (200 + i * 90) * Math.PI / 180;
+        nodes.push({ p, x: cx + Math.cos(a) * 134, y: cy + Math.sin(a) * 106, moon: true });
+      });
+    } else {
+      // Ringmitte leicht nach rechts/unten versetzt und Radius etwas kleiner:
+      // oben links sitzt das Identitäts-HUD, unten links die Orbit-Legende —
+      // beide Ecken bleiben so frei von Planeten und Labels.
+      // Schmale Viewports (Handy): HUD und Legende liegen dort ohnehin über
+      // die volle Breite, der seitliche Versatz entfällt. Ohne die kleineren
+      // Ränder würde maxRx unter 400 px Breite negativ — SVG-Ellipsen mit
+      // negativem rx/ry werden verworfen und alle Planeten fielen auf die Sonne.
+      const narrow = w < 760;
+      const ox = cx + (narrow ? 0 : 56), oy = cy + (narrow ? 34 : 14);
+      // Rundere Ellipsen (0.72 statt 0.6): sonst rücken Knoten auf der
+      // senkrechten Achse dichter an Marco als der Mond.
+      const asp = 0.72;
+      const padX = narrow ? 42 : 200, padY = narrow ? 168 : 104;
+      const maxRx = Math.max(88, Math.min(w / 2 - padX, (h / 2 - padY) / asp));
+      // Nur der Ask-Marco-Mond umkreist Marco eng; alle Cluster-Ringe liegen
+      // deutlich weiter draußen (innerster Ring ab 0.72 statt 0.54).
+      const mult = { "agentic-ai": 0.8, cloud: 0.9, "full-stack": 1 };
+      // Winkel so gewählt, dass kein Knoten in den oberen/unteren linken
+      // Quadranten (HUD/Legende) fällt: der äußerste Ring trifft links nur
+      // die Mittelhöhe (180°).
+      const off = { "agentic-ai": 22, cloud: 104, "full-stack": 300 };
+      nodes.push({ p: null, x: ox, y: oy });
+      D.ORDER.forEach((c) => {
+        const list = byCluster[c]; if (!list.length) return;
+        const rx = maxRx * mult[c], ry = rx * asp;
+        rings.push({ cx: ox, cy: oy, rx, ry, color: D.CLUSTERS[c].color, opacity: this.state.active ? 0.09 : 0.22 });
+        list.forEach((p, i) => {
+          const a = (2 * Math.PI * i) / list.length + (off[c] * Math.PI) / 180;
+          nodes.push({ p, x: ox + Math.cos(a) * rx, y: oy + Math.sin(a) * ry });
+        });
+      });
+      moons.forEach((p, i) => {
+        const a = (-18 + i * 120) * Math.PI / 180;
+        const mr = narrow ? 58 : 92;
+        nodes.push({ p, x: ox + Math.cos(a) * mr, y: oy + Math.sin(a) * mr * 0.78, moon: true });
+      });
+    }
+
+    const act = this.state.active;
+    const focusId = act === D.CHAT_ID ? "second-brain" : act === D.RESUME_ID ? "center" : act === D.TERM_ID ? null : act;
+    const center = nodes[0];
+    nodes.slice(1).forEach((n, i) => {
+      const color = n.p ? D.CLUSTERS[n.p.cluster].color : "#b48cf5";
+      let d;
+      if (variant === "karte") {
+        const mx = (center.x + n.x) / 2;
+        d = `M${center.x} ${center.y} C${mx} ${center.y} ${mx} ${n.y} ${n.x} ${n.y}`;
+      } else {
+        const qx = (center.x + n.x) / 2 + (n.y - center.y) * 0.09;
+        const qy = (center.y + n.y) / 2 - (n.x - center.x) * 0.09;
+        d = `M${center.x} ${center.y} Q${qx} ${qy} ${n.x} ${n.y}`;
+      }
+      const dim = focusId && focusId !== (n.p ? n.p.id : "center");
+      edges.push({ d, color: hexA(color, dim ? 0.07 : 0.2), flowColor: color, flowOpacity: dim ? 0 : 0.85, delay: `${(i * 0.62).toFixed(2)}s` });
+    });
+    return { nodes, edges, rings, focusId };
+  }
+
+  renderVals() {
+    const D = this.state.D;
+    const { w, h, active, hover, variant, booting, zoom, tour } = this.state;
+    const tabBase = "border:0;border-radius:6px;padding:6px 12px;font:500 11.5px/1 'Space Grotesk',sans-serif;cursor:pointer;transition:.2s;";
+    const tab = (k) => variant === k
+      ? tabBase + "background:rgba(180,140,245,.2);color:#f3f1ff;box-shadow:0 0 0 1px rgba(180,140,245,.35) inset"
+      : tabBase + "background:transparent;color:#8a86a8";
+    const base = {
+      setSky: this.setSky, setScene: this.setScene, setStage: this.setStage, viewBox: `0 0 ${Math.round(w)} ${Math.round(h)}`,
+      booting, bootOpacity: this.state.bootFade ? 0 : 1, skipBoot: this.skip, clock: this.state.clock,
+      tabOrbit: tab("orbit"), tabKarte: tab("karte"),
+      setOrbit: () => this.setState({ variant: "orbit" }), setKarte: () => this.setState({ variant: "karte" }),
+      setChatFrame: this.setChatFrame, reloadChat: this.reloadChat, chatStalled: this.state.chatStalled,
+      chatLoadingOpacity: this.state.chatLoading === false ? 0 : 1,
+      visitors: this.state.visitors || "",
+      visitorStyle: this.state.visitors ? "color:#6f6a92" : "display:none",
+      zoomIn: this.zoomIn, zoomOut: this.zoomOut, startTour: this.startTour
+    };
+    if (!D) return { ...base, nodes: [], edges: [], rings: [], bootLines: [], active: false, hudOpacity: 0, hintOpacity: 0, guideTip: "" };
+    // KI-Guide-Tipps aus taskbar.js — rotieren alle 6 s.
+    const TIPS = [
+      `KI-Guide: „Klick auf ${D.PROJECTS[0].id} und schau dir an, was dahintersteckt“`,
+      "KI-Guide: „Drück T und das Terminal ist da“",
+      "KI-Guide: „Tab und Enter bringen dich genauso weit wie die Maus“",
+      "KI-Guide: „Klick mich an, hinter mir läuft ein echter Chat“"
+    ];
+    base.guideTip = TIPS[this.state.tipIndex];
+
+    const { nodes, edges, rings, focusId } = this.layout(D);
+    const activeP = D.PROJECTS.find((p) => p.id === active) || (active === D.CHAT_ID ? D.PROJECTS.find((p) => p.moon) : null);
+    const isResume = active === D.RESUME_ID, isChat = active === D.CHAT_ID, isTerminal = active === D.TERM_ID;
+    const isProject = !!activeP && !isChat;
+
+    const nodeVals = nodes.map((n, i) => {
+      const p = n.p, isCenter = !p;
+      const nodeId = isCenter ? "center" : p.id;
+      const openId = isCenter ? D.RESUME_ID : p.moon ? D.CHAT_ID : p.id;
+      const color = isCenter ? "#f2b45c" : D.CLUSTERS[p.cluster].color;
+      const isActive = focusId === nodeId, dim = focusId && !isActive, hovered = hover === nodeId;
+      return {
+        left: Math.round(n.x), top: Math.round(n.y),
+        size: isCenter ? 78 : n.moon ? 30 : p.status === "live" ? 52 : 40,
+        title: isCenter ? "Marco Stang" : p.title,
+        aria: isCenter ? "Marco Stang, Lebenslauf öffnen" : `${p.title} öffnen`,
+        z: isCenter ? 12 : hovered ? 14 : 10,
+        // Label auf die zentrumsabgewandte Seite, wenn der Knoten oberhalb
+        // der Mitte sitzt (wie node--label-up in scene.js) — sonst liegt es
+        // auf der eigenen Kante bzw. auf der Sonne.
+        dir: !isCenter && n.y < h / 2 - 6 ? "column-reverse" : "column",
+        opacity: dim ? 0.3 : 1, scale: hovered || isActive ? 1.14 : 1,
+        amp: isCenter ? 4 : 7,
+        dur: `${(5.2 + (i % 5) * 0.8).toFixed(1)}s`,
+        delay: `${(-(i * 1.3) % 6).toFixed(1)}s`,
+        fill: `url(${isCenter ? "assets/img/planets/sun-center.png" : n.moon ? "assets/img/planets/moon.png" : D.PLANET_IMG[p.cluster]}) center/contain no-repeat`,
+        // Feiner heller Rand statt der dunklen Kante der Planeten-PNGs.
+        glow: isCenter
+          ? "0 0 0 1px rgba(255,246,228,.5), 0 0 70px rgba(242,180,92,.45), 0 0 150px rgba(242,180,92,.16)"
+          : `0 0 0 1px rgba(255,255,255,${hovered ? 0.62 : 0.4}), 0 0 ${hovered ? 40 : 22}px ${hexA(color, hovered ? 0.55 : 0.26)}`,
+        ringColor: hexA(color, 0.5), ringOpacity: hovered || isActive ? 1 : 0,
+        labelFont: isCenter ? "600 15px/1 'Space Grotesk',sans-serif" : n.moon ? "400 11px/1 'JetBrains Mono',monospace" : "500 12.5px/1 'Space Grotesk',sans-serif",
+        labelColor: isCenter || hovered || isActive ? "#f6f4ff" : "#a9a3d2",
+        onClick: () => { this.stopTour(); this.open(openId); },
+        onEnter: () => this.setState({ hover: nodeId }),
+        onLeave: () => this.setState({ hover: null })
+      };
+    });
+
+    // Label-Kollisionen auflösen: geschätzte Label-Rechtecke, Konflikte
+    // werden vom Zentrum weg verschoben (Reihenfolge: zentrumsnah zuerst).
+    // Versätze kommen aus componentDidUpdate (gemessene Rechtecke).
+    nodeVals.forEach((n, i) => {
+      const o = (this.state.offsets || [])[i];
+      n.dx = o ? o.dx : 0;
+      n.dy = o ? o.dy : 0;
+    });
+    const hoverNode = nodes.find((n) => (n.p ? n.p.id : "center") === hover);
+    const hoverP = hoverNode && hoverNode.p;
+    const demoUrl = isChat ? null : activeP ? activeP.demoUrl : null;
+    const commit = activeP && this.state.gh[activeP.id] ? relDe(this.state.gh[activeP.id]) : null;
+    const accent = isResume ? "#b48cf5" : activeP ? D.CLUSTERS[activeP.cluster].color : "#4fd6c4";
+
+    return {
+      ...base, nodes: nodeVals, edges, rings,
+      leaders: this.state.leaders || [],
+      sceneTransform: `position:absolute;inset:0;will-change:transform;transition:transform .16s ease-out;transform:${this.stageTransform()}`,
+      hudOpacity: booting ? 0 : active ? 0.22 : 1,
+      hintOpacity: booting || active || hover ? 0 : 0.9,
+      statProjects: `${D.PROJECTS.length} Projekte`,
+      statDemos: `${D.PROJECTS.filter((p) => p.demoUrl).length} Live-Demos`,
+      bootLines: D.BOOT.map((l, i) => ({ text: l.text || " ", color: l.c, opacity: i <= this.state.bootStep ? 1 : 0 })),
+
+      tip: !!hoverP && !active,
+      tipLeft: hoverNode ? Math.round(Math.max(140, Math.min(w - 140, hoverNode.x))) : 0,
+      tipTop: hoverNode ? Math.round(hoverNode.y + 58) : 0,
+      tipText: hoverP ? hoverP.summary : "",
+      tipCluster: hoverP ? D.CLUSTERS[hoverP.cluster].label : "",
+      tipAccent: hoverP ? D.CLUSTERS[hoverP.cluster].color : "#b48cf5",
+
+      openResume: () => { this.stopTour(); this.open(D.RESUME_ID); },
+      openChat: () => { this.stopTour(); this.open(D.CHAT_ID); },
+      openTerminal: () => { this.stopTour(); this.open(D.TERM_ID); },
+      close: this.close,
+
+      tourOn: tour >= 0,
+      tourKicker: tour >= 0 ? D.TOUR[tour].kicker : "",
+      tourCaption: tour >= 0 ? D.TOUR[tour].caption : "",
+      tourDots: D.TOUR.map((_, i) => ({ color: i === tour ? "#f2b45c" : "rgba(160,140,230,.3)" })),
+      tourNextLabel: tour >= 0 && D.TOUR[tour].last ? "Tour beenden ✓" : "Weiter →",
+      tourNext: () => (tour >= 0 && D.TOUR[tour].last ? this.stopTour() : this.goTour(tour + 1)),
+      tourStop: this.stopTour,
+
+      active: !!active, isChat, isTerminal, isResume, isProject, isDoc: isProject || isResume,
+      termLines: this.state.term.map((l) => ({ text: l.text || " ", color: TERM_COLOR[l.kind] || "#a9a3d2" })),
+      setTermInput: this.setTermInput, termSubmit: this.termSubmit, termKey: this.termKey, focusTerm: this.focusTerm,
+
+      activeFile: isResume ? "lebenslauf.exe" : isChat ? "second-brain.exe" : isTerminal ? "marco-sh · Terminal" : activeP ? `${activeP.id}.exe` : "",
+      taskChipStyle: active ? "padding:5px 10px;border-radius:6px;background:rgba(180,140,245,.16);color:#e7e4f5;border:1px solid rgba(180,140,245,.28)" : "display:none",
+      activeAccent: accent,
+      activeTitle: isResume ? D.RESUME.name : activeP ? activeP.title : "",
+      activeSummary: isResume ? D.RESUME.intro : activeP ? activeP.summary : "",
+      activeDescription: activeP ? activeP.description : "",
+      activeCluster: isResume ? "Lebenslauf" : activeP ? D.CLUSTERS[activeP.cluster].label : "",
+      activeStatus: isResume ? "PDF verfügbar" : activeP ? (activeP.status === "live" ? "● live deployed" : "○ kein Demo") : "",
+      activeStats: activeP && activeP.stats ? activeP.stats : [],
+      hasStats: !!(activeP && activeP.stats && !isChat),
+      activeTags: isResume ? [] : activeP ? activeP.tags : [],
+      activeDemoRaw: demoUrl || "", activeHost: demoUrl ? demoUrl.replace(/^https?:\/\//, "").split("/")[0] : "",
+      activeRepo: activeP ? activeP.repoUrl : "",
+      hasDemo: !!demoUrl,
+      hasCommit: !!commit, commitText: commit || "",
+      techLabel: this.state.tech ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen",
+      techHeight: this.state.tech ? "600px" : "0px", techOpacity: this.state.tech ? 1 : 0,
+      toggleTech: () => this.setState((s) => ({ tech: !s.tech })),
+      historyLabel: this.state.hist ? "▾ Vollständigen Werdegang verbergen" : "▸ Vollständigen Werdegang anzeigen",
+      historyHeight: this.state.hist ? "400px" : "0px", historyOpacity: this.state.hist ? 1 : 0,
+      toggleHistory: () => this.setState((s) => ({ hist: !s.hist })),
+      stations: D.RESUME.stations, extendedHistory: D.RESUME.extendedHistory, skills: D.RESUME.skills
+    };
+  }
+}
+</script>
 </body>
 </html>

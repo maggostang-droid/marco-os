@@ -7,6 +7,10 @@ das unverändert bestehen bleibt.
 
 Live: https://maggostang-droid.github.io/marco-os/
 
+Seit dem 03.08.2026 zeigt die Startseite das v3-Redesign. Die vorherige
+Fassung liegt unverändert daneben unter
+[`/index-legacy.html`](https://maggostang-droid.github.io/marco-os/index-legacy.html).
+
 ## Lokal ausprobieren
 
 Kein Build-Schritt, aber ein einfacher lokaler HTTP-Server ist nötig —

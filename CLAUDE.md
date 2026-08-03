@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Read this first: two front ends live in this repo
+
+Since 2026-08-03 the served start page (`index.html`) is the **v3 redesign** —
+an externally authored drop-in that renders from `assets/js/dc-support.js`, a
+generated mini-React runtime marked "do not edit", driven by
+`assets/js/portfolio-data-v3.js` and `assets/js/sky-v3.js`. It is entirely
+self-contained: it reads *none* of `data/` and *none* of the `assets/js/*`
+modules described under "Architecture" below.
+
+The previous front end is untouched at **`index-legacy.html`** and still works
+at that URL. Everything in "Architecture" below describes *that* file, not the
+current start page. `npm test` also tests the legacy modules only — v3 has no
+test coverage.
+
+So: before editing, decide which of the two you mean. Content changes in
+`data/projects.js` do **not** show up on the live site anymore; v3 carries its
+own copy of the project data in `assets/js/portfolio-data-v3.js`. That
+duplication is deliberate for now — it keeps the swap revertible with a single
+`git revert` — but it means project edits have to be made twice.
+
 ## What this is
 
 A portfolio site for Marco Stang, presented as a fictional operating system
@@ -120,8 +140,9 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   zoom buttons, rotating static "AI guide" tips (no real LLM behind it).
 - `assets/js/focus-target.js` / `assets/js/html-utils.js` — small pure
   helpers (focus-restore decision logic, `escapeHtml`), unit-tested.
-- `index.html` — containers: `#boot-overlay`, `#scene`, `#window-layer`,
-  `#taskbar`.
+- `index-legacy.html` — containers: `#boot-overlay`, `#scene`, `#window-layer`,
+  `#taskbar`. (This was `index.html` until the v3 swap on 2026-08-03; the
+  current `index.html` is the v3 redesign and shares none of the above.)
 
 ## Working style notes for this repo
 
