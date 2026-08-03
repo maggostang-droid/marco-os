@@ -1,10 +1,16 @@
+// Einzige Quelle des Lebenslaufs für BEIDE Frontends:
+//  - index.html (v3, live) über assets/js/portfolio-data-v3.js, das die
+//    currentStations-Bullets zu einer detail-Zeile zusammenzieht
+//  - index-legacy.html über assets/js/window-manager.js
+// Der Text entspricht dem v3-Stand, weil der live ist.
 export const resume = {
   name: "Dr.-Ing. Marco Stang",
   headline: "KI-Spezialist & Data Scientist",
   intro:
-    "Dr.-Ing. mit über 10 Jahren Erfahrung in Entwicklung, Validierung und " +
-    "Operationalisierung von KI- und Data-Science-Lösungen. Fokus auf Machine " +
-    "Learning, Deep Learning und generative KI.",
+    "Seit über 10 Jahren baue ich KI- und Data-Science-Lösungen, die nicht nur " +
+    "im Notebook funktionieren, sondern validiert in den Betrieb gehen. Zuhause " +
+    "bin ich in Machine Learning, Deep Learning und generativer KI, promoviert " +
+    "habe ich genau zu der Frage, wie man KI-Systeme belastbar prüft.",
   currentStations: [
     {
       role: "Solution Architect",
@@ -44,9 +50,9 @@ export const resume = {
     "Projektleitung"
   ],
   extendedHistory: [
-    "Data-Scientist FZI, Future Bus mit Daimler Trucks (09.2015–12.2016)",
+    "Data Scientist FZI, Future Bus mit Daimler Trucks (09.2015–12.2016)",
     "Lehre: AMALEA-Kursentwicklung, Übungsleiter Software Engineering",
-    "Studium: M.Sc. Elektro-/Informationstechnik KIT (Note 1.7), Auslandspraktikum INIT AG (USA)",
+    "Studium: M.Sc. Elektro-/Informationstechnik KIT (Note 1,7), Auslandspraktikum INIT AG (USA)",
     "Sprachen: Deutsch (Muttersprache), Englisch (verhandlungssicher)",
     "Referenz: auf Anfrage"
   ],

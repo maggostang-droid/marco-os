@@ -1,41 +1,15 @@
 import { completeBoot } from "./state.js";
+import { bootLogo, bootInfoLines, bootStatusLines, bootPromptLine, countDemos } from "../../data/boot.js";
 
 // ASCII-Logo + Neofetch-artiger Systeminfo-Block (siehe docs/superpowers/
-// specs/2026-07-30-wow-features-design.md). Beides sind reale Fakten in
-// Systeminfo-Verkleidung — keine erfundenen Zahlen. Logo/Info-Zeilen
-// erscheinen zeilenweise "instant" (kein Typewriter pro Zeichen), damit die
-// Boot-Dauer trotz der zusätzlichen Zeilen nicht wächst.
-// Achtung: jede Zeile endet mit einem Leerzeichen — eine ASCII-Zeile, die
-// mit Backslash endet, würde sonst den schließenden Backtick escapen
-// (String.raw ändert nur die Ausgabe, nicht das Parsing).
-const LOGO_LINES = [
-  String.raw` __  __   _   ___  ___ ___     ___  ___  `,
-  String.raw`|  \/  | /_\ | _ \/ __/ _ \   / _ \/ __| `,
-  String.raw`| |\/| |/ _ \|   / (_| (_) | | (_) \__ \ `,
-  String.raw`|_|  |_/_/ \_\_|_\\___\___/ (_)___/|___/ `
-];
-
-function buildInfoLines(projects) {
-  const liveCount = projects.filter((p) => p.status === "live").length;
-  return [
-    "",
-    "marco@portfolio",
-    "———————————————",
-    "OS:      MARCO.OS v2.0",
-    "Kernel:  Dr.-Ing. (KIT / ITIV)",
-    "Uptime:  10+ Jahre ML & Data Science",
-    "Shell:   marco-sh (KI-gestützt)",
-    `Pakete:  ${projects.length} Projekte · ${liveCount} Live-Demos`,
-    ""
-  ];
-}
-
-const GENERIC_LINES = [
-  "[ OK ] neural-link.service gestartet",
-  "[ OK ] netzwerk-graph geladen"
-];
-
-const PROMPT_LINE = "[ .. ] warte auf Nutzereingabe_";
+// specs/2026-07-30-wow-features-design.md). Der Text liegt in data/boot.js,
+// weil das v3-Frontend denselben Boot fährt; hier steht nur noch, WIE die
+// Zeilen gerendert werden. Logo/Info erscheinen zeilenweise "instant" (kein
+// Typewriter pro Zeichen), damit die Boot-Dauer nicht wächst.
+//
+// Nebenbei behoben durch die Zusammenlegung: die frühere Fassung dieses
+// Files hatte in der vierten Logo-Zeile einen Backslash zu viel, wodurch das
+// ASCII-Logo ab dort um ein Zeichen verschoben war.
 
 // Timing gestrafft (Feedback: Boot dauerte ~5,5s — zu lang für Recruiter).
 // Statt einer [ OK ]-Zeile pro Projekt gibt es eine Sammelzeile; zusammen
@@ -50,12 +24,11 @@ const FINISH_PAUSE_MS = 300;
 // Zeilen sind {text, className?, instant?} — Logo/Info rendern instant
 // (eine Zeile pro Tick), die [ OK ]-Zeilen behalten den Typewriter.
 function buildBootLines(projects) {
-  const logo = LOGO_LINES.map((text) => ({ text, className: "boot-line boot-line--logo", instant: true }));
-  const info = buildInfoLines(projects).map((text) => ({ text, className: "boot-line boot-line--info", instant: true }));
-  const liveCount = projects.filter((p) => p.status === "live").length;
-  const projectSummary = { text: `[ OK ] ${projects.length} Projekte geladen · ${liveCount} Live-Demos bereit` };
-  const generic = GENERIC_LINES.map((text) => ({ text }));
-  return [...logo, ...info, ...generic, projectSummary, { text: PROMPT_LINE }];
+  const logo = bootLogo.map((text) => ({ text, className: "boot-line boot-line--logo", instant: true }));
+  const info = bootInfoLines(projects).map((text) => ({ text, className: "boot-line boot-line--info", instant: true }));
+  const projectSummary = { text: `[ OK ] ${projects.length} Projekte geladen · ${countDemos(projects)} Live-Demos bereit` };
+  const generic = bootStatusLines.map((text) => ({ text }));
+  return [...logo, ...info, ...generic, projectSummary, { text: bootPromptLine }];
 }
 
 export function initBoot(overlay, projects) {

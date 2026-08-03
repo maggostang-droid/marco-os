@@ -1,37 +1,11 @@
 import { subscribe, state, focusProject, RESUME_ID } from "./state.js";
 import { escapeHtml } from "./html-utils.js";
+import { tourWithResumeId } from "../../data/tour.js";
 
-// Geführte Tour (Paket 2, Spec 2026-07-30-wow-features-design.md): fliegt
-// drei kuratierte Projekte an — eines pro Cluster, alle mit Live-Demo bzw.
-// echter Metrik — und endet im Lebenslauf mit Kontakt-CTA. Die Captions
-// nennen ausschließlich reale, nachprüfbare Fakten.
-const TOUR_STEPS = [
-  {
-    id: "sql-agent",
-    kicker: "Station 1/4 · Agentic AI",
-    caption:
-      "SQL Copilot: Text-to-SQL-Agent mit Guardrails und Selbstkorrektur-Loop — ehrlich evaluiert (8/15 Referenzfragen korrekt) und live ausprobierbar."
-  },
-  {
-    id: "cloud-native-pipeline",
-    kicker: "Station 2/4 · Cloud",
-    caption:
-      "Document Auto-Classifier: Upload → Klassifikation + Feldextraktion, komplett serverlos auf AWS (S3 → Lambda → Claude → DynamoDB), per Terraform deployt."
-  },
-  {
-    id: "hr-interview-cockpit",
-    kicker: "Station 3/4 · Full-Stack",
-    caption:
-      "Interview Cockpit: strukturierte Bewerbungsgespräche mit Live-Bewertung und Radar-Chart-Auswertung — läuft ohne Backend direkt im Browser."
-  },
-  {
-    id: RESUME_ID,
-    kicker: "Station 4/4 · Der Mensch dahinter",
-    caption:
-      "Dr.-Ing. Marco Stang — 10+ Jahre ML & Data Science, Promotion zu KI-Validierung (KIT). Überzeugt? Der Kontakt-Button ist gleich hier im Fenster.",
-    last: true
-  }
-];
+// Geführte Tour (Paket 2, Spec 2026-07-30-wow-features-design.md). Die
+// Schrittliste liegt in data/tour.js, weil das v3-Frontend dieselbe Tour
+// fährt; hier wird nur der lokale RESUME_ID-Sentinel eingesetzt.
+const TOUR_STEPS = tourWithResumeId(RESUME_ID);
 
 const STEP_MS = 9000;
 

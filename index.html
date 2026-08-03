@@ -306,10 +306,10 @@ button{font:inherit}
                 <a href="mailto:stang.marco@t-online.de" style="padding:11px 18px;border-radius:9px;background:#b48cf5;color:#120d24;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:.2s" style-hover="filter:brightness(1.1);transform:translateY(-1px)">Kontakt aufnehmen</a>
               </sc-if>
               <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
-                <a href="https://www.linkedin.com/in/marco-stang" target="_blank" style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">LinkedIn ↗</a>
+                <a href="{{ resumeLinkedIn }}" target="_blank" style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">LinkedIn ↗</a>
               </sc-if>
               <sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}">
-                <a href="assets/docs/lebenslauf-marco-stang.pdf" download style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">Lebenslauf (PDF)</a>
+                <a href="{{ resumePdf }}" download style="padding:11px 18px;border-radius:9px;border:1px solid rgba(160,140,230,.28);color:#c9c5e8;font:600 12.5px/1 'Space Grotesk',sans-serif;display:inline-flex;align-items:center;transition:.2s" style-hover="background:rgba(160,140,230,.12);color:#fff">Lebenslauf (PDF)</a>
               </sc-if>
             </div>
 
@@ -374,7 +374,6 @@ button{font:inherit}
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:860}}">
 const TERM_COLOR = { cmd: "#e7e4f5", ok: "#4fd6c4", error: "#f2846c", muted: "#6f6a92" };
 const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; };
-const hashId = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000; return h; };
 function relDe(iso) {
   const then = new Date(iso); if (isNaN(then.getTime())) return null;
   const days = Math.floor((Date.now() - then) / 86400000);
@@ -429,7 +428,6 @@ class Component extends DCLogic {
     this._mlTimer = setInterval(this.measureLabels, 250);
     import(modUrl("portfolio-data-v3.js")).then((D) => {
       this.setState({ D });
-      this.fetchActivity(D);
       const h = (window.location.hash || "").replace(/^#/, "");
       const map = { lebenslauf: D.RESUME_ID, "ask-marco": D.CHAT_ID, terminal: D.TERM_ID };
       if (h === "tour") this._pendingTour = true;
@@ -477,15 +475,27 @@ class Component extends DCLogic {
   trackDemo(id) {
     if (id) { try { this._track?.(`demo-${id}`); } catch {} }
   }
-  fetchActivity(D) {
-    D.PROJECTS.forEach((p) => {
-      const m = /github\.com\/([^/]+\/[^/]+?)(?:\.git|\/)?$/.exec(p.repoUrl || "");
-      if (!m) return;
-      fetch(`https://api.github.com/repos/${m[1]}`, { headers: { Accept: "application/vnd.github+json" } })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((j) => { if (j && j.pushed_at) this.setState((s) => ({ gh: { ...s.gh, [p.id]: j.pushed_at } })); })
-        .catch(() => {});
-    });
+  // "letzter Commit" steht NUR im geoeffneten Projektfenster. Frueher liefen
+  // beim Laden acht unauthentifizierte Anfragen an api.github.com los -- das
+  // Limit liegt bei 60 pro Stunde und IP, nach ein paar Seitenaufrufen kamen
+  // nur noch 403 zurueck und die Angabe fehlte ueberall. Jetzt wird genau das
+  // Projekt abgefragt, das gerade geoeffnet wird, und jedes hoechstens einmal.
+  fetchActivity(id) {
+    const D = this.state.D;
+    if (!D || !id) return;
+    const p = D.PROJECTS.find((x) => x.id === id);
+    if (!p) return;
+    this._ghTried = this._ghTried || new Set();
+    if (this._ghTried.has(p.id)) return;
+    const m = /github\.com\/([^/]+\/[^/]+?)(?:\.git|\/)?$/.exec(p.repoUrl || "");
+    if (!m) return;
+    // Auch bei Fehlschlag vormerken: ein Rate-Limit heilt nicht dadurch, dass
+    // man beim naechsten Oeffnen desselben Fensters noch einmal anklopft.
+    this._ghTried.add(p.id);
+    fetch(`https://api.github.com/repos/${m[1]}`, { headers: { Accept: "application/vnd.github+json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (j && j.pushed_at) this.setState((s) => ({ gh: { ...s.gh, [p.id]: j.pushed_at } })); })
+      .catch(() => {});
   }
   mountSky() {
     if (!this._sky || !this._canvas || this._stopSky) return;
@@ -674,6 +684,7 @@ class Component extends DCLogic {
   }
   open = (id) => {
     this.setState({ active: id, tech: false, hist: false });
+    this.fetchActivity(id);
     this.syncHash(id);
     clearTimeout(this._stallTimer);
     if (id === this.state.D?.CHAT_ID) {
@@ -776,19 +787,6 @@ class Component extends DCLogic {
         nodes.push({ p, x: colX[ci], y: cy + (i - (list.length - 1) / 2) * Math.min(126, (h - 170) / Math.max(list.length, 1)) });
       }));
       moons.forEach((p, i) => nodes.push({ p, x: w * 0.17 + 112, y: cy + 100 + i * 70, moon: true }));
-    } else if (variant === "nebula") {
-      const base = Math.min(w * 0.40, h * 0.62);
-      nodes.push({ p: null, x: cx, y: cy });
-      D.ORDER.forEach((c, ci) => byCluster[c].forEach((p, i, list) => {
-        const seed = hashId(p.id);
-        const a = (-90 + ci * 118) * Math.PI / 180 + ((i - (list.length - 1) / 2) / Math.max(list.length, 1.6)) * 1.5 + ((seed % 17) - 8) / 90;
-        const r = base * (0.52 + ((seed % 43) / 43) * 0.5);
-        nodes.push({ p, x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.78 });
-      }));
-      moons.forEach((p, i) => {
-        const a = (200 + i * 90) * Math.PI / 180;
-        nodes.push({ p, x: cx + Math.cos(a) * 134, y: cy + Math.sin(a) * 106, moon: true });
-      });
     } else {
       // Ringmitte leicht nach rechts/unten versetzt und Radius etwas kleiner:
       // oben links sitzt das Identitäts-HUD, unten links die Orbit-Legende —
@@ -1001,6 +999,7 @@ class Component extends DCLogic {
       // clamp statt min, weil min(560px,46vw) auf dem Handy 172 px ergab --
       // dort war JEDES Fenster unbenutzbar schmal.
       panelWidth: isChat ? "clamp(320px,66vw,780px)" : "clamp(320px,46vw,560px)",
+      resumePdf: D.RESUME.pdfUrl, resumeLinkedIn: D.RESUME.linkedinUrl,
       activeTitle: isResume ? D.RESUME.name : activeP ? activeP.title : "",
       activeSummary: isResume ? D.RESUME.intro : activeP ? activeP.summary : "",
       activeDescription: activeP ? activeP.description : "",

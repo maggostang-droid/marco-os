@@ -14,17 +14,23 @@ at that URL. Everything in "Architecture" below describes *that* file, not the
 current start page. `npm test` also tests the legacy modules only — v3 has no
 test coverage.
 
-**`data/projects.js` is the single source of project data for both.** v3 reads
-it through `portfolio-data-v3.js`, which only re-maps `orbitsCenter` to its own
-field name `moon` and adds v3-specific presentation (cluster colors, planet
-images, boot lines, tour, terminal parser). Edit project copy in
-`data/projects.js` and it lands on the live page — its text and ordering are
-the v3 ones, so changing order moves planets on the live site.
+**All content lives in `data/` and is shared by both front ends.** Nothing is
+duplicated any more:
 
-Still duplicated, not yet unified: the résumé (`data/resume.js` vs `RESUME` in
-`portfolio-data-v3.js`) and the tour/boot lines. Analytics is shared —
-v3 imports `assets/js/analytics.js` exactly like the legacy page, so visits and
-demo-start events are counted once, from one place.
+| File | Consumed by |
+| --- | --- |
+| `data/projects.js` | v3 via `portfolio-data-v3.js` (re-maps `orbitsCenter` → its own `moon`), legacy via `scene.js`/`window-manager.js` |
+| `data/resume.js` | v3 (joins `currentStations[].bullets` into one `detail` line), legacy as-is |
+| `data/tour.js` | both via `tourWithResumeId(...)` — the résumé step carries `resume: true` instead of an id, because the two front ends use different sentinel values |
+| `data/boot.js` | both; the text is shared, the rendering (colors vs. CSS classes, typewriter) stays per front end |
+
+`assets/js/analytics.js` is shared too, so visits and demo-start events are
+counted once from one place. Text and ordering throughout are the v3 ones,
+because v3 is what's live — reordering `data/projects.js` moves planets on the
+live site.
+
+What is still v3-only in `portfolio-data-v3.js`: cluster colors, planet images,
+boot line colors and the terminal parser.
 
 So: before editing, decide which of the two front ends you mean.
 

@@ -1,11 +1,14 @@
 // Darstellung + Terminal-Parser für MARCO.OS v3.
 //
-// Die Projektdaten kommen NICHT mehr aus diesem File, sondern aus
-// data/projects.js — der einzigen Quelle für v3 und index-legacy.html.
-// Wer einen Projekttext ändern will, ändert ihn dort, nicht hier.
-// Was hier bleibt, ist rein v3-Spezifisches: Cluster-Farben, Planetenbilder,
-// Boot-Zeilen, Tour und der Terminal-Parser.
+// Inhalte kommen NICHT mehr aus diesem File, sondern aus data/ — den
+// einzigen Quellen für v3 und index-legacy.html gemeinsam. Wer einen Text
+// ändern will, ändert ihn dort, nicht hier. Was hier bleibt, ist rein
+// v3-Spezifisches: Cluster-Farben, Planetenbilder, Farbgebung der
+// Boot-Zeilen und der Terminal-Parser.
 import { projects } from "../../data/projects.js";
+import { resume } from "../../data/resume.js";
+import { tourWithResumeId } from "../../data/tour.js";
+import { bootLogo, bootInfoLines, bootStatusLines, bootPromptLine } from "../../data/boot.js";
 
 export const CHAT_ID = "__chat__", RESUME_ID = "__resume__", TERM_ID = "__terminal__";
 
@@ -26,50 +29,37 @@ export const PLANET_IMG = {
 // data/projects.js; hier wird nichts mehr dupliziert.
 export const PROJECTS = projects.map((p) => ({ ...p, moon: Boolean(p.orbitsCenter) }));
 
+// data/resume.js fuehrt die Stationen als Stichpunktliste (so rendert sie das
+// Legacy-Fenster), v3 zeigt pro Station einen Fliesstext. Deshalb hier
+// zusammengezogen statt doppelt gepflegt.
 export const RESUME = {
-  name: "Dr.-Ing. Marco Stang",
-  headline: "KI-Spezialist & Data Scientist",
-  intro: "Seit über 10 Jahren baue ich KI- und Data-Science-Lösungen, die nicht nur im Notebook funktionieren, sondern validiert in den Betrieb gehen. Zuhause bin ich in Machine Learning, Deep Learning und generativer KI, promoviert habe ich genau zu der Frage, wie man KI-Systeme belastbar prüft.",
-  email: "stang.marco@t-online.de",
-  stations: [
-    { period: "10.2025–05.2026", role: "Solution Architect", org: "ILI.DIGITAL AG", detail: "Leitung von Projektteams, Requirements-Workshops, Lösungsarchitekturen. LLM-Datenextraktionspipelines auf AWS & Azure, Entwicklung von maika.digital (KI-Abrechnungsassistent, RAG-System)." },
-    { period: "10.2019–05.2025", role: "Promotion Dr.-Ing., Note „sehr gut“", org: "KIT / ITIV", detail: "Dissertation: Validierung von KI-Systemen durch Verknüpfung von Szenarien und metamorphes Testen. Industriekooperation mit Mercedes-Benz AG (Autonomous Comfort)." }
-  ],
-  extendedHistory: [
-    "Data Scientist FZI, Future Bus mit Daimler Trucks (09.2015–12.2016)",
-    "Lehre: AMALEA-Kursentwicklung, Übungsleiter Software Engineering",
-    "Studium: M.Sc. Elektro-/Informationstechnik KIT (Note 1,7), Auslandspraktikum INIT AG (USA)",
-    "Sprachen: Deutsch (Muttersprache), Englisch (verhandlungssicher)",
-    "Referenz: auf Anfrage"
-  ],
-  skills: ["Python", "Machine Learning", "Deep Learning", "LLM/RAG", "Agentische Workflows", "TensorFlow", "React", "FastAPI", "AWS", "Azure", "Docker", "n8n", "Power Automate", "C++", "Projektleitung"]
+  name: resume.name,
+  headline: resume.headline,
+  intro: resume.intro,
+  email: resume.email,
+  pdfUrl: resume.pdfUrl,
+  linkedinUrl: resume.linkedinUrl,
+  stations: resume.currentStations.map((s) => ({
+    period: s.period,
+    role: s.role,
+    org: s.org,
+    detail: s.bullets.join(". ") + "."
+  })),
+  extendedHistory: resume.extendedHistory,
+  skills: resume.skills
 };
 
-export const TOUR = [
-  { id: "sql-agent", kicker: "Station 1/4 · Agentic AI", caption: "Los geht es mit dem SQL Copilot: ein Text-to-SQL-Agent mit harten Guardrails und Selbstkorrektur-Loop, ehrlich evaluiert mit 8 von 15 Referenzfragen und jederzeit selbst ausprobierbar." },
-  { id: "cloud-native-pipeline", kicker: "Station 2/4 · Cloud", caption: "Weiter zur Cloud: Ein Upload genügt, dann laufen Klassifikation und Feldextraktion vollautomatisch durch S3, Lambda, Claude und DynamoDB. Serverlos auf AWS, per Terraform ausgerollt." },
-  { id: "hr-interview-cockpit", kicker: "Station 3/4 · Full-Stack", caption: "Jetzt Full-Stack: Das Interview Cockpit führt komplette Bewerbungsgespräche mit Live-Bewertung und Radar-Auswertung, und das ganz ohne Backend, direkt im Browser." },
-  { id: RESUME_ID, kicker: "Station 4/4 · Der Mensch dahinter", caption: "Und dahinter steckt ein Mensch: Dr.-Ing. Marco Stang, über 10 Jahre ML und Data Science, promoviert am KIT zur Validierung von KI-Systemen. Neugierig geworden? Der Kontakt-Button wartet gleich hier im Fenster.", last: true }
-];
+export const TOUR = tourWithResumeId(RESUME_ID);
 
-const live = PROJECTS.filter((p) => p.demoUrl).length;
+// Der Text kommt aus data/boot.js, die Farbgebung ist v3-eigen.
 export const BOOT = [
-  { text: " __  __   _   ___  ___ ___     ___  ___ ", c: "#b48cf5" },
-  { text: "|  \\/  | /_\\ | _ \\/ __/ _ \\   / _ \\/ __|", c: "#b48cf5" },
-  { text: "| |\\/| |/ _ \\|   / (_| (_) | | (_) \\__ \\", c: "#b48cf5" },
-  { text: "|_|  |_/_/ \\_\\_|_\\___\\___/ (_)___/|___/", c: "#b48cf5" },
-  { text: "", c: "#8a86a8" },
-  { text: "marco@portfolio", c: "#e7e4f5" },
-  { text: "———————————————", c: "#5e5a80" },
-  { text: "OS:      MARCO.OS v3.0", c: "#8a86a8" },
-  { text: "Kernel:  Dr.-Ing. (KIT / ITIV)", c: "#8a86a8" },
-  { text: "Uptime:  10+ Jahre ML & Data Science", c: "#8a86a8" },
-  { text: "Shell:   marco-sh (KI-gestützt)", c: "#8a86a8" },
-  { text: `Pakete:  ${PROJECTS.length} Projekte · ${live} Live-Demos`, c: "#8a86a8" },
-  { text: "", c: "#8a86a8" },
-  { text: "[ OK ] neural-link.service gestartet", c: "#4fd6c4" },
-  { text: "[ OK ] netzwerk-graph geladen", c: "#4fd6c4" },
-  { text: "[ .. ] bereit, leg los_", c: "#f2b45c" }
+  ...bootLogo.map((text) => ({ text, c: "#b48cf5" })),
+  ...bootInfoLines(PROJECTS).map((text) => ({
+    text,
+    c: text === "marco@portfolio" ? "#e7e4f5" : text.startsWith("———") ? "#5e5a80" : "#8a86a8"
+  })),
+  ...bootStatusLines.map((text) => ({ text, c: "#4fd6c4" })),
+  { text: bootPromptLine, c: "#f2b45c" }
 ];
 
 export const COMMANDS = ["help", "ls", "open", "cat", "demo", "repo", "tour", "whoami", "clear", "exit"];
