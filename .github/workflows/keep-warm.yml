@@ -4,20 +4,37 @@
 # Inaktivitaet schlafen. Der erste Aufruf danach kostet einen Besucher bis zu
 # einer Minute Wartezeit, und genau diese Minute hat ein Recruiter nicht.
 #
-# Ehrliche Einschraenkung: Ein HTTP-GET weckt eine schlafende Streamlit-App
-# nicht garantiert auf (teils antwortet nur die Zwischenseite). Der Workflow
-# verhindert vor allem, dass die Apps waehrend der Kernzeit ueberhaupt erst
-# einschlafen. Ausserhalb des Zeitfensters bleibt ein Kaltstart moeglich,
-# deshalb steht der Hinweis weiterhin in READMEs und Demo-Fusszeilen.
+# WICHTIG, hart erkauft: Die Wurzel-URL einer Streamlit-App taugt NICHT zum
+# Anpingen. Sie antwortet mit 303 auf share.streamlit.io/-/auth/app, das wieder
+# auf die App zeigt -- curl laeuft in 50 Redirects und bricht mit Exit 47 ab,
+# nach ~15 s, ohne die App je erreicht zu haben. Im Log stand deshalb "303000"
+# (die 303 von curl plus die 000 aus dem Fehlerzweig) statt einer 200.
+# Ausgeliefert wird die App unter /~/+/ -- denselben Pfad benutzt auch das
+# iframe im Chatfenster. Nur der bringt eine 200 mit echtem App-HTML.
+#
+# Was dieser Workflow NICHT kann: eine bereits schlafende App aufwecken. Der
+# "Yes, get this app back up"-Knopf im Browser schickt POST /api/v2/app/resume,
+# und das antwortet ohne angemeldete Sitzung mit 403. Wecken geht nur von Hand
+# im Browser. Der Workflow haelt also wach, was noch wach ist -- mehr nicht.
+# Deshalb steht der Kaltstart-Hinweis weiterhin in READMEs und Demo-Fusszeilen.
+#
+# Praktischer Nebeneffekt: /~/+/ antwortet mit 400, sobald eine App
+# eingeschlafen ist. Eine 400 im Log heisst also "diese Demo schlaeft gerade
+# und muss von Hand geweckt werden".
 
 name: keep-warm
 
 on:
   schedule:
-    # Alle 20 Minuten, werktags 06:00 bis 18:40 UTC (also etwa 08:00 bis 20:40
+    # Alle 20 Minuten, werktags 06:00 bis 18:47 UTC (also etwa 08:00 bis 20:47
     # deutscher Sommerzeit). Bewusst kein 24/7-Ping: das waere Verschwendung
     # und wuerde die Free-Tier-Fairness strapazieren.
-    - cron: "*/20 6-18 * * 1-5"
+    #
+    # Krumme Minuten mit Absicht: GitHub fuehrt geplante Workflows nur nach
+    # Verfuegbarkeit aus und laesst sie unter Last aus. Zur vollen Stunde und
+    # auf 20/40 draengen sich die meisten Jobs. Von den erwarteten ~15 Laeufen
+    # am 03.08.2026 kam bei "*/20" genau EINER zustande.
+    - cron: "7,27,47 6-18 * * 1-5"
   workflow_dispatch:
 
 jobs:
@@ -26,17 +43,34 @@ jobs:
     steps:
       - name: Demos anpingen
         run: |
+          # Streamlit-Apps ueber /~/+/, sonst landet der Aufruf in der
+          # Auth-Weiterleitungsschleife (siehe Kommentar oben). Vercel liefert
+          # unter / direkt aus.
           urls=(
-            "https://sql-copilot-portfolio.streamlit.app/"
-            "https://ai-act-validation-toolkit.streamlit.app/"
-            "https://cloud-native-pipeline.streamlit.app/"
-            "https://second-brain-projects.streamlit.app/"
-            "https://medical-coding-extractor.streamlit.app/"
+            "https://sql-copilot-portfolio.streamlit.app/~/+/"
+            "https://ai-act-validation-toolkit.streamlit.app/~/+/"
+            "https://cloud-native-pipeline.streamlit.app/~/+/"
+            "https://second-brain-projects.streamlit.app/~/+/"
+            "https://medical-coding-extractor.streamlit.app/~/+/"
             "https://ai-analytics-portal-gray.vercel.app/"
           )
           # Der Job soll nicht rot werden, wenn eine Demo gerade nicht antwortet:
-          # das ist ein Hinweis, kein Fehler dieses Repos. Deshalb nur protokollieren.
+          # das ist ein Hinweis, kein Fehler dieses Repos. Deshalb nur
+          # protokollieren -- aber sichtbar, damit ein Dauerproblem auffaellt.
+          ok=0; schlafen=0
           for url in "${urls[@]}"; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -m 45 -L "$url" || echo "000")
-            echo "$code  $url"
+            # --max-redirs 3: eine Weiterleitungsschleife soll sofort auffallen
+            # und nicht 15 s pro URL verbrennen.
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 30 -L --max-redirs 3 "$url" || echo "000")
+            if [ "$code" = "200" ]; then
+              ok=$((ok+1)); hinweis="wach"
+            else
+              schlafen=$((schlafen+1)); hinweis="SCHLAEFT bzw. nicht erreichbar -- nur von Hand weckbar"
+            fi
+            printf "%-4s %-58s %s\n" "$code" "$url" "$hinweis"
           done
+          echo "---"
+          echo "$ok wach, $schlafen nicht erreichbar."
+          if [ "$schlafen" -gt 0 ]; then
+            echo "::warning::$schlafen Demo(s) antworten nicht mit 200. Schlafende Streamlit-Apps lassen sich nur im Browser wecken (Knopf 'Yes, get this app back up')."
+          fi
