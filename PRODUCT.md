@@ -108,6 +108,5 @@ dropped on 2026-08-03; they are no longer maintained or referenced.
 
 No formal standard established. The implementation respects
 `prefers-reduced-motion` (boot sequence, starfield parallax, the chat
-node's live ring) and declares `lang="de"` as baseline practice. Known gap:
-the page has no `<h1>` — headings are built in JavaScript and start at
-`<h2>`. See TODO.md.
+node's live ring), declares `lang="de"`, and carries a single `<h1>` (the
+identity panel) as baseline practice.

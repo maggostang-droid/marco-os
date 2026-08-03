@@ -41,6 +41,7 @@ export const projects = [
   {
     id: "ai-act-validation-toolkit",
     title: "AI Act Evidence Toolkit",
+    shortTitle: "AI Act Toolkit",
     summary:
       "Stuft eine KI-Anwendung nach dem EU AI Act ein und geht dann genau einen " +
       "Schritt weiter als jedes andere Compliance-Tool: Womit belegst du die " +
@@ -69,6 +70,7 @@ export const projects = [
   {
     id: "goz-finetune-vs-rag",
     title: "Medical Coding Extractor",
+    shortTitle: "Medical Coding",
     summary:
       "Zieht Abrechnungsziffern aus zahnärztlichen Behandlungsnotizen und klärt " +
       "nebenbei die Frage, die viele Teams nur behaupten: Finetuning oder RAG, was " +
@@ -119,6 +121,7 @@ export const projects = [
   {
     id: "cloud-native-pipeline",
     title: "Document Auto-Classifier",
+    shortTitle: "Auto-Classifier",
     summary:
       "Dokument hochladen, fertig: Typ und relevante Felder erkennt die Pipeline " +
       "von allein, komplett serverlos auf AWS und ohne einen einzigen selbst " +
@@ -141,6 +144,7 @@ export const projects = [
   {
     id: "ai-analytics-portal",
     title: "Review Risk Predictor",
+    shortTitle: "Risk Predictor",
     summary:
       "Sagt für jede Bestellung das Risiko einer schlechten Kundenbewertung vorher " +
       "und erklärt in einem Satz, woran es liegt. Keine nackte Zahl, sondern eine " +
@@ -188,6 +192,7 @@ export const projects = [
   {
     id: "amalea",
     title: "Applied ML Course (KIT)",
+    shortTitle: "ML Course (KIT)",
     summary:
       "Sechs Wochen praktisches Machine Learning für den KI-Campus. Marco hat die " +
       "Inhalte am KIT mitentwickelt und den Kurs als Co-Dozent begleitet.",

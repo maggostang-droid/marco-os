@@ -45,16 +45,18 @@ CSS hart neu laden (Strg+Shift+R), sonst siehst du den alten Stand.
 npm test
 ```
 
-Läuft über Node's eingebauten Test-Runner, keine Abhängigkeiten. 78 Tests über
+Läuft über Node's eingebauten Test-Runner, keine Abhängigkeiten. 101 Tests über
 `graph-layout`, `state` (inkl. Zoom-Clamping), `projects`, `resume`,
-`html-utils`, `focus-target`, `face-constellation` und `terminal-commands`
-(Parser, Tour-Schrittdaten, GitHub-Datumsformatierung).
+`html-utils`, `focus-target`, `face-constellation`, `terminal-commands`
+(Legacy-Parser, Tour-Schrittdaten, GitHub-Datumsformatierung) und
+`terminal-v3` (v3-Parser plus die aus `data/` abgeleiteten Daten).
 
 `node --test tests/` mit Verzeichnis funktioniert auf diesem Node-Build
 **nicht** — `npm test` oder `node --test "tests/*.test.js"` benutzen.
 
-Die Tests decken die **Legacy**-Module und die geteilten Daten ab. v3 hat keine
-Testabdeckung; dort wird im Browser verifiziert (375 px und 1280 px+).
+Getestet sind die Legacy-Module, die geteilten Daten und der v3-Terminal-Parser.
+Was eine Bühne braucht — Orbit-Layout, Label-Kollisionen, Boot-Ablauf, Fenster —
+wird im Browser verifiziert (375 px und 1280 px+).
 
 ## Inhalte pflegen
 
@@ -63,7 +65,7 @@ nichts ist doppelt zu pflegen:
 
 | Datei | Inhalt |
 | --- | --- |
-| `data/projects.js` | Projekte (`id`, `title`, `summary`, `description`, `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional `stats`, `orbitsCenter`) |
+| `data/projects.js` | Projekte (`id`, `title`, `summary`, `description`, `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional `stats`, `orbitsCenter`, `shortTitle`) |
 | `data/resume.js` | Lebenslauf, PDF- und LinkedIn-Adresse |
 | `data/tour.js` | Schritte der geführten Tour |
 | `data/boot.js` | ASCII-Logo und Boot-Zeilen |
@@ -71,10 +73,11 @@ nichts ist doppelt zu pflegen:
 Ein neues Projekt braucht nur einen Eintrag in `data/projects.js` — die
 Position im Graphen wird zur Laufzeit berechnet, keine Koordinatenpflege.
 
-**Zwei Dinge, die überraschen können:** Die Reihenfolge in `data/projects.js`
+**Drei Dinge, die überraschen können:** Die Reihenfolge in `data/projects.js`
 bestimmt die Anordnung der Planeten, ein Umsortieren verschiebt also die Live-Seite.
-Und `orbitsCenter: true` heißt "umkreist Marco statt eines Cluster-Rings" —
-v3 nennt dasselbe Feld intern `moon`.
+`orbitsCenter: true` heißt "umkreist Marco statt eines Cluster-Rings" — v3 nennt
+dasselbe Feld intern `moon`. Und `shortTitle` ist das Knoten-Label unter 760 px
+Breite; ohne diese Kurzform überlappen sich lange Titel auf dem Handy.
 
 ## Struktur
 

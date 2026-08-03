@@ -140,7 +140,10 @@ button{font:inherit}
 
     <div class="hud" data-reserved="hud" style="position:absolute;top:22px;left:24px;pointer-events:none;opacity:{{ hudOpacity }};transition:opacity .9s ease .2s">
       <div class="m-hide" style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#6f6a92;margin-bottom:14px">// portfolio-system v3.0</div>
-      <div class="hud-name" style="font:600 30px/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em;color:#f3f1ff">Dr.-Ing. Marco Stang</div>
+      <!-- Bewusst ein h1: die Seite baut ihre Texte per JS und hatte gar keine
+           Ueberschriftenstruktur; das Projektfenster startete bei h2. margin:0
+           ist noetig, sonst schiebt der Browser-Standardabstand das HUD. -->
+      <h1 class="hud-name" style="margin:0;font:600 30px/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em;color:#f3f1ff">Dr.-Ing. Marco Stang</h1>
       <div class="hud-sub" style="font:400 15px/1.4 'Space Grotesk',sans-serif;color:#a9a3d2;margin-top:6px">KI-Spezialist &amp; Data Scientist</div>
       <div class="hud-stats" style="display:flex;gap:16px;margin-top:18px;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92">
         <span>{{ statProjects }}</span><span>{{ statDemos }}</span><span>10+ Jahre ML</span>
@@ -907,7 +910,11 @@ class Component extends DCLogic {
       return {
         left: Math.round(n.x), top: Math.round(n.y),
         size: isCenter ? (eng ? 54 : 78) : n.moon ? (eng ? 32 : 42) : p.status === "live" ? (eng ? 36 : 52) : (eng ? 30 : 40),
-        title: isCenter ? "Marco Stang" : n.moon ? "Ask-Marco · Chat" : p.title,
+        // Auf dem Handy die Kurzform aus data/projects.js, sofern vorhanden:
+        // die vollen Titel sind bis 141 px breit, und der Kollisionsloeser
+        // schob den laengsten quer ueber das Sonnen-Label. Der volle Name
+        // steht weiterhin im Projektfenster.
+        title: isCenter ? "Marco Stang" : n.moon ? "Ask-Marco · Chat" : (eng && p.shortTitle) || p.title,
         aria: isCenter ? "Marco Stang, Lebenslauf öffnen" : n.moon ? "Ask-Marco Assistant, Chat öffnen" : `${p.title} öffnen`,
         z: isCenter ? 12 : hovered ? 14 : 10,
         // Label auf die zentrumsabgewandte Seite, wenn der Knoten oberhalb

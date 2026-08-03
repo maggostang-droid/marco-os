@@ -9,33 +9,7 @@ v3-Umstieg (drei Projekte, Platzhalter mit `status: "planned"`, Zoom-Fix-Wave).
 Sie ist gegenstandslos: es sind acht echte Projekte, die Platzhalter existieren
 nicht mehr, und die Startseite ist eine andere.
 
-## 1. Keine Überschriften-Struktur
-
-Beide Frontends bauen ihre Texte per JavaScript und setzen **kein `<h1>`**. v3
-hat ein `<h2>` im Projektfenster, aber kein `<h1>` darüber — für Screenreader
-und Suchmaschinen ist das eine echte Lücke.
-
-**Ansatz:** In v3 den HUD-Namen ("Dr.-Ing. Marco Stang", `index.html`, Klasse
-`hud-name`) von `<div>` auf `<h1>` heben und das `<h2>` im Fenster
-beibehalten. Optisch ändert sich nichts, wenn die Schriftwerte inline bleiben.
-Vorsicht: Der Standard-`margin` von Überschriften muss auf `0` gesetzt werden,
-sonst verschiebt sich das HUD.
-
-## 2. Eine Label-Überlappung auf dem Handy
-
-Bei 375 und 414 px überlappt genau ein Knoten-Label ("AI Act Evidence Toolkit")
-das Zentrums-Label. Bei 768 px und darüber sind es null.
-
-Ursache ist Platzmangel, kein Fehler in der Kollisionsauflösung: der Radius ist
-dort durch die Breite begrenzt (`padX`), nicht durch die Höhe. Ein größerer
-Radius wurde versucht (`padX` 42 → 28) und wieder verworfen, weil dann zwei
-Labels aus dem Bild liefen — siehe Kommentar an der Stelle in `index.html`.
-
-**Ansatz:** Statt am Radius zu drehen, die Labels auf schmalen Viewports
-kürzen (z.B. nur der Projekttitel ohne Zusatz) oder das Label des jeweils
-fokussierten Knotens hervorheben und die übrigen ausblenden.
-
-## 3. Schlafende Demos lassen sich nicht automatisch wecken
+## 1. Schlafende Demos lassen sich nicht automatisch wecken
 
 `.github/workflows/keep-warm.yml` hält werktags 08:00–20:47 wach, was wach ist.
 Eine bereits eingeschlafene Streamlit-App kann er **nicht** wecken: der
@@ -49,22 +23,39 @@ Außerhalb des Zeitfensters bleibt ein Kaltstart also möglich. Eine `400` auf
 (z.B. ein Playwright-Job, der den Aufweck-Knopf klickt) könnte das lösen —
 das wäre aber deutlich mehr Maschinerie als das jetzige Sechs-Zeilen-curl.
 
-## 4. v3 hat keine Testabdeckung
+## 2. v3: Rendering weiterhin nur im Browser prüfbar
 
-`npm test` deckt die Legacy-Module und die geteilten Daten in `data/` ab. Die
-gesamte v3-Logik — Layout, Terminal-Parser, Boot, Tour — steckt in
-`index.html` bzw. `portfolio-data-v3.js` und wird nur im Browser verifiziert.
+`tests/terminal-v3.test.js` deckt seit 03.08.2026 den Terminal-Parser und die
+aus `data/` abgeleiteten Daten ab (Projekte, Tour, Boot-Zeilen, Kurztitel).
+Nicht abgedeckt ist alles, was eine Bühne braucht: Orbit-Layout,
+Label-Kollisionen, Boot-Ablauf, Fenster.
 
-Der Terminal-Parser in `portfolio-data-v3.js` (`executeCommand`,
-`completeInput`) ist eine reine Funktion und ließe sich testen wie sein
-Legacy-Gegenstück in `tests/terminal-commands.test.js`.
+Diese Logik steckt im `<script>`-Block von `index.html` und ist von außen nicht
+importierbar. Sie testbar zu machen hieße, `layout()` und die
+Label-Auflösung in ein eigenes Modul zu ziehen — machbar, aber ein Eingriff in
+eine Datei, die sonst als Ganzes vom v3-Paket stammt.
 
-## 5. Produkt-/Umfang-Themen (keine Code-Aufgabe)
+## 3. Produkt-/Umfang-Themen (keine Code-Aufgabe)
 
 - **`index-legacy.html`** ist derzeit nur Revert-Ziel. Wenn v3 dauerhaft
   bleibt, wäre irgendwann zu entscheiden, ob die alte Fassung samt ihrer
-  Module und Tests verschwindet — dann verlöre man allerdings die einzige
-  Testabdeckung im Repo (siehe Punkt 4).
+  Module und Tests verschwindet.
 - **Branch `worktree-design-optimization`** liegt noch auf origin und in
   `.claude/worktrees/design-optimization`. Er stammt aus einer Sitzung vor dem
   v3-Umstieg und ist vermutlich gegenstandslos.
+
+## Erledigt am 03.08.2026
+
+- **`<h1>`**: v3 hatte keine Überschrift und begann bei `<h2>` im
+  Projektfenster — der HUD-Name ist jetzt ein `<h1>` (mit `margin:0`, sonst
+  verschiebt der Browser-Standardabstand das HUD). Die frühere Fassung dieser
+  Liste behauptete, *beide* Frontends hätten kein `<h1>`; das war für
+  `index-legacy.html` falsch, dort ist das Zentrums-Knotenlabel in
+  `scene.js` seit jeher eines.
+- **Label-Überlappung auf dem Handy**: gelöst über `shortTitle` in
+  `data/projects.js`, das v3 unter 760 px statt des vollen Titels rendert.
+  Die Labels schrumpften von 126–141 px auf 77–90 px, Kollisionen von 1 auf 0
+  bei 375 und 414 px. Zwei andere Ansätze wurden vorher gemessen und
+  verworfen: größerer Radius (zwei Labels liefen aus dem Bild) und ein
+  Zusatzversatz für das Zentrums-Label (verschlimmerte die Überlappung, weil
+  das ausweichende Label darunter und nicht darüber saß).
