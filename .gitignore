@@ -1,6 +1,17 @@
+# Lokaler Werkzeug-Kram. Nichts davon gehoert zur Seite — es sind
+# Arbeitsstaende von Claude Code und seinen Plugins. Ohne diese Eintraege
+# meldet `git status` bei jedem Aufruf dieselben fuenf Ordner als untracked.
 .superpowers/
 .worktrees/
-# Impeccable: config.json ist bewusst eingecheckt (dokumentiert die bestaetigten
-# Design-Ausnahmen), der Cache ist reiner Maschinenkram.
-.impeccable/hook.cache.json
-.impeccable/config.local.json
+.claude/
+.agents/
+
+# Impeccable: config.json ist bewusst eingecheckt (dokumentiert die
+# bestaetigten Design-Ausnahmen und ihre Begruendung), alles andere dort ist
+# Maschinenkram — Cache, Kritik-Protokolle, Live-Sitzungen.
+.impeccable/*
+!.impeccable/config.json
+
+# OneDrive legt bei Sync-Konflikten Kopien an, Git bei Abbruechen Lock-Dateien.
+_to_delete/
+*.lock.*

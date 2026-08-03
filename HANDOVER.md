@@ -1,172 +1,128 @@
 # Handover — marco-os
 
-Stand: 2026-07-29, Ende der Session. Für einen Agenten/eine neue Session,
-die hier weitermacht, ohne den ganzen Gesprächsverlauf zu kennen. Ersetzt
-die vorherige Handover-Version (second-brain-Chat-Fenster-Session).
+Stand: 2026-08-03, Ende der Session. Für eine neue Session, die hier
+weitermacht, ohne den Gesprächsverlauf zu kennen. Ersetzt die Fassung vom
+2026-07-29 — die beschreibt einen Stand vor dem v3-Umstieg und warnt vor einem
+Redesign-Branch, den es längst nicht mehr gibt.
 
-## Was das hier ist
+## Was heute passiert ist
 
-KI-Portfolio von Marco Stang als "MARCO.OS"-Desktop: Hintergrund ist ein
-lebendiges neuronales Netz (Marco im Zentrum, Projekte als Satelliten-Knoten
-= "Planeten", nach Skill-Cluster auf eigenen elliptischen Orbits gruppiert).
-Klick auf einen Projekt-Knoten öffnet ein Terminal-Fenster mit
-Projekt-Details. Plain HTML/CSS/Vanilla-JS (ES-Module), kein Build-Tool,
-keine npm-Dependencies. Hosting: GitHub Pages, deployt von `master`.
+Die Startseite ist eine andere. Ein extern erstelltes Redesign ("v3") kam als
+ZIP-Paket, wurde eingebaut, live geschaltet und danach überarbeitet.
 
-## Ist-Zustand auf `master`: voll funktionsfähig
+| Commit | |
+| --- | --- |
+| `94f8aed` | v3 additiv als `/v3.html` |
+| `2a5b063` | **Umstieg**: `index.html` → `index-legacy.html`, `v3.html` → `index.html` |
+| `e9dbd6d` | eine Datenquelle für Projekte, Besucherzähler repariert |
+| `75f2c09` | Ask-Marco als Chat erkennbar gemacht |
+| `ec61a87` | Ausklapper auf `grid-template-rows`, Design-Ausnahmen dokumentiert |
+| `a2dabd5` | `lang`-Attribut, Titel, Hintergrundklick, `#second-brain` |
+| `72639a2` | Mobil-Durchgang 375–760 px |
+| `ef4d785` | nebula raus, GitHub-Anfragen bedarfsgetrieben, Inhalte entdoppelt |
+| `7786fd5` | Warmhalte-Workflow repariert |
 
-- `npm test` → **39/39 Tests grün** (Node's `node:test`, keine
-  Dependencies).
-- Lokal starten: `python -m http.server 8000` im Repo-Root, dann
-  `http://localhost:8000/`. Direktes Öffnen per `file://` geht **nicht**.
-- **Cache-Falle:** `python -m http.server` schickt keine
-  Cache-Busting-Header — nach JS/CSS-Änderungen Hard-Refresh
-  (Strg+Shift+R) nötig.
+**Rückbau:** `git revert 2a5b063` holt die alte Startseite zurück, ohne die
+v3-Dateien zu entfernen — die tauchen dann wieder unter `/v3.html` auf.
 
-## ⚠️ Wichtig: paralleler Redesign-Branch existiert, ist NICHT Teil von master
+## Ist-Zustand
 
-Während dieser Session lief (offenbar automatisiert/durch einen anderen
-Prozess, nicht durch mich) auf demselben Checkout ein kompletter Frontend-
-Umbau auf dem lokalen Branch `redesign/frontend-design-overhaul` — 20+
-Commits: Vite als Build-Tool, WebGL/PixiJS-Renderer statt SVG,
-Multi-Window-Fenstermanager (Drag/Resize/Z-Order), Command Palette
-(Strg/Cmd+K), CRT/Synthwave-Design-Token-System, umgeschriebene Taskbar,
-CI/gh-pages-Deploy-Workflow. **Dieser Branch wurde nie nach `origin`
-gepusht und ist auf Nutzerwunsch nicht weiterverfolgt worden** — er
-existiert weiterhin lokal in diesem Checkout, wuchs aber noch während
-dieser Session in Echtzeit weiter (Branch wechselte mehrfach unter der
-Hand, neue Commits erschienen ungefragt).
+- `npm test` → **78/78 grün**
+- Live geprüft: beide Frontends laden fehlerfrei, keine 404er, keine
+  Konsolenfehler, Schriften lokal
+- Layout geprüft bei 375 / 414 / 768 / 1440 px
 
-**Für die nächste Session:** Vor dem Arbeiten `git branch -vv` prüfen. Falls
-der Checkout wieder auf `redesign/frontend-design-overhaul` steht statt
-`master`: das ist nicht dein Branch, nicht committen/pushen ohne
-Rücksprache mit Marco — er hat entschieden, dass der Inhalt (Stand dieser
-Session) nicht weiterverfolgt wird. Ein versehentlicher Commit auf diesen
-Branch ist mir selbst in dieser Session passiert (kleiner Fix-Commit,
-danach dort belassen, siehe unten) — die Dateien, die er berührt
-(`command-palette.js`, die CRT-Boot-Transition in `boot.js`/`style.css`)
-existieren auf `master` gar nicht, ein Cherry-Pick schlägt entsprechend
-fehl (ausprobiert, abgebrochen).
+## Was beim Einbauen schiefging
 
-## Neu in dieser Session (alles auf `master`)
+Das ZIP war nicht lauffähig, und beide Fehler waren **still** — die Seite sah
+aus, als funktioniere sie:
 
-### 1. Projekt-Content-Rebrand
+1. **Die Seite blieb leer.** Die dynamischen `import()` im Template-Block
+   werden im Kontext von `dc-support.js` aufgelöst, nicht des Dokuments. Aus
+   `./assets/js/x.js` wurde `/assets/js/assets/js/x.js`. Ein absolutes
+   `/assets/…` wäre ebenfalls falsch, weil Pages unter `/marco-os/` ausliefert.
+2. **Unter ~760 px fielen alle Planeten auf die Sonne.** `maxRx` wurde negativ,
+   SVG verwirft Ellipsen mit negativem `rx`.
 
-Alle 8 Projekte bekamen marketing-taugliche Namen, eine zweigeteilte
-Beschreibung (immer sichtbares High-Level-`summary` + technisches
-`description` hinter Toggle, vorher nur ein einziger dichter Text), und die
-zugehörigen GitHub-Repos wurden umbenannt (alte URLs redirecten via GitHub,
-außer bei `hr-interview-cockpit`/`interview-cockpit` — dessen GitHub-Pages-
-Demo-Link musste manuell aktualisiert werden, GitHub redirected Pages-URLs
-nicht automatisch).
+Später kam ein dritter dazu: **der Besucherzähler zählte nicht mehr.** v3 las
+`TOTAL.json` und *zeigte* die Gesamtzahl an, lud aber nie das
+GoatCounter-Script. Von außen unsichtbar, weil eine plausible Zahl dastand.
 
-Vollständiger Brainstorming→Spec→Plan→SDD-Prozess:
-- Spec: [`docs/superpowers/specs/2026-07-29-project-content-rebrand-design.md`](docs/superpowers/specs/2026-07-29-project-content-rebrand-design.md)
-- Plan: [`docs/superpowers/plans/2026-07-29-project-content-rebrand-implementation.md`](docs/superpowers/plans/2026-07-29-project-content-rebrand-implementation.md)
+Und ein vierter, beim Aufräumen gefunden: **der Warmhalte-Workflow pingte ins
+Leere.** Die Wurzel-URL einer Streamlit-App antwortet mit 303 in eine
+Auth-Weiterleitungsschleife; curl brach nach 50 Redirects ab. Im Log stand
+`303000` statt einer 200 — das ist kein HTTP-Code, sondern curls 303 plus die
+000 aus dem Fehlerzweig.
 
-**Zwei echte Bugs während der SDD-Ausführung:**
+**Lehre:** Bei diesem Runtime und bei allem, was über HTTP geht, reicht "sieht
+richtig aus" nicht. Im Browser laden und die Netzwerk-Anfragen prüfen.
 
-1. **Task-1-Brief hatte veraltete Description-Texte.** Der Plan wurde aus
-   einem sehr frühen Read von `data/projects.js` geschrieben, aber
-   `sql-agent` und `goz-finetune-vs-rag` waren zwischenzeitlich (außerhalb
-   dieser Konversation) mit neuen Eval-Zahlen/einer anderen Ergebnis-
-   Erzählung aktualisiert worden. Der Task-Reviewer fand das als Critical
-   Finding; Marco bestätigte, welche Version aktuell/korrekt ist; Fix-Runde
-   1 stellte den richtigen Text wieder her. **Lehre:** Ein Plan, der
-   vollständigen Dateiinhalt vorschreibt, ist nur so aktuell wie der Moment
-   seines letzten Reads — bei einer länger laufenden Session lohnt sich ein
-   Diff-Check gegen den tatsächlichen Dateiinhalt direkt vor Ausführung,
-   nicht nur Vertrauen in den zu Beginn gelesenen Stand.
-2. **Implementer committete in den Haupt-Checkout statt in den isolierten
-   Worktree**, obwohl explizit angewiesen. Per Cherry-Pick auf den
-   korrekten Worktree-Branch übertragen, Haupt-Checkout zurückgesetzt.
-   **Lehre:** Nach jedem Implementer-Report prüfen, auf welchem Branch der
-   Commit tatsächlich gelandet ist (`git log --oneline -3` im Report
-   verlangen oder selbst nachprüfen), nicht nur den Report-Status
-   vertrauen.
+## Wo was liegt
 
-### 2. Edge-Reveal-Batching pro Cluster
+**Alles Inhaltliche in `data/`, von beiden Frontends geteilt:**
+`projects.js`, `resume.js`, `tour.js`, `boot.js`, dazu
+`assets/js/analytics.js`. Nichts ist doppelt gepflegt — das war es bis heute
+und wurde bewusst aufgelöst.
 
-Verbindungslinien (Kanten) zum selben Skill-Cluster erscheinen jetzt
-gleichzeitig als eine Gruppe, statt einzeln nacheinander gestaffelt zu
-werden (`assets/js/scene.js`, `buildEdgeLayer`) — spiegelt das bestehende
-Node-Batching-Muster aus `buildNodeLayer`.
+**v3** (`index.html`, live): Markup, CSS und Logik stecken alle in der einen
+HTML-Datei; dazu `dc-support.js` (generiert, "do not edit"),
+`portfolio-data-v3.js` (nur Darstellung), `sky-v3.js` (Canvas-Himmel).
 
-### 3. Ask-Marco Assistant als kleiner Mond von Marco
+**Legacy** (`index-legacy.html`): handgeschriebenes Vanilla-JS aus
+`assets/js/*`. Alle 78 Tests decken diese Seite und `data/` ab, **nicht** v3.
 
-`second-brain`-Projekt bekam `orbitsCenter: true` in `data/projects.js` und
-umgeht damit das Cluster-Ring-System komplett (`graph-layout.js`): eigener
-kleiner, fixer Orbit direkt neben dem Zentrum-Knoten statt im
-agentic-ai-Ring, kleinerer neutral-weißer Knoten statt Cluster-Farbe, dünne
-statische Verbindungslinie statt gepulster Cluster-Kante, erscheint sofort
-mit Marcos eigenem Reveal-Batch. Klick öffnet weiterhin das normale
-Projekt-Fenster (keine Änderung an diesem Verhalten).
-
-Iteratives Tuning bei `MOON_RADIUS`/`MOON_ANGLE_OFFSET_DEG` nötig — erste
-Werte ließen Mond-Knoten und -Label mit Marcos eigener Sphäre bzw. mit dem
-nächsten Cluster-Planeten kollidieren; per Playwright-Screenshot-Vergleich
-iteriert bis überlappungsfrei.
-
-### 4. Hover-/Fokus-Effekt auf Planeten: sofort und stärker
-
-`scale`/`filter`-Transition-Dauer von .18s auf .05s (fühlt sich jetzt
-"sofort" an), Effekt selbst verstärkt (Scale 1.15→1.4, Brightness 1.3→1.8,
-zusätzlicher weißer Drop-Shadow-Glow), und die Node-Label leuchtet jetzt
-mit auf (skaliert, wird weiß/fett, bekommt eigenen Text-Shadow-Glow) statt
-unverändert zu bleiben.
-
-**Playwright-Testfalle, die hier auftrat:** `page.screenshot({ clip: ... })`
-(zugeschnittener Ausschnitt) gefolgt von `getComputedStyle()` las
-wiederholt und reproduzierbar **veraltete Werte** für compositor-lastige
-Properties (`scale`, `filter`) — ein normales Property in derselben Regel
-(`font-weight`) zeigte dagegen korrekt den Hover-Wert. Ein **volles,
-nicht zugeschnittenes** `page.screenshot()` direkt vor `getComputedStyle()`
-lieferte dagegen zuverlässig korrekte Werte, jedes Mal. Vermutlich erzwingt
-nur ein vollständiger Seiten-Screenshot den kompletten Style-/Compositor-
-Flush, den ein geclipptes Screenshot nicht auslöst. **Für künftige
-Sessions:** Bei Hover-/Fokus-CSS-Verifikation per Playwright IMMER ein
-volles `page.screenshot()` (kein `clip`) vor jedem `getComputedStyle()`-Read
-einschieben, sonst können `scale`/`filter`-Werte falsch-negativ erscheinen.
+Die vier Runtime-Fallen von v3 stehen ausführlich in [CLAUDE.md](CLAUDE.md).
 
 ## Bekannte offene Punkte
 
-- **Redesign-Branch** (siehe Warnhinweis oben) — Entscheidung über dessen
-  Zukunft (verwerfen, weiterführen, teilweise übernehmen) steht noch aus,
-  ist eine Produktentscheidung für Marco, keine Code-Aufgabe.
-- **second-brain-Planet vs. Marco-Zentrum-Chat-Zugang** — zwei Wege zum
-  selben Chat (eigener Planet + Zentrum-Knoten-Shortcut) bestehen weiterhin
-  nebeneinander, bewusst nicht in dieser Session aufgelöst (siehe Design-
-  Spec des Rebrands, Abschnitt "Bekannter Nebeneffekt").
-- **Verhältnis zu `stangfolio`/`stangverse`** weiterhin ungeklärt
-  (Produktentscheidung, keine Code-Aufgabe).
+Siehe [TODO.md](TODO.md). Die wichtigsten: kein `<h1>` auf der Seite, eine
+Label-Überlappung bei 375/414 px, keine Testabdeckung für v3, und schlafende
+Streamlit-Demos lassen sich nicht automatisch wecken.
 
-## Workflow-Hinweise für die nächste Session
+## Zwei Dinge, die von außen abhängen
 
-- **Vor jeder Aktion `git branch -vv` prüfen**, besonders nach einer
-  längeren Pause im Gespräch — diese Session wurde mehrfach ohne eigenes
-  Zutun auf einen anderen Branch versetzt (siehe Warnhinweis oben).
-- Kleinere visuelle/Timing-Tweaks: direkt mit Playwright-gestützter
-  Browser-Verifikation, kein voller Brainstorming→Spec→Plan-Prozess nötig
-  (Edge-Batching, Mond-Feature, Hover-Effekt liefen alle so). Größere
-  Content-/Datenmodell-Änderungen (wie der Rebrand): voller Prozess über
-  `superpowers:brainstorming` → `superpowers:writing-plans` →
-  `superpowers:subagent-driven-development`.
-- Bei SDD-Ausführung: Implementer-Reports nicht blind vertrauen, welcher
-  Branch/Verzeichnis tatsächlich committet wurde — selbst nachprüfen.
-- Playwright läuft lokal installiert im Scratchpad-Verzeichnis, erreichbar
-  über den `NODE_PATH`-Trick auf den npx-Cache
-  (`AppData/Local/npm-cache/_npx/<hash>/node_modules`), falls kein
-  eigenständiges `npm install playwright` gemacht wurde. Für einen lokalen
-  HTTP-Server unter Windows/Git-Bash: `--directory` braucht einen
-  **Windows-Pfad** (`C:\Users\...`), ein MSYS-Pfad (`/c/Users/...`) liefert
-  ein leeres Directory-Listing statt der echten Dateien.
-- Nutzer testet oft selbst parallel und gibt kurzes, direktes Feedback —
-  bei Unklarheit lieber kurz nachfragen (`AskUserQuestion`) als zu raten,
-  besonders bevor auf `origin` gepusht wird.
+**Streamlit-Demos schlafen ein.** Beim Prüfen lag "Document Auto-Classifier"
+schlafend — das ist Station 2 der geführten Tour, ein Recruiter wäre dort auf
+einer "Zzzz"-Seite gelandet. Der Warmhalte-Workflow läuft werktags 08:00–20:47
+und hält wach, was wach ist; wecken kann er nicht (`POST /api/v2/app/resume`
+antwortet ohne Sitzung mit 403). Vor dem Verschicken des Links lohnt ein
+kurzer Blick.
+
+**Der Chat im Fenster ist eine fremde App.** `second-brain-projects.streamlit.app`
+liegt im Repo `ask-marco-assistant`. Texte darin — etwa die Vorschlagsfragen —
+ändert man dort, nicht hier. Community Cloud deployt nach einem Push verzögert,
+bei eingefrorener Instanz erst beim Aufwachen. Nicht vorschnell einen manuellen
+Reboot empfehlen, sondern abwarten.
+
+## Arbeitsweise
+
+- Größere Features: `superpowers:brainstorming` → `writing-plans` →
+  `subagent-driven-development`, Spec und Plan unter `docs/superpowers/`.
+  Kleine visuelle Anpassungen direkt und im Browser verifizieren.
+- Neue Branches in einem eigenen Worktree.
+- **Vor jeder Aktion `git branch -vv` prüfen**, besonders nach längerer Pause.
+- Playwright liegt lokal im Scratchpad-Verzeichnis, nie als Projekt-Abhängigkeit
+  (Prinzip "keine Dependencies"). Für einen lokalen Server unter Git-Bash
+  braucht `--directory` einen **Windows-Pfad** (`C:\Users\…`); ein MSYS-Pfad
+  (`/c/Users/…`) liefert ein leeres Verzeichnislisting.
+- Bei Hover-/Fokus-CSS-Prüfung per Playwright immer ein volles
+  `page.screenshot()` (ohne `clip`) vor `getComputedStyle()` einschieben —
+  sonst können `scale`/`filter`-Werte falsch-negativ erscheinen.
+- Testzusicherungen misstrauen, wenn sie überraschen: In dieser Session meldete
+  ein Test die Tour als kaputt, weil er `Station 1/4` suchte und das Element
+  per `text-transform:uppercase` `STATION 1/4` rendert. Zwei weitere
+  Fehlalarme kamen von Klickkoordinaten, die auf einem Knoten-Button lagen.
+  Im Zweifel einen Screenshot ansehen.
+- Der Impeccable-Design-Hook meldet acht Befunde in `index.html`. Vier liegen
+  mit Begründung als bestätigt-gewollt in `.impeccable/config.json`, zwei waren
+  echte Probleme und sind behoben. Der Hook bleibt scharf: ohne die Config
+  meldet er sechs Befunde, mit Config null.
 
 ## Links
 
+- Live: https://maggostang-droid.github.io/marco-os/
+- Legacy: https://maggostang-droid.github.io/marco-os/index-legacy.html
 - Repo: https://github.com/maggostang-droid/marco-os
-- second-brain-Integration (Details zum Chat selbst): [`../second-brain/HANDOVER.md`](../second-brain/HANDOVER.md)
+- Chat-App (eigenes Repo): [`../ask-marco-assistant/HANDOVER.md`](../ask-marco-assistant/HANDOVER.md)
 - Portfolio-Backlog: [`../PORTFOLIO_BACKLOG.md`](../PORTFOLIO_BACKLOG.md)
 - Ablauf-Anleitung für Agenten-Sessions: [`../PORTFOLIO_AGENT_GUIDE.md`](../PORTFOLIO_AGENT_GUIDE.md)

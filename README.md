@@ -1,26 +1,47 @@
 # marco-os
 
-Ein futuristisches KI-Portfolio: die Seite präsentiert sich als "MARCO.OS"
-Desktop, dessen Hintergrund ein lebendiges neuronales Netz aus Projekten
-ist. Alternative Darstellung zu [stangfolio](https://github.com/maggostang-droid/stangfolio),
-das unverändert bestehen bleibt.
+Ein KI-Portfolio als fiktives Betriebssystem: die Seite präsentiert sich als
+"MARCO.OS"-Desktop, dessen Hintergrund ein lebendiges Netz aus Projekten ist —
+Marco im Zentrum, jedes Projekt ein Planet auf seinem Cluster-Orbit. Ein Klick
+öffnet ein Terminal-Fenster mit Projektdetails und der Live-Demo.
 
-Live: https://maggostang-droid.github.io/marco-os/
+**Live: https://maggostang-droid.github.io/marco-os/**
 
-Seit dem 03.08.2026 zeigt die Startseite das v3-Redesign. Die vorherige
-Fassung liegt unverändert daneben unter
-[`/index-legacy.html`](https://maggostang-droid.github.io/marco-os/index-legacy.html).
+Alternative Darstellung zu
+[stangfolio](https://github.com/maggostang-droid/stangfolio), das unverändert
+bestehen bleibt.
+
+## Zwei Frontends im selben Repo
+
+Seit dem 03.08.2026 ist die Startseite das **v3-Redesign**. Die vorherige
+Fassung liegt unverändert daneben:
+
+| | Datei | erreichbar unter |
+| --- | --- | --- |
+| **v3** (live) | `index.html` | `/` |
+| Vorgänger | `index-legacy.html` | [`/index-legacy.html`](https://maggostang-droid.github.io/marco-os/index-legacy.html) |
+
+v3 kam als fertiges Paket von außen und rendert über `assets/js/dc-support.js`
+— eine generierte Mini-React-Laufzeit, die als "do not edit" markiert ist. Die
+Legacy-Seite ist handgeschriebenes Vanilla-JS aus ES-Modulen. Beide teilen sich
+sämtliche Inhalte (siehe unten) und die Analytics.
+
+Der Umstieg steckt in genau einem Commit (`2a5b063`), damit ein einzelnes
+`git revert` die alte Startseite zurückholt.
 
 ## Lokal ausprobieren
 
-Kein Build-Schritt, aber ein einfacher lokaler HTTP-Server ist nötig —
-`index.html` direkt per Doppelklick/`file://` öffnen funktioniert **nicht**
-(Browser blockieren ES-Module-Skripte unter `file://`):
+Kein Build-Schritt, aber ein lokaler HTTP-Server ist nötig — `index.html`
+direkt per Doppelklick zu öffnen funktioniert **nicht**, weil Browser
+ES-Module unter `file://` blockieren.
 
 ```bash
-python -m http.server 8000
-# dann im Browser: http://localhost:8000/
+start-local.bat          # Windows: Server auf Port 8000 + Browser
+python -m http.server 8000   # alle anderen, dann http://localhost:8000/
 ```
+
+**Falle:** `http.server` schickt keine Cache-Header. Nach Änderungen an JS oder
+CSS hart neu laden (Strg+Shift+R), sonst siehst du den alten Stand.
 
 ## Tests
 
@@ -28,54 +49,76 @@ python -m http.server 8000
 npm test
 ```
 
-Führt alle Dateien in `tests/` über Node's eingebauten Test-Runner aus
-(keine Abhängigkeiten nötig): `graph-layout.test.js`, `state.test.js`
-(inkl. Zoom-Clamping), `projects.test.js`, `html-utils.test.js`,
-`focus-target.test.js`, `resume.test.js` und `terminal-commands.test.js`
-(Terminal-Parser, Tour-Schrittdaten, GitHub-Datumsformatierung). `scene.js`/`window-manager.js`/`taskbar.js`/
-`starfield.js` sind DOM-lastig und bleiben wie bisher manuell im Browser
-verifiziert (375px/1280px+).
+Läuft über Node's eingebauten Test-Runner, keine Abhängigkeiten. 78 Tests über
+`graph-layout`, `state` (inkl. Zoom-Clamping), `projects`, `resume`,
+`html-utils`, `focus-target`, `face-constellation` und `terminal-commands`
+(Parser, Tour-Schrittdaten, GitHub-Datumsformatierung).
 
-## Neues Projekt hinzufügen
+`node --test tests/` mit Verzeichnis funktioniert auf diesem Node-Build
+**nicht** — `npm test` oder `node --test "tests/*.test.js"` benutzen.
 
-Einen neuen Eintrag in `data/projects.js` ergänzen (gleiche Struktur wie
-die bestehenden: `id`, `title`, `summary`, `description`, `tags`,
-`demoUrl`, `repoUrl`, `status`). Die Position im Graph wird automatisch
-berechnet — keine manuelle Koordinaten-Pflege nötig.
+Die Tests decken die **Legacy**-Module und die geteilten Daten ab. v3 hat keine
+Testabdeckung; dort wird im Browser verifiziert (375 px und 1280 px+).
+
+## Inhalte pflegen
+
+Alles Inhaltliche liegt in `data/` und wird von **beiden** Frontends gelesen —
+nichts ist doppelt zu pflegen:
+
+| Datei | Inhalt |
+| --- | --- |
+| `data/projects.js` | Projekte (`id`, `title`, `summary`, `description`, `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional `stats`, `orbitsCenter`) |
+| `data/resume.js` | Lebenslauf, PDF- und LinkedIn-Adresse |
+| `data/tour.js` | Schritte der geführten Tour |
+| `data/boot.js` | ASCII-Logo und Boot-Zeilen |
+
+Ein neues Projekt braucht nur einen Eintrag in `data/projects.js` — die
+Position im Graphen wird zur Laufzeit berechnet, keine Koordinatenpflege.
+
+**Zwei Dinge, die überraschen können:** Die Reihenfolge in `data/projects.js`
+bestimmt die Anordnung der Planeten, ein Umsortieren verschiebt also die Live-Seite.
+Und `orbitsCenter: true` heißt "umkreist Marco statt eines Cluster-Rings" —
+v3 nennt dasselbe Feld intern `moon`.
 
 ## Struktur
 
-- `data/projects.js` — Projektdaten (einzige Quelle für Inhalte)
-- `assets/js/graph-layout.js` — reine Layout-Funktion (unit-getestet),
-  inkl. Viewport-abhängiger Radius-Skalierung und Fit-to-Viewport für
-  schmale/Portrait-Viewports (Ellipsen hochkant, alles bleibt im Bild)
-- `assets/js/state.js` — zentrales State-Modul (unit-getestet)
-- `assets/js/focus-target.js` — reine Funktion für Fokus-Restore-Logik
-  nach Fenster-Öffnen/-Wechsel/-Schließen (unit-getestet)
-- `assets/js/html-utils.js` — `escapeHtml()`-Helfer für Projektdaten in
-  Templates (unit-getestet)
-- `assets/js/scene.js` — rendert Graph-Knoten & -Kanten, inkl. Zoom
-  (Mausrad + `state.zoomLevel`, automatischer Fokus-Zoom-Bonus)
-- `assets/js/window-manager.js` — Projekt-Detail-Fenster
-- `assets/js/taskbar.js` — Uhr, aktive App, KI-Guide-Tipps, Zoom-Buttons
-  (+/−)
-- `assets/js/boot.js` — überspringbare Boot-Sequenz
-- `assets/js/starfield.js` — parallaxender Sternfeld-Hintergrund
-  (mausreaktiv, respektiert `prefers-reduced-motion`)
-- `assets/js/menubar.js` — OS-Menüleiste oben (Tour, Lebenslauf,
-  Ask-Marco, Terminal, Kontakt)
-- `assets/js/terminal-commands.js` — Befehls-Parser des Terminals
-  (pure Function, unit-getestet); Fenster-Wiring in window-manager.js,
-  öffnen per Menüleiste, Taste T oder `#terminal`
-- `assets/js/tour.js` — geführte Tour durch drei Highlight-Projekte,
-  endet beim Lebenslauf/Kontakt (Menüleiste, `tour`-Befehl oder `#tour`)
-- `assets/js/router.js` — Deep-Links per URL-Hash (`#sql-agent`,
-  `#lebenslauf`, `#ask-marco`, `#terminal`, `#tour`)
-- `assets/js/github-activity.js` — echte "letzter Commit …"-Zeile aus der
-  öffentlichen GitHub-API (sessionStorage-Cache, stiller Fallback)
-- `assets/js/hud.js` — Identitäts-Panel (oben links) + Orbit-Legende
-  (unten links) über der Szene
-- `assets/fonts/` — self-gehostete Webfonts (Space Grotesk + JetBrains
-  Mono, via `@fontsource`-Pakete; kein Google-Fonts-CDN → DSGVO-sicher)
+**Geteilt von beiden Frontends**
 
-Details zu Design-Entscheidungen: [docs/superpowers/specs/2026-07-28-marco-os-design.md](docs/superpowers/specs/2026-07-28-marco-os-design.md)
+- `data/` — alle Inhalte (siehe oben)
+- `assets/js/analytics.js` — GoatCounter, cookielos: Besucherzählung und
+  Demo-Start-Events
+- `assets/fonts/` — self-gehostete Webfonts (Space Grotesk + JetBrains Mono,
+  kein Google-Fonts-CDN → DSGVO-sicher)
+- `assets/img/planets/` — Planeten-, Sonnen- und Mond-Grafiken
+
+**Nur v3 (`index.html`, live)**
+
+- `assets/js/dc-support.js` — generierte Laufzeit, **nicht von Hand ändern**
+- `assets/js/portfolio-data-v3.js` — Cluster-Farben, Planetenbilder,
+  Boot-Farbgebung, Terminal-Parser
+- `assets/js/sky-v3.js` — Canvas-Himmel: Nebel, Parallax-Sterne,
+  Sternschnuppen, Gesichts-Sternbild
+
+**Nur Legacy (`index-legacy.html`)**
+
+- `assets/js/graph-layout.js` — reine Layout-Funktion (unit-getestet)
+- `assets/js/state.js` — zentrales State-Modul (unit-getestet)
+- `assets/js/scene.js`, `window-manager.js`, `taskbar.js`, `menubar.js`,
+  `hud.js`, `boot.js`, `tour.js`, `router.js`, `starfield.js`
+- `assets/js/terminal-commands.js`, `focus-target.js`, `html-utils.js`,
+  `github-activity.js` — reine Funktionen, unit-getestet
+
+**Sonstiges**
+
+- `.github/workflows/keep-warm.yml` — hält die Free-Tier-Demos werktags wach
+- `tools/` — `gen-nebula.mjs` (Nebel-Textur für den Hintergrund),
+  `gen-diagram.mjs`, `portfolio_ui.py` (geteilte Streamlit-Bausteine)
+- `docs/` — Specs, Pläne und Styleguides
+
+## Weiterführend
+
+- Arbeitsanweisungen für Claude Code: [CLAUDE.md](CLAUDE.md)
+- Aktueller Übergabestand: [HANDOVER.md](HANDOVER.md)
+- Offene Punkte: [TODO.md](TODO.md)
+- Ursprüngliche Design-Entscheidungen:
+  [docs/superpowers/specs/2026-07-28-marco-os-design.md](docs/superpowers/specs/2026-07-28-marco-os-design.md)

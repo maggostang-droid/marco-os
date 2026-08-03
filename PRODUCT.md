@@ -41,6 +41,13 @@ separate moon node opens an "Ask-Marco" chat window (embeds a live
 Streamlit chat app that answers questions about the portfolio); the center
 node opens a résumé window built from `data/resume.js`.
 
+Since 2026-08-03 the served page is an externally authored redesign ("v3",
+`index.html`); the previous front end remains at `index-legacy.html`. Both
+read the same content from `data/`. The live demos run on free tiers and
+fall asleep after inactivity — a scheduled workflow keeps them warm on
+weekdays but cannot wake an app that already sleeps, so a first visit
+outside that window can still cost a cold start.
+
 Two sibling portfolio concepts exist and are being explored independently,
 uncoordinated: `stangfolio` (the original static card-grid portfolio, kept
 unchanged as legacy/backup) and `stangverse` (an isometric walkable Phaser
@@ -57,7 +64,8 @@ portfolio.
   placeholder or mocked demos where `status: "live"`.
 - All content (project descriptions, CV, UI copy) is German, targeting the
   DACH job market. Not currently localized to English.
-- Project data lives solely in `data/projects.js`; no CMS or backend.
+- All content lives solely in `data/` (`projects.js`, `resume.js`,
+  `tour.js`, `boot.js`) and is shared by both front ends; no CMS or backend.
 
 ## Brand Commitments
 
@@ -102,6 +110,8 @@ portfolio.
 
 ## Accessibility & Inclusion
 
-No formal standard established. The existing implementation already
-respects `prefers-reduced-motion` (boot sequence, starfield parallax) as a
-baseline practice; nothing further is currently required.
+No formal standard established. The implementation respects
+`prefers-reduced-motion` (boot sequence, starfield parallax, the chat
+node's live ring) and declares `lang="de"` as baseline practice. Known gap:
+the page has no `<h1>` — headings are built in JavaScript and start at
+`<h2>`. See TODO.md.

@@ -75,20 +75,25 @@ from the chat window's original design.
 
 **Non-obvious gotcha:** there are two distinct "second-brain" things in this
 codebase. (a) A real `data/projects.js` project entry with `id: "second-brain"`
-— its own planet, its own window. (b) The chat's internal sentinel
-`SECOND_BRAIN_CHAT_ID` in `state.js` (currently `"__second-brain-chat__"`),
+— its own planet, its own window. (b) The chat's internal sentinel, which is
 deliberately *not* the string `"second-brain"` so it can't collide with (a).
-Know both exist and why they're different strings before touching this area.
-Similarly, the résumé window's `RESUME_ID` sentinel (`"__resume__"`) has no
-collision risk of its own — `data/resume.js` isn't a `data/projects.js` entry
-at all, just a separate data module the résumé window reads from.
+**The two front ends use different sentinel values** — `state.js` has
+`SECOND_BRAIN_CHAT_ID = "__second-brain-chat__"`, v3 has `CHAT_ID = "__chat__"`.
+That is why `data/tour.js` marks its last step with `resume: true` instead of
+an id, and each front end substitutes its own `RESUME_ID` via
+`tourWithResumeId()`. Both happen to use `"__resume__"` today, but don't rely
+on it. Know all of this before touching sentinels.
+
+In v3 the moon always opens the *chat*, never a project window — `#second-brain`
+therefore normalizes to `#ask-marco`.
 
 ## Commands
 
 ```bash
-npm test                     # runs `node --test`, discovers tests/*.test.js — all passing
+npm test                     # runs `node --test`, discovers tests/*.test.js — 78 passing
 node --check <file>.js       # per-file syntax check
-python -m http.server 8000   # serve locally, then open http://localhost:8000/
+start-local.bat              # Windows: server on :8000 + opens the browser
+python -m http.server 8000   # otherwise, then open http://localhost:8000/
 ```
 
 `node --test tests/` (passing the directory explicitly) does **not** work on
@@ -107,9 +112,16 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 
 ## Architecture
 
+Everything below `data/` is shared. Everything below `assets/js/` in this
+section belongs to **`index-legacy.html`**, not to the live start page — see
+the "two front ends" note at the top.
+
 - `data/projects.js` — project data (`id`, `title`, `summary`, `description`,
-  `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional
-  `coldStartNote`). No position field — layout is computed at runtime.
+  `tags`, `demoUrl`, `repoUrl`, `status`, `cluster`, optional `stats` and
+  `orbitsCenter`). No position field — layout is computed at runtime, and the
+  array order decides where planets land, so reordering moves the live page.
+- `data/resume.js`, `data/tour.js`, `data/boot.js` — CV, guided-tour steps,
+  ASCII logo and boot lines. All three are read by both front ends.
 - `assets/js/state.js` — central state singleton (`activeProjectId`,
   `bootComplete`, `zoomLevel`) with a subscribe/notify pattern. Also exports
   `SECOND_BRAIN_CHAT_ID` and `RESUME_ID`, the sentinel `activeProjectId`
@@ -117,11 +129,11 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
   "second-brain" gotcha above), plus `resolveFocusedNodeId`, the single
   source of truth for mapping a sentinel `activeProjectId` to the real
   graph-layout.js node id it should restore focus/zoom to.
-- `assets/js/boot.js` — typewriter-style boot-line overlay (generic system
-  lines + one line per project), skippable by click/keypress at any point,
-  respects `prefers-reduced-motion`. Once it finishes, `state.bootComplete`
-  flips and the background overlay fades out while the graph scene reveals
-  itself.
+- `assets/js/boot.js` — typewriter-style boot-line overlay, skippable by
+  click/keypress at any point, respects `prefers-reduced-motion`. The *text*
+  comes from `data/boot.js`; this file only decides how it renders. Once it
+  finishes, `state.bootComplete` flips and the background overlay fades out
+  while the graph scene reveals itself.
 - `assets/js/graph-layout.js` — pure function computing node/edge coordinates.
   Projects are grouped by `cluster` (`agentic-ai`/`cloud`/`full-stack`) onto
   their own concentric elliptical orbit around the center node, evenly
@@ -155,6 +167,46 @@ refresh (Ctrl+Shift+R) after JS/CSS changes or you'll see stale output.
 - `index-legacy.html` — containers: `#boot-overlay`, `#scene`, `#window-layer`,
   `#taskbar`. (This was `index.html` until the v3 swap on 2026-08-03; the
   current `index.html` is the v3 redesign and shares none of the above.)
+
+## Architecture — v3 (`index.html`, the live page)
+
+v3 is one self-contained HTML file plus three modules. All markup, styling and
+component logic live *inside* `index.html`; there is no CSS file for it.
+
+- `assets/js/dc-support.js` — generated mini-React runtime, header says "do not
+  edit". It evaluates the `<script type="text\x-dc">` block in `index.html` and
+  binds `{{ … }}` templates.
+- `assets/js/portfolio-data-v3.js` — v3-only presentation: cluster colors,
+  planet images, boot-line colors, terminal parser. Content comes from `data/`.
+- `assets/js/sky-v3.js` — one canvas, one rAF loop: nebula, parallax stars,
+  shooting stars, and the face constellation on hovering the sun.
+
+**Four traps this runtime has already caused.** All fixed, all easy to
+reintroduce:
+
+1. Dynamic `import()` inside the template block resolves relative to
+   `dc-support.js`, *not* to the document. Use
+   `new URL(name, document.baseURI)`. An absolute `/assets/...` also breaks,
+   because Pages serves from the project sub-path `/marco-os/`.
+2. `const` helpers used inside `componentDidMount` must be declared before
+   their first use — the template block is one scope, so a late `const` lands
+   in the temporal dead zone.
+3. Layout margins were hardcoded for desktop; below ~760px `maxRx` went
+   negative, SVG discarded the ellipses, and every planet collapsed onto the
+   sun. Anything geometric needs a narrow-viewport branch (`w < 760`).
+4. Mobile chrome is driven by a `@media (max-width: 760px)` block with
+   `!important`, because the elements carry inline styles. Classes: `.m-hide`,
+   `.m-only`, `.hdr*`, `.hud*`, `.tabs`, `.livering`.
+
+**Analytics is shared.** v3 imports `assets/js/analytics.js` exactly like the
+legacy page. Loading it is what *counts* a visit — reading `TOTAL.json` only
+displays the number. Forgetting `initAnalytics()` silently freezes the counter
+while still showing a plausible figure.
+
+**GitHub activity is lazy.** `fetchActivity(id)` runs when a project window
+opens, once per project. Fetching all of them upfront burned the
+60-requests-per-hour anonymous limit and left the "letzter Commit" line blank
+everywhere.
 
 ## Working style notes for this repo
 

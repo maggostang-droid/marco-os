@@ -1,76 +1,73 @@
 # marco-os — Offene Punkte
 
-Diese Liste enthält Punkte, die während Implementierung und Code-Review
-identifiziert, aber bewusst nicht sofort umgesetzt wurden (kein Fehler im
-laufenden Betrieb, aber echte Verbesserungen). Gedacht als Startpunkt für
-einen Agenten/eine neue Session — jeder Punkt hat genug Kontext, um direkt
-loszulegen, ohne die gesamte Historie zu kennen.
+Stand: 2026-08-03. Punkte, die bewusst nicht sofort umgesetzt wurden — keine
+Fehler im laufenden Betrieb, aber echte Verbesserungen. Jeder Punkt hat genug
+Kontext, um ohne Kenntnis der Historie loszulegen.
 
-Hintergrund: `docs/superpowers/specs/2026-07-28-marco-os-design.md` (Design),
-`docs/superpowers/plans/2026-07-28-marco-os-implementation.md` (Implementierungsplan,
-bereits vollständig umgesetzt und gemerged).
+Die vorherige Fassung dieser Liste bezog sich auf den Stand vor dem
+v3-Umstieg (drei Projekte, Platzhalter mit `status: "planned"`, Zoom-Fix-Wave).
+Sie ist gegenstandslos: es sind acht echte Projekte, die Platzhalter existieren
+nicht mehr, und die Startseite ist eine andere.
 
-**Update:** Die Punkte 1–5 der vorherigen Fassung dieser Liste (mobile
-Radius-Skalierung, Fokus-Entscheidungslogik als reine Funktion, Tag-Winkel-
-Spreizung, HTML-Injection-Schutz, sowie die kleineren Einzelpunkte) wurden
-umgesetzt, per TDD getestet (`node --test tests/`, 29 Tests) und manuell im
-Browser bei 375px/1280px verifiziert. Eine Ausnahme: das
-`AbortController`-Teardown für den `keydown`-Listener in
-`window-manager.js` wurde bewusst **nicht** nachgezogen — `initWindowManager`
-wird nur einmal pro Seitenleben aufgerufen, es gibt keinen Aufrufer, der
-jemals abbricht/aufräumt, daher wäre ein `AbortController` ohne je
-aufgerufenes `abort()` toter Code. Nur relevant, falls `window-manager.js`
-künftig mehrfach initialisiert werden soll (z.B. bei einem Hot-Reload-Setup).
+## 1. Keine Überschriften-Struktur
 
-**Update 2:** Parallax-Sternfeld-Hintergrund (`assets/js/starfield.js`) und
-Graph-Zoom (Mausrad + Taskbar-Buttons, `state.zoomLevel`) wurden per
-Subagent-Driven Development umgesetzt und final reviewed (Specs:
-`docs/superpowers/specs/2026-07-28-parallax-starfield-design.md` und
-`docs/superpowers/specs/2026-07-28-graph-zoom-design.md`). Die Zoom-Arbeit
-deckte ein cross-cutting Problem auf und wurde in einem Fix-Wave behoben:
-`window-manager.js` baute das Projekt-Fenster bei jedem Zoom-Tick komplett
-neu auf, was Fokus vom Demo-/Repo-Link zurück auf den ×-Button riss und die
-Scroll-Position der Beschreibung resettete — jetzt per Early-Out
-unterdrückt, wenn dasselbe Projekt weiterhin offen ist. Ein Punkt aus
-diesem Fix-Wave wurde bewusst **nicht** mit erledigt (siehe Punkt 2 unten).
+Beide Frontends bauen ihre Texte per JavaScript und setzen **kein `<h1>`**. v3
+hat ein `<h2>` im Projektfenster, aber kein `<h1>` darüber — für Screenreader
+und Suchmaschinen ist das eine echte Lücke.
 
-## 1. Produkt-/Umfang-Themen (keine Code-Aufgabe)
+**Ansatz:** In v3 den HUD-Namen ("Dr.-Ing. Marco Stang", `index.html`, Klasse
+`hud-name`) von `<div>` auf `<h1>` heben und das `<h2>` im Fenster
+beibehalten. Optisch ändert sich nichts, wenn die Schriftwerte inline bleiben.
+Vorsicht: Der Standard-`margin` von Überschriften muss auf `0` gesetzt werden,
+sonst verschiebt sich das HUD.
 
-- **Nur 3 Projekte in `data/projects.js`** (sql-agent + 2 Platzhalter mit
-  `status: "planned"`). Weitere echte Projekte (z.B. `goz-finetune-vs-rag`,
-  siehe `02_Portfolio/goz-finetune-vs-rag`) könnten als Karten/Knoten
-  ergänzt werden.
-- **Verhältnis zu `stangfolio`** (klassische Karten-Ansicht, unverändert
-  bestehend) **und `stangverse`** (begehbare isometrische Welt, entsteht
-  parallel in einer anderen Session) — noch keine Entscheidung, welches
-  Konzept langfristig bleibt oder ob alle drei parallel existieren.
+## 2. Eine Label-Überlappung auf dem Handy
 
-## 2. Taskbar hat denselben Fokus-/Rebuild-Bug wie das Projekt-Fenster hatte
+Bei 375 und 414 px überlappt genau ein Knoten-Label ("AI Act Evidence Toolkit")
+das Zentrums-Label. Bei 768 px und darüber sind es null.
 
-**Kontext:** Der finale Review der Zoom-Funktion fand, dass
-`window-manager.js`'s `render()` bei jedem `notify()` (auch reinen
-Zoom-Ticks ohne Projektwechsel) das komplette Fenster neu aufbaute und
-dabei Fokus/Scroll-Position zerstörte — das wurde gefixt (Early-Out bei
-gleichbleibendem Projekt, siehe Update 2 oben). `assets/js/taskbar.js`s
-`renderTaskbar()` (Zeile ~25) hat exakt dasselbe Muster: kompletter
-`innerHTML`-Rebuild bei jedem `notify()`, inklusive reiner Zoom-Ticks, und
-die beiden Zoom-Buttons rufen `.focus()` ohne `preventScroll: true` auf
-(Zeile ~48). War explizit außerhalb des Zoom-Fix-Waves (dieser hat nur
-Dateien angefasst, die tatsächlich Findings hatten) — `taskbar.js` selbst
-wurde nicht verändert.
+Ursache ist Platzmangel, kein Fehler in der Kollisionsauflösung: der Radius ist
+dort durch die Breite begrenzt (`padX`), nicht durch die Höhe. Ein größerer
+Radius wurde versucht (`padX` 42 → 28) und wieder verworfen, weil dann zwei
+Labels aus dem Bild liefen — siehe Kommentar an der Stelle in `index.html`.
 
-**Symptom:** Fokussiert man einen Zoom-Button per Tastatur und zoomt dann
-weiter (Mausrad oder derselbe Button erneut), wird der Button bei jedem
-Tick neu erzeugt und der Fokus zwar wiederhergestellt (dank der in Task 3
-bereits vorhandenen `focusedZoomDirection`-Logik), aber ohne
-`preventScroll` — bei genügend hohem Zoom-Level könnte das theoretisch ein
-Scrollen von `.desktop` auslösen (dasselbe Risiko wie das gefixte
-`preventScroll`-Finding in `scene.js`/`window-manager.js`).
+**Ansatz:** Statt am Radius zu drehen, die Labels auf schmalen Viewports
+kürzen (z.B. nur der Projekttitel ohne Zusatz) oder das Label des jeweils
+fokussierten Knotens hervorheben und die übrigen ausblenden.
 
-**Ansatz:** Analog zum bereits gefixten Muster —
-`[data-zoom="..."]?.focus({ preventScroll: true })` in `taskbar.js`
-ergänzen. Ein Early-Out ist hier weniger offensichtlich lohnend als bei
-`window-manager.js` (die Taskbar zeigt zusätzlich Uhrzeit und
-KI-Guide-Tipp, die sich unabhängig von Zoom ändern — ein pauschales
-"gleicher Zustand → skip" würde diese Updates mit unterdrücken), aber
-zumindest der `preventScroll`-Fix ist eine risikofreie Ergänzung.
+## 3. Schlafende Demos lassen sich nicht automatisch wecken
+
+`.github/workflows/keep-warm.yml` hält werktags 08:00–20:47 wach, was wach ist.
+Eine bereits eingeschlafene Streamlit-App kann er **nicht** wecken: der
+Aufweck-Knopf im Browser schickt `POST /api/v2/app/resume`, und der antwortet
+ohne angemeldete Sitzung mit 403.
+
+Außerhalb des Zeitfensters bleibt ein Kaltstart also möglich. Eine `400` auf
+`/~/+/` im Workflow-Log heißt "diese Demo schläft".
+
+**Ansatz, falls es stören sollte:** Ein Dienst mit echter Browser-Sitzung
+(z.B. ein Playwright-Job, der den Aufweck-Knopf klickt) könnte das lösen —
+das wäre aber deutlich mehr Maschinerie als das jetzige Sechs-Zeilen-curl.
+
+## 4. v3 hat keine Testabdeckung
+
+`npm test` deckt die Legacy-Module und die geteilten Daten in `data/` ab. Die
+gesamte v3-Logik — Layout, Terminal-Parser, Boot, Tour — steckt in
+`index.html` bzw. `portfolio-data-v3.js` und wird nur im Browser verifiziert.
+
+Der Terminal-Parser in `portfolio-data-v3.js` (`executeCommand`,
+`completeInput`) ist eine reine Funktion und ließe sich testen wie sein
+Legacy-Gegenstück in `tests/terminal-commands.test.js`.
+
+## 5. Produkt-/Umfang-Themen (keine Code-Aufgabe)
+
+- **Verhältnis zu `stangfolio`** (klassische Karten-Ansicht, unverändert) und
+  `stangverse` (begehbare isometrische Welt) — noch keine Entscheidung,
+  welches Konzept langfristig bleibt.
+- **`index-legacy.html`** ist derzeit nur Revert-Ziel. Wenn v3 dauerhaft
+  bleibt, wäre irgendwann zu entscheiden, ob die alte Fassung samt ihrer
+  Module und Tests verschwindet — dann verlöre man allerdings die einzige
+  Testabdeckung im Repo (siehe Punkt 4).
+- **Branch `worktree-design-optimization`** liegt noch auf origin und in
+  `.claude/worktrees/design-optimization`. Er stammt aus einer Sitzung vor dem
+  v3-Umstieg und ist vermutlich gegenstandslos.
