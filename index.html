@@ -248,7 +248,14 @@ button{font:inherit}
             <sc-if value="{{ isProject }}" hint-placeholder-val="{{ true }}">
               <div>
                 <button type="button" onClick="{{ toggleTech }}" style="background:none;border:0;padding:0 0 10px;cursor:pointer;font:500 12px/1 'JetBrains Mono',monospace;color:{{ activeAccent }}">{{ techLabel }}</button>
-                <p style="margin:0 0 22px;max-height:{{ techHeight }};overflow:hidden;opacity:{{ techOpacity }};transition:max-height .45s cubic-bezier(.22,1,.3,1), opacity .3s;font:400 13.5px/1.68 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">{{ activeDescription }}</p>
+                <!-- 0fr/1fr statt max-height: der Browser animiert damit die
+                     Spurhoehe des Grids statt bei jedem Bild das Layout neu zu
+                     rechnen. Nebeneffekt, der hier mehr zaehlt als die Performance:
+                     es faehrt auf die ECHTE Texthoehe aus. Das alte max-height:600px
+                     haette lange Beschreibungen einfach abgeschnitten. -->
+                <div style="display:grid;grid-template-rows:{{ techRows }};opacity:{{ techOpacity }};transition:grid-template-rows .45s cubic-bezier(.22,1,.3,1), opacity .3s;margin:0 0 22px">
+                  <p style="margin:0;min-height:0;overflow:hidden;font:400 13.5px/1.68 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">{{ activeDescription }}</p>
+                </div>
               </div>
             </sc-if>
 
@@ -287,10 +294,12 @@ button{font:inherit}
                   </div>
                 </sc-for>
                 <button type="button" onClick="{{ toggleHistory }}" style="background:none;border:0;padding:14px 0 6px;cursor:pointer;font:500 12px/1 'JetBrains Mono',monospace;color:#b48cf5">{{ historyLabel }}</button>
-                <div style="max-height:{{ historyHeight }};overflow:hidden;opacity:{{ historyOpacity }};transition:max-height .45s cubic-bezier(.22,1,.3,1), opacity .3s">
-                  <sc-for list="{{ extendedHistory }}" as="h" hint-placeholder-count="5">
-                    <div style="padding:7px 0;font:400 12.5px/1.6 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">› {{ h }}</div>
-                  </sc-for>
+                <div style="display:grid;grid-template-rows:{{ historyRows }};opacity:{{ historyOpacity }};transition:grid-template-rows .45s cubic-bezier(.22,1,.3,1), opacity .3s">
+                  <div style="min-height:0;overflow:hidden">
+                    <sc-for list="{{ extendedHistory }}" as="h" hint-placeholder-count="5">
+                      <div style="padding:7px 0;font:400 12.5px/1.6 'Space Grotesk',sans-serif;color:#a9a3d2;text-wrap:pretty">› {{ h }}</div>
+                    </sc-for>
+                  </div>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:20px">
                   <sc-for list="{{ skills }}" as="sk" hint-placeholder-count="10">
@@ -943,10 +952,10 @@ class Component extends DCLogic {
       hasDemo: !!demoUrl,
       hasCommit: !!commit, commitText: commit || "",
       techLabel: this.state.tech ? "▾ Technische Details verbergen" : "▸ Technische Details anzeigen",
-      techHeight: this.state.tech ? "600px" : "0px", techOpacity: this.state.tech ? 1 : 0,
+      techRows: this.state.tech ? "1fr" : "0fr", techOpacity: this.state.tech ? 1 : 0,
       toggleTech: () => this.setState((s) => ({ tech: !s.tech })),
       historyLabel: this.state.hist ? "▾ Vollständigen Werdegang verbergen" : "▸ Vollständigen Werdegang anzeigen",
-      historyHeight: this.state.hist ? "400px" : "0px", historyOpacity: this.state.hist ? 1 : 0,
+      historyRows: this.state.hist ? "1fr" : "0fr", historyOpacity: this.state.hist ? 1 : 0,
       toggleHistory: () => this.setState((s) => ({ hist: !s.hist })),
       stations: D.RESUME.stations, extendedHistory: D.RESUME.extendedHistory, skills: D.RESUME.skills
     };

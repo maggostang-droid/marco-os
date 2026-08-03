@@ -1,0 +1,38 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-08-03T09:40:23.639Z",
+        "reason": "Etablierte Schrift der Seite: steht in assets/css/style.css als --font-ui, lokal in assets/fonts/, von index-legacy.html mitbenutzt. Wechsel waere eine Markenentscheidung fuer die ganze Seite."
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(.34, 1.4, .5, 1)",
+        "createdAt": "2026-08-03T09:40:23.814Z",
+        "reason": "Hover-Pop der Planeten in einer Weltraum-Szene, in der Knoten anklickbares Spielzeug sind. Bewusster, moderater Ueberschwung."
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-08-03T09:40:35.63Z",
+        "reason": "Der Pruefer bewertet die OS-Statusleisten-Chrome isoliert (9/11/12/14px). Gleichfoermigkeit ist dort Absicht; die echte Hierarchie steckt in der Display-Type darueber."
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-08-03T09:42:31.079Z",
+        "reason": "Leuchten ist die Bildsprache der Weltraum-Szene (Sonne, Planeten, Sterne), kein aufgesetzter Effekt. dark-glow liefert keinen auslesbaren Wert, daher dateigebunden."
+      }
+    ]
+  }
+}

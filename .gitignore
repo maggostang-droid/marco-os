@@ -1,2 +1,6 @@
 .superpowers/
 .worktrees/
+# Impeccable: config.json ist bewusst eingecheckt (dokumentiert die bestaetigten
+# Design-Ausnahmen), der Cache ist reiner Maschinenkram.
+.impeccable/hook.cache.json
+.impeccable/config.local.json
