@@ -48,6 +48,29 @@ button{font:inherit}
   .livering{animation:none!important}
   .livering--ring{opacity:.55!important}
 }
+/* ── Handy ──────────────────────────────────────────────────────────────
+   Der Entwurf ist fuer den Desktop gebaut: bei 375 px lief die Kopfzeile
+   rechts raus, die Orbit-Legende lag mitten im Graphen und der
+   KI-Guide-Hinweis ueberlappte die Fusszeile. Alles Dekorative fliegt hier
+   raus, das Bedienbare bleibt. !important ist noetig, weil die Elemente
+   ihre Werte inline tragen. */
+.m-only{display:none}
+@media (max-width: 760px){
+  .m-hide{display:none!important}
+  .m-only{display:inline!important}
+  .hdr{gap:4px!important;padding:0 6px!important}
+  /* nowrap ist hier entscheidend: ohne das brachen "Tour" und "Ask-Marco"
+     innerhalb der 38 px hohen Leiste auf zwei Zeilen um. */
+  .hdr-nav{gap:0!important}
+  .hdr-nav button,.hdr-nav a{padding:6px 6px!important;font-size:11px!important;white-space:nowrap!important}
+  .hdr-brand{font-size:11px!important;letter-spacing:.08em!important;gap:0!important}
+  .hud{top:12px!important;left:14px!important;right:14px!important}
+  .hud-name{font-size:21px!important;line-height:1.1!important}
+  .hud-sub{font-size:12.5px!important}
+  .hud-stats{gap:10px!important;font-size:10.5px!important;margin-top:12px!important;flex-wrap:wrap!important}
+  .tabs{padding:2px!important}
+  .tabs button{padding:5px 7px!important;font-size:10.5px!important}
+}
 @keyframes sheen{from{transform:translateX(-120%)}to{transform:translateX(220%)}}
 </style>
 </helmet>
@@ -57,21 +80,26 @@ button{font:inherit}
   <div style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);opacity:.5"></div>
   <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 240px 70px rgba(3,2,8,.8)"></div>
 
-  <header style="position:absolute;top:0;left:0;right:0;height:38px;display:flex;align-items:center;gap:16px;padding:0 16px;z-index:50;background:linear-gradient(to bottom, rgba(14,10,28,.9), rgba(12,9,24,.66));border-bottom:1px solid rgba(150,130,220,.16);backdrop-filter:blur(14px)">
-    <span style="font:600 12px/1 'JetBrains Mono',monospace;letter-spacing:.14em;color:#e9e5ff;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:#f2b45c;box-shadow:0 0 10px #f2b45c;display:inline-block"></span>MARCO.OS</span>
-    <nav style="display:flex;align-items:center;gap:2px">
+  <header class="hdr" style="position:absolute;top:0;left:0;right:0;height:38px;display:flex;align-items:center;gap:16px;padding:0 16px;z-index:50;background:linear-gradient(to bottom, rgba(14,10,28,.9), rgba(12,9,24,.66));border-bottom:1px solid rgba(150,130,220,.16);backdrop-filter:blur(14px)">
+    <!-- Auf dem Handy bleibt nur das Quadrat als Marke stehen; der Schriftzug
+         kostet dort ~75 px, die die Navigation braucht, und steht ohnehin
+         noch einmal unten in der Fusszeile. -->
+    <span class="hdr-brand" style="font:600 12px/1 'JetBrains Mono',monospace;letter-spacing:.14em;color:#e9e5ff;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:#f2b45c;box-shadow:0 0 10px #f2b45c;display:inline-block"></span><span class="m-hide">MARCO.OS</span></span>
+    <nav class="hdr-nav" style="display:flex;align-items:center;gap:2px">
       <button type="button" onClick="{{ startTour }}" style="background:none;border:0;color:#f2b45c;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(242,180,92,.16)">▶ Tour</button>
       <button type="button" onClick="{{ openResume }}" style="background:none;border:0;color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Lebenslauf</button>
       <button type="button" onClick="{{ openChat }}" style="display:flex;align-items:center;gap:6px;background:none;border:0;color:#4fd6c4;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(79,214,196,.16);color:#8ce8dc"><span class="livering" style="width:6px;height:6px;border-radius:50%;background:#4fd6c4;animation:pulse 2.9s ease-in-out infinite"></span>Ask-Marco</button>
       <button type="button" onClick="{{ openTerminal }}" style="background:none;border:0;color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Terminal</button>
-      <a href="mailto:stang.marco@t-online.de" style="color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Kontakt</a>
+      <!-- Kontakt fliegt auf dem Handy raus: die Adresse steht ohnehin im
+           Lebenslauf-Fenster hinter einem eigenen Kontakt-Button. -->
+      <a class="m-hide" href="mailto:stang.marco@t-online.de" style="color:#c9c5e8;font:500 12px/1 'Space Grotesk',sans-serif;padding:7px 10px;border-radius:6px;transition:.18s" style-hover="background:rgba(180,140,245,.14);color:#fff">Kontakt</a>
     </nav>
     <span style="flex:1"></span>
-    <div style="display:flex;align-items:center;gap:0;padding:3px;border:1px solid rgba(150,130,220,.2);border-radius:8px;background:rgba(8,6,18,.6)">
+    <div class="tabs" style="display:flex;align-items:center;gap:0;padding:3px;border:1px solid rgba(150,130,220,.2);border-radius:8px;background:rgba(8,6,18,.6)">
       <button type="button" onClick="{{ setOrbit }}" style="{{ tabOrbit }}">Orbit</button>
-      <button type="button" onClick="{{ setKarte }}" style="{{ tabKarte }}">Systemkarte</button>
+      <button type="button" onClick="{{ setKarte }}" style="{{ tabKarte }}"><span class="m-hide">Systemkarte</span><span class="m-only">Karte</span></button>
     </div>
-    <span style="display:flex;align-items:center;gap:7px;font:400 11px/1 'JetBrains Mono',monospace;color:#8a86a8"><span style="width:6px;height:6px;border-radius:50%;background:#4fd6c4;box-shadow:0 0 8px #4fd6c4;animation:pulse 2.6s ease-in-out infinite"></span>alle Systeme online</span>
+    <span class="m-hide" style="display:flex;align-items:center;gap:7px;font:400 11px/1 'JetBrains Mono',monospace;color:#8a86a8"><span style="width:6px;height:6px;border-radius:50%;background:#4fd6c4;box-shadow:0 0 8px #4fd6c4;animation:pulse 2.6s ease-in-out infinite"></span>alle Systeme online</span>
   </header>
 
   <div ref="{{ setScene }}" style="position:absolute;top:38px;left:0;right:0;bottom:32px;overflow:hidden">
@@ -98,7 +126,7 @@ button{font:inherit}
             <span style="position:absolute;inset:-10px;border-radius:50%;border:1px solid {{ n.ringColor }};opacity:{{ n.ringOpacity }};transition:opacity .3s"></span>
             <span class="livering livering--ring" style="{{ n.liveRing }}"></span>
           </span>
-          <span style="font:{{ n.labelFont }};letter-spacing:.02em;color:{{ n.labelColor }};white-space:nowrap;padding:3px 8px;border-radius:7px;background:rgba(6,5,14,.62);border:1px solid {{ n.ringColor }};box-shadow:0 2px 14px rgba(3,2,10,.55);transform:translate({{ n.dx }}px,{{ n.dy }}px);transition:color .25s,background .25s">{{ n.title }}</span>
+          <span style="font:{{ n.labelFont }};letter-spacing:.02em;color:{{ n.labelColor }};white-space:nowrap;padding:{{ n.labelPad }};border-radius:7px;background:rgba(6,5,14,.62);border:1px solid {{ n.ringColor }};box-shadow:0 2px 14px rgba(3,2,10,.55);transform:translate({{ n.dx }}px,{{ n.dy }}px);transition:color .25s,background .25s">{{ n.title }}</span>
         </button>
       </sc-for>
 
@@ -110,23 +138,26 @@ button{font:inherit}
       </sc-if>
     </div>
 
-    <div data-reserved="hud" style="position:absolute;top:22px;left:24px;pointer-events:none;opacity:{{ hudOpacity }};transition:opacity .9s ease .2s">
-      <div style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#6f6a92;margin-bottom:14px">// portfolio-system v3.0</div>
-      <div style="font:600 30px/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em;color:#f3f1ff">Dr.-Ing. Marco Stang</div>
-      <div style="font:400 15px/1.4 'Space Grotesk',sans-serif;color:#a9a3d2;margin-top:6px">KI-Spezialist &amp; Data Scientist</div>
-      <div style="display:flex;gap:16px;margin-top:18px;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92">
+    <div class="hud" data-reserved="hud" style="position:absolute;top:22px;left:24px;pointer-events:none;opacity:{{ hudOpacity }};transition:opacity .9s ease .2s">
+      <div class="m-hide" style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#6f6a92;margin-bottom:14px">// portfolio-system v3.0</div>
+      <div class="hud-name" style="font:600 30px/1.06 'Space Grotesk',sans-serif;letter-spacing:-.025em;color:#f3f1ff">Dr.-Ing. Marco Stang</div>
+      <div class="hud-sub" style="font:400 15px/1.4 'Space Grotesk',sans-serif;color:#a9a3d2;margin-top:6px">KI-Spezialist &amp; Data Scientist</div>
+      <div class="hud-stats" style="display:flex;gap:16px;margin-top:18px;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92">
         <span>{{ statProjects }}</span><span>{{ statDemos }}</span><span>10+ Jahre ML</span>
       </div>
     </div>
 
-    <div data-reserved="legend" style="position:absolute;bottom:20px;left:24px;display:flex;flex-direction:column;gap:9px;opacity:{{ hudOpacity }};transition:opacity .9s ease .4s;pointer-events:none">
+    <!-- Legende und Bedienhinweis auf dem Handy weg: die Legende lag mitten
+         im Graphen, und der Hinweis nennt Mausrad und Hovern -- beides gibt
+         es auf einem Touchscreen nicht. -->
+    <div class="m-hide" data-reserved="legend" style="position:absolute;bottom:20px;left:24px;display:flex;flex-direction:column;gap:9px;opacity:{{ hudOpacity }};transition:opacity .9s ease .4s;pointer-events:none">
       <div style="font:500 10.5px/1 'JetBrains Mono',monospace;letter-spacing:.2em;color:#5e5a80">// orbits</div>
       <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#f2b45c;box-shadow:0 0 10px rgba(242,180,92,.8)"></span>Agentic AI</div>
       <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#4fd6c4;box-shadow:0 0 10px rgba(79,214,196,.8)"></span>Cloud &amp; Infrastruktur</div>
       <div style="display:flex;align-items:center;gap:8px;font:400 11.5px/1 'Space Grotesk',sans-serif;color:#a9a3d2"><span style="width:8px;height:8px;border-radius:50%;background:#b48cf5;box-shadow:0 0 10px rgba(180,140,245,.8)"></span>Full-Stack &amp; ML-Engineering</div>
     </div>
 
-    <div style="position:absolute;bottom:22px;right:26px;opacity:{{ hintOpacity }};transition:opacity .6s;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92;display:flex;align-items:center;gap:9px;pointer-events:none">
+    <div class="m-hide" style="position:absolute;bottom:22px;right:26px;opacity:{{ hintOpacity }};transition:opacity .6s;font:400 11.5px/1 'JetBrains Mono',monospace;color:#6f6a92;display:flex;align-items:center;gap:9px;pointer-events:none">
       <span style="width:16px;height:16px;border-radius:50%;border:1px solid #6f6a92;display:inline-flex;align-items:center;justify-content:center;font-size:9px">↖</span>Knoten anklicken, Mausrad zoomt, Sonne hovern
     </div>
   </div>
@@ -321,7 +352,7 @@ button{font:inherit}
     <span style="color:#c9c5e8">◆ MARCO.OS</span>
     <span style="{{ taskChipStyle }}">{{ activeFile }}</span>
     <span style="flex:1"></span>
-    <button type="button" onClick="{{ openChat }}" style="background:none;border:1px solid rgba(150,130,220,.2);border-radius:7px;color:#a9a3d2;font:400 11px/1 'JetBrains Mono',monospace;padding:6px 11px;cursor:pointer;transition:.18s" style-hover="border-color:rgba(79,214,196,.5);color:#4fd6c4">{{ guideTip }}</button>
+    <button class="m-hide" type="button" onClick="{{ openChat }}" style="background:none;border:1px solid rgba(150,130,220,.2);border-radius:7px;color:#a9a3d2;font:400 11px/1 'JetBrains Mono',monospace;padding:6px 11px;cursor:pointer;transition:.18s" style-hover="border-color:rgba(79,214,196,.5);color:#4fd6c4">{{ guideTip }}</button>
     <span style="{{ visitorStyle }}">◉ {{ visitors }} Besucher</span>
     <div style="display:flex;gap:4px">
       <button type="button" onClick="{{ zoomOut }}" aria-label="Rauszoomen" style="width:24px;height:22px;border-radius:6px;border:1px solid rgba(150,130,220,.2);background:none;color:#a9a3d2;cursor:pointer;line-height:1;transition:.18s" style-hover="border-color:rgba(180,140,245,.5);color:#fff">−</button>
@@ -771,6 +802,9 @@ class Component extends DCLogic {
       // Rundere Ellipsen (0.72 statt 0.6): sonst rücken Knoten auf der
       // senkrechten Achse dichter an Marco als der Mond.
       const asp = 0.72;
+      // Schmal bewusst konservativ: mit padX 28 wurde der Radius zwar groesser,
+      // dafuer rutschten zwei Labels aus dem Bild. Eine Label-Ueberlappung in
+      // der Mitte ist das kleinere Uebel als abgeschnittene Beschriftung.
       const padX = narrow ? 42 : 200, padY = narrow ? 168 : 104;
       const maxRx = Math.max(88, Math.min(w / 2 - padX, (h / 2 - padY) / asp));
       // Nur der Ask-Marco-Mond umkreist Marco eng; alle Cluster-Ringe liegen
@@ -858,6 +892,10 @@ class Component extends DCLogic {
     const isResume = active === D.RESUME_ID, isChat = active === D.CHAT_ID, isTerminal = active === D.TERM_ID;
     const isProject = !!activeP && !isChat;
 
+    // Auf dem Handy schrumpfen Planeten UND Labels: bei voller Groesse
+    // deckten neun Knoten samt nicht umbrechender Label-Chips die halbe
+    // Flaeche ab und ueberlappten sich gegenseitig.
+    const eng = w < 760;
     const nodeVals = nodes.map((n, i) => {
       const p = n.p, isCenter = !p;
       const nodeId = isCenter ? "center" : p.id;
@@ -870,7 +908,7 @@ class Component extends DCLogic {
       const isActive = focusId === nodeId, dim = focusId && !isActive, hovered = hover === nodeId;
       return {
         left: Math.round(n.x), top: Math.round(n.y),
-        size: isCenter ? 78 : n.moon ? 42 : p.status === "live" ? 52 : 40,
+        size: isCenter ? (eng ? 54 : 78) : n.moon ? (eng ? 32 : 42) : p.status === "live" ? (eng ? 36 : 52) : (eng ? 30 : 40),
         title: isCenter ? "Marco Stang" : n.moon ? "Ask-Marco · Chat" : p.title,
         aria: isCenter ? "Marco Stang, Lebenslauf öffnen" : n.moon ? "Ask-Marco Assistant, Chat öffnen" : `${p.title} öffnen`,
         z: isCenter ? 12 : hovered ? 14 : 10,
@@ -894,7 +932,12 @@ class Component extends DCLogic {
         liveRing: n.moon && !focusId
           ? `position:absolute;inset:-13px;border-radius:50%;border:1px solid ${hexA(color, 0.85)};animation:livering 2.9s ease-in-out infinite;pointer-events:none`
           : "display:none",
-        labelFont: isCenter ? "600 15px/1 'Space Grotesk',sans-serif" : n.moon ? "500 11.5px/1 'JetBrains Mono',monospace" : "500 12.5px/1 'Space Grotesk',sans-serif",
+        labelFont: isCenter
+          ? (eng ? "600 12px/1 'Space Grotesk',sans-serif" : "600 15px/1 'Space Grotesk',sans-serif")
+          : n.moon
+            ? (eng ? "500 9.5px/1 'JetBrains Mono',monospace" : "500 11.5px/1 'JetBrains Mono',monospace")
+            : (eng ? "500 10px/1 'Space Grotesk',sans-serif" : "500 12.5px/1 'Space Grotesk',sans-serif"),
+        labelPad: eng ? "2px 5px" : "3px 8px",
         labelColor: isCenter || hovered || isActive ? "#f6f4ff" : n.moon ? "#4fd6c4" : "#a9a3d2",
         onClick: () => { this.stopTour(); this.open(openId); },
         onEnter: () => this.setState({ hover: nodeId }),
