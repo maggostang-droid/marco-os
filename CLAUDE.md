@@ -58,12 +58,12 @@ through live tuning.
 
 ## Relationship to sibling repos
 
-This is one of two independent, uncoordinated successor concepts to
-`stangfolio` (the original static card-grid portfolio, which stays untouched as
-a legacy/backup repo). The other is `stangverse` (an isometric walkable Phaser
-world). Neither knows about the other's progress — no decision has been made on
-which (if either) becomes the permanent portfolio. Don't assume parity with
-stangverse's implementation choices.
+**This is the portfolio.** Two alternative concepts were explored earlier and
+were dropped on 2026-08-03: `stangfolio` (a static card grid) and `stangverse`
+(an isometric walkable Phaser world). Their repos may still exist on disk, but
+they are not maintained and no longer a reference for anything here. If older
+specs under `docs/superpowers/` weigh a decision against them, that framing is
+historical.
 
 The `second-brain` chat app (separate repo/Streamlit) is implemented: clicking
 the "Ask-Marco Assistant" moon node opens a window embedding

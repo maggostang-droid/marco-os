@@ -61,9 +61,6 @@ Legacy-Gegenstück in `tests/terminal-commands.test.js`.
 
 ## 5. Produkt-/Umfang-Themen (keine Code-Aufgabe)
 
-- **Verhältnis zu `stangfolio`** (klassische Karten-Ansicht, unverändert) und
-  `stangverse` (begehbare isometrische Welt) — noch keine Entscheidung,
-  welches Konzept langfristig bleibt.
 - **`index-legacy.html`** ist derzeit nur Revert-Ziel. Wenn v3 dauerhaft
   bleibt, wäre irgendwann zu entscheiden, ob die alte Fassung samt ihrer
   Module und Tests verschwindet — dann verlöre man allerdings die einzige

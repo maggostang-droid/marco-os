@@ -331,8 +331,8 @@ Entscheidung, kein Versäumnis.
   Größe des Projekts (11 Module, ~1600 Zeilen) ist ein Framework-Overhead nicht
   gerechtfertigt.
 - **Warum kein klassisches Karten-Grid als Fallback?** Design-Entscheidung laut
-  Spec: die Graph-Szene *ist* die Seite — soll sich von der klassischen
-  Vorgänger-Portfolio-Seite (`stangfolio`) abheben.
+  Spec: die Graph-Szene *ist* die Seite — sie soll sich von einer klassischen
+  Karten-Portfolio-Seite abheben.
 - **Warum State als simples Objekt + Pub-Sub statt Redux/Zustand/Signals?**
   Drei Felder, überschaubare Modulanzahl — die einfachste Lösung, die die
   Anforderung erfüllt, ist hier die richtige.

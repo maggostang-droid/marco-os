@@ -26,10 +26,9 @@ reaching his résumé/CV.
 
 No classic card-grid fallback — the graph/OS scene *is* the page, not a
 skin on a conventional layout. Differentiates from a typical static
-portfolio (including sibling repo `stangfolio`, a plain card grid) through
-this interactive scene, and through project write-ups that include honest
-technical depth and limitations (e.g. eval failure patterns, a debugging
-war story) rather than polished-only claims.
+portfolio through this interactive scene, and through project write-ups
+that include honest technical depth and limitations (e.g. eval failure
+patterns, a debugging war story) rather than polished-only claims.
 
 ## Operating Context
 
@@ -48,11 +47,8 @@ fall asleep after inactivity — a scheduled workflow keeps them warm on
 weekdays but cannot wake an app that already sleeps, so a first visit
 outside that window can still cost a cold start.
 
-Two sibling portfolio concepts exist and are being explored independently,
-uncoordinated: `stangfolio` (the original static card-grid portfolio, kept
-unchanged as legacy/backup) and `stangverse` (an isometric walkable Phaser
-world). No decision has been made on which, if any, becomes the permanent
-portfolio.
+This is the portfolio. Two alternative concepts were explored earlier and
+dropped on 2026-08-03; they are no longer maintained or referenced.
 
 ## Capabilities and Constraints
 

@@ -7,10 +7,6 @@ Marco im Zentrum, jedes Projekt ein Planet auf seinem Cluster-Orbit. Ein Klick
 
 **Live: https://maggostang-droid.github.io/marco-os/**
 
-Alternative Darstellung zu
-[stangfolio](https://github.com/maggostang-droid/stangfolio), das unverändert
-bestehen bleibt.
-
 ## Zwei Frontends im selben Repo
 
 Seit dem 03.08.2026 ist die Startseite das **v3-Redesign**. Die vorherige
