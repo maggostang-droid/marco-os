@@ -43,9 +43,13 @@ node opens a résumé window built from `data/resume.js`.
 Since 2026-08-03 the served page is an externally authored redesign ("v3",
 `index.html`); the previous front end remains at `index-legacy.html`. Both
 read the same content from `data/`. The live demos run on free tiers and
-fall asleep after inactivity — a scheduled workflow keeps them warm on
-weekdays but cannot wake an app that already sleeps, so a first visit
-outside that window can still cost a cold start.
+fall asleep after inactivity. Keeping them warm is an external monitor's job
+since 2026-08-04: the in-repo scheduled workflow only ran ~5 of its ~39
+planned times per day, because GitHub drops free-tier scheduled runs under
+load. That workflow now checks the demos daily between 07:00 and 22:00 and
+fails when one is asleep. Nothing automated can wake a sleeping app — the
+resume endpoint needs a signed-in browser session — so a first visit can
+still cost a cold start.
 
 This is the portfolio. Two alternative concepts were explored earlier and
 dropped on 2026-08-03; they are no longer maintained or referenced.
