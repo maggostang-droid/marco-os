@@ -34,7 +34,7 @@ export const projects = [
       { value: "0/5", label: "Window Fns" }
     ],
     demoUrl: "https://sql-copilot-portfolio.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/sql-copilot",
+    repoUrl: "https://github.com/marco-stang/sql-copilot",
     status: "live",
     cluster: "agentic-ai"
   },
@@ -63,7 +63,7 @@ export const projects = [
       { value: "11/14", label: "Mutanten getötet" }
     ],
     demoUrl: "https://ai-act-validation-toolkit.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/ai-risk-classifier",
+    repoUrl: "https://github.com/marco-stang/ai-risk-classifier",
     status: "live",
     cluster: "agentic-ai"
   },
@@ -94,7 +94,7 @@ export const projects = [
       { value: "0,38", label: "Exact Match (RAG: 0,07)" }
     ],
     demoUrl: "https://medical-coding-extractor.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/medical-coding-extractor",
+    repoUrl: "https://github.com/marco-stang/medical-coding-extractor",
     status: "live",
     cluster: "agentic-ai"
   },
@@ -113,7 +113,7 @@ export const projects = [
       "Desktop direkt danach fragen können.",
     tags: ["Python", "LangChain", "MCP", "Streamlit"],
     demoUrl: "https://second-brain-projects.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/ask-marco-assistant",
+    repoUrl: "https://github.com/marco-stang/ask-marco-assistant",
     status: "live",
     cluster: "agentic-ai",
     orbitsCenter: true
@@ -137,7 +137,7 @@ export const projects = [
       "Terraform-Code im Repo und ist gegen ein echtes AWS-Konto verifiziert.",
     tags: ["AWS Lambda", "Terraform", "DynamoDB", "Streamlit", "Claude API"],
     demoUrl: "https://cloud-native-pipeline.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/document-auto-classifier",
+    repoUrl: "https://github.com/marco-stang/document-auto-classifier",
     status: "live",
     cluster: "cloud"
   },
@@ -162,7 +162,7 @@ export const projects = [
     tags: ["React", "TypeScript", "FastAPI", "scikit-learn", "SHAP"],
     stats: [{ value: "0,706", label: "ROC-AUC (zeitl. Split)" }],
     demoUrl: "https://ai-analytics-portal-gray.vercel.app/",
-    repoUrl: "https://github.com/maggostang-droid/review-risk-predictor",
+    repoUrl: "https://github.com/marco-stang/review-risk-predictor",
     status: "live",
     cluster: "full-stack"
   },
@@ -184,8 +184,8 @@ export const projects = [
       "Bewerbungsprozesses, diese Version ist bereinigt und enthält ausschließlich " +
       "synthetische Beispieldaten.",
     tags: ["JavaScript", "HTML/CSS", "Chart.js", "Claude API"],
-    demoUrl: "https://maggostang-droid.github.io/interview-cockpit/",
-    repoUrl: "https://github.com/maggostang-droid/interview-cockpit",
+    demoUrl: "https://marco-stang.github.io/interview-cockpit/",
+    repoUrl: "https://github.com/marco-stang/interview-cockpit",
     status: "live",
     cluster: "full-stack"
   },
@@ -206,7 +206,7 @@ export const projects = [
       "KI-Campus.",
     tags: ["Python", "Jupyter", "Machine Learning", "Deep Learning"],
     demoUrl: null,
-    repoUrl: "https://github.com/maggostang-droid/applied-ml-course",
+    repoUrl: "https://github.com/marco-stang/applied-ml-course",
     status: "no-demo",
     cluster: "full-stack"
   }

@@ -5,7 +5,7 @@ Ein KI-Portfolio als fiktives Betriebssystem: die Seite präsentiert sich als
 Marco im Zentrum, jedes Projekt ein Planet auf seinem Cluster-Orbit. Ein Klick
 öffnet ein Terminal-Fenster mit Projektdetails und der Live-Demo.
 
-**Live: https://maggostang-droid.github.io/marco-os/**
+**Live: https://marco-stang.github.io/**
 
 ## Zwei Frontends im selben Repo
 
@@ -15,7 +15,7 @@ Fassung liegt unverändert daneben:
 | | Datei | erreichbar unter |
 | --- | --- | --- |
 | **v3** (live) | `index.html` | `/` |
-| Vorgänger | `index-legacy.html` | [`/index-legacy.html`](https://maggostang-droid.github.io/marco-os/index-legacy.html) |
+| Vorgänger | `index-legacy.html` | [`/index-legacy.html`](https://marco-stang.github.io/index-legacy.html) |
 
 v3 kam als fertiges Paket von außen und rendert über `assets/js/dc-support.js`
 — eine generierte Mini-React-Laufzeit, die als "do not edit" markiert ist. Die

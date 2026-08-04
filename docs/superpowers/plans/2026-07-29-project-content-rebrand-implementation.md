@@ -78,7 +78,7 @@ export const projects = [
       "(Grundlagen 5/5, Joins & Aggregation 3/5, Window Functions 0/5).",
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
     demoUrl: null,
-    repoUrl: "https://github.com/maggostang-droid/sql-copilot",
+    repoUrl: "https://github.com/marco-stang/sql-copilot",
     status: "coming-soon",
     cluster: "agentic-ai"
   },
@@ -102,7 +102,7 @@ export const projects = [
       "Download.",
     tags: ["Python", "LangChain", "Streamlit", "pytest"],
     demoUrl: "https://ai-act-validation-toolkit.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/ai-risk-classifier",
+    repoUrl: "https://github.com/marco-stang/ai-risk-classifier",
     status: "live",
     cluster: "agentic-ai"
   },
@@ -142,7 +142,7 @@ export const projects = [
       "Original wird vom KI-Campus gehostet und versioniert.",
     tags: ["Python", "Jupyter", "Machine Learning", "Deep Learning"],
     demoUrl: null,
-    repoUrl: "https://github.com/maggostang-droid/applied-ml-course",
+    repoUrl: "https://github.com/marco-stang/applied-ml-course",
     status: "coming-soon",
     cluster: "full-stack"
   },
@@ -163,7 +163,7 @@ export const projects = [
       "ein echtes AWS-Konto verifiziert.",
     tags: ["AWS Lambda", "Terraform", "DynamoDB", "Streamlit", "Claude API"],
     demoUrl: "https://cloud-native-pipeline.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/document-auto-classifier",
+    repoUrl: "https://github.com/marco-stang/document-auto-classifier",
     status: "live",
     cluster: "cloud"
   },
@@ -188,7 +188,7 @@ export const projects = [
       "Praxisfällen im großen Stil.",
     tags: ["PyTorch", "LoRA", "RAG", "Llama 3.2", "Python"],
     demoUrl: null,
-    repoUrl: "https://github.com/maggostang-droid/medical-coding-extractor",
+    repoUrl: "https://github.com/marco-stang/medical-coding-extractor",
     status: "coming-soon",
     cluster: "agentic-ai"
   },
@@ -207,7 +207,7 @@ export const projects = [
       "kann. Live und erreichbar über den Marco-Zentrum-Knoten in der Graph-Ansicht.",
     tags: ["Python", "LangChain", "MCP", "Streamlit"],
     demoUrl: "https://second-brain-projects.streamlit.app/",
-    repoUrl: "https://github.com/maggostang-droid/ask-marco-assistant",
+    repoUrl: "https://github.com/marco-stang/ask-marco-assistant",
     status: "live",
     cluster: "agentic-ai"
   },
@@ -230,8 +230,8 @@ export const projects = [
       "selbst verfasster generischer Fragenpool) — keine echten Kandidatendaten, " +
       "Stellenausschreibungen oder Drittanbieter-Kompetenzmodelle.",
     tags: ["JavaScript", "HTML/CSS", "Chart.js", "Claude API"],
-    demoUrl: "https://maggostang-droid.github.io/interview-cockpit/",
-    repoUrl: "https://github.com/maggostang-droid/interview-cockpit",
+    demoUrl: "https://marco-stang.github.io/interview-cockpit/",
+    repoUrl: "https://github.com/marco-stang/interview-cockpit",
     status: "live",
     cluster: "full-stack"
   }

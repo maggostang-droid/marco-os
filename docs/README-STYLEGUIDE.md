@@ -1,6 +1,6 @@
 # README-Styleguide, MARCO.OS-Portfolio
 
-Verbindlicher Aufbau für alle Projekt-READMEs von `maggostang-droid`. Ziel: Ein Hiring
+Verbindlicher Aufbau für alle Projekt-READMEs von `marco-stang`. Ziel: Ein Hiring
 Manager beantwortet in unter 60 Sekunden vier Fragen (Was ist das? Kann ich es laufen
 sehen? Kann der was? Ist das fertig gedacht?) und erkennt beim zweiten Repo sofort die
 gleiche Handschrift.
@@ -144,7 +144,7 @@ wird beim Kopieren mitgenommen und bricht den Befehl.
 marco@portfolio:~$ open marco-os --project <PROJEKT_ID>
 ```
 
-**[▸ Dieses Projekt in MARCO.OS öffnen](https://maggostang-droid.github.io/marco-os/#<PROJEKT_ID>)**,
+**[▸ Dieses Projekt in MARCO.OS öffnen](https://marco-stang.github.io/#<PROJEKT_ID>)**,
 dem interaktiven Portfolio von Marco Stang.
 
 **Schwesterprojekte:** <drei thematisch nächste Projekte mit Klammer-Einordnung, · getrennt>
@@ -190,7 +190,7 @@ werden aktiv benannt, nicht relativiert. Und keine langen Gedankenstriche, siehe
 Gehört zum Stil, weil es in der GitHub-Suche und auf dem Profil erscheint:
 
 - **About-Beschreibung:** der Claim aus Abschnitt 1, gekürzt auf etwa 120 Zeichen.
-- **Website:** der Deep-Link `https://maggostang-droid.github.io/marco-os/#<PROJEKT_ID>`.
+- **Website:** der Deep-Link `https://marco-stang.github.io/#<PROJEKT_ID>`.
 - **Topics:** Cluster und Kerntechnologien, kleingeschrieben, zum Beispiel `langgraph`,
   `llm-agents`, `text-to-sql`, `portfolio`.
 - **LICENSE:** MIT in jedem eigenen Repo. Forks behalten die Lizenz des Originals.

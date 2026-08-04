@@ -74,20 +74,20 @@ In `data/projects.js`, add a `cluster` property to each project object, right af
 
 ```js
 // sql-agent — find:
-    repoUrl: "https://github.com/maggostang-droid/sql-agent",
+    repoUrl: "https://github.com/marco-stang/sql-agent",
     status: "coming-soon"
 // replace with:
-    repoUrl: "https://github.com/maggostang-droid/sql-agent",
+    repoUrl: "https://github.com/marco-stang/sql-agent",
     status: "coming-soon",
     cluster: "agentic-ai"
 ```
 
 ```js
 // ai-act-validation-toolkit — find:
-    repoUrl: "https://github.com/maggostang-droid/ai-act-validation-toolkit",
+    repoUrl: "https://github.com/marco-stang/ai-act-validation-toolkit",
     status: "live"
 // replace with:
-    repoUrl: "https://github.com/maggostang-droid/ai-act-validation-toolkit",
+    repoUrl: "https://github.com/marco-stang/ai-act-validation-toolkit",
     status: "live",
     cluster: "agentic-ai"
 ```
@@ -104,30 +104,30 @@ In `data/projects.js`, add a `cluster` property to each project object, right af
 
 ```js
 // amalea — find:
-    repoUrl: "https://github.com/maggostang-droid/AMALEA",
+    repoUrl: "https://github.com/marco-stang/AMALEA",
     status: "coming-soon"
 // replace with:
-    repoUrl: "https://github.com/maggostang-droid/AMALEA",
+    repoUrl: "https://github.com/marco-stang/AMALEA",
     status: "coming-soon",
     cluster: "full-stack"
 ```
 
 ```js
 // cloud-native-pipeline — find:
-    repoUrl: "https://github.com/maggostang-droid/cloud-native-pipeline",
+    repoUrl: "https://github.com/marco-stang/cloud-native-pipeline",
     status: "live"
 // replace with:
-    repoUrl: "https://github.com/maggostang-droid/cloud-native-pipeline",
+    repoUrl: "https://github.com/marco-stang/cloud-native-pipeline",
     status: "live",
     cluster: "cloud"
 ```
 
 ```js
 // goz-finetune-vs-rag — find:
-    repoUrl: "https://github.com/maggostang-droid/goz-finetune-vs-rag",
+    repoUrl: "https://github.com/marco-stang/goz-finetune-vs-rag",
     status: "coming-soon"
 // replace with:
-    repoUrl: "https://github.com/maggostang-droid/goz-finetune-vs-rag",
+    repoUrl: "https://github.com/marco-stang/goz-finetune-vs-rag",
     status: "coming-soon",
     cluster: "agentic-ai"
 ```

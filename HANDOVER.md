@@ -120,9 +120,9 @@ Reboot empfehlen, sondern abwarten.
 
 ## Links
 
-- Live: https://maggostang-droid.github.io/marco-os/
-- Legacy: https://maggostang-droid.github.io/marco-os/index-legacy.html
-- Repo: https://github.com/maggostang-droid/marco-os
+- Live: https://marco-stang.github.io/
+- Legacy: https://marco-stang.github.io/index-legacy.html
+- Repo: https://github.com/marco-stang/marco-stang.github.io
 - Chat-App (eigenes Repo): [`../ask-marco-assistant/HANDOVER.md`](../ask-marco-assistant/HANDOVER.md)
 - Portfolio-Backlog: [`../PORTFOLIO_BACKLOG.md`](../PORTFOLIO_BACKLOG.md)
 - Ablauf-Anleitung für Agenten-Sessions: [`../PORTFOLIO_AGENT_GUIDE.md`](../PORTFOLIO_AGENT_GUIDE.md)

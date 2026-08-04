@@ -100,7 +100,7 @@ export const projects = [
       "Selbstkorrektur-Loop bei fehlerhaften Queries.",
     tags: ["LangGraph", "LangChain", "Python", "PostgreSQL", "Streamlit"],
     demoUrl: null,
-    repoUrl: "https://github.com/maggostang-droid/sql-agent",
+    repoUrl: "https://github.com/marco-stang/sql-agent",
     status: "coming-soon"
   },
   {

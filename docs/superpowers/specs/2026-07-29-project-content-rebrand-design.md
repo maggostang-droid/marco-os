@@ -144,7 +144,7 @@ Alle 8 Repos wurden per `gh repo rename` bereits umbenannt (gh CLI war unter
 | `cloud-native-pipeline` | `document-auto-classifier` | ✓ umbenannt; Streamlit-Demo (`cloud-native-pipeline.streamlit.app`) läuft unverändert weiter |
 | `goz-finetune-vs-rag` | `medical-coding-extractor` | ✓ umbenannt, kein Live-Demo betroffen |
 | `second-brain` | `ask-marco-assistant` | ✓ umbenannt; Streamlit-Demo (`second-brain-projects.streamlit.app`) läuft unverändert weiter |
-| `hr-interview-cockpit` | `interview-cockpit` | ✓ umbenannt — **Risiko bestätigt**: die alte GitHub-Pages-URL (`maggostang-droid.github.io/hr-interview-cockpit/`) liefert jetzt 404, die neue (`.../interview-cockpit/`) liefert 200. Der Repo-Rename-Redirect greift bei GitHub Pages also *nicht*. `demoUrl` in `data/projects.js` **muss** auf die neue Pages-URL aktualisiert werden. |
+| `hr-interview-cockpit` | `interview-cockpit` | ✓ umbenannt — **Risiko bestätigt**: die alte GitHub-Pages-URL (`marco-stang.github.io/hr-interview-cockpit/`) liefert jetzt 404, die neue (`.../interview-cockpit/`) liefert 200. Der Repo-Rename-Redirect greift bei GitHub Pages also *nicht*. `demoUrl` in `data/projects.js` **muss** auf die neue Pages-URL aktualisiert werden. |
 
 Damit ist `repoUrl` (und für `hr-interview-cockpit`/`interview-cockpit` auch
 `demoUrl`) in `data/projects.js` jetzt gefahrlos auf die neuen Slugs
